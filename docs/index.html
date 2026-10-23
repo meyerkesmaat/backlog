@@ -1,0 +1,1471 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111014">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Backlog">
+<title>Backlog</title>
+<style>
+:root{
+  --bg:#111014; --surface:#1a191e; --surface-2:#24232a; --border:#323139;
+  --text:#f2f1f5; --text-2:#c6c4cf; --muted:#8e8c98;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181;
+  --good:#0ca30c; --warn:#fab219; --bad:#d03b3b;
+  --accent:#e5383b; --on-accent:#fff;
+  --seq-1:#184f95; --seq-2:#2a78d6; --seq-3:#5598e7; --seq-4:#9ec5f4;
+  --gold:#f5c542; --radius:16px; color-scheme:dark;
+  --ink:#09090b; --edge:#f2f1f5; --hard:color-mix(in srgb,var(--accent) 55%,#000);
+}
+:root[data-theme="light"]{
+  --bg:#f5f3f7; --surface:#ffffff; --surface-2:#f0eef3; --border:#e3e0e8;
+  --text:#121114; --text-2:#4f4c57; --muted:#7c7986;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4;
+  --seq-1:#104281; --seq-2:#256abf; --seq-3:#5598e7; --seq-4:#86b6ef;
+  --gold:#d9a400; --edge:#09090b; color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font:14px/1.45 "Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3,.logo,.kpi .value{font-family:"Segoe UI Variable Display","Segoe UI",system-ui,sans-serif}
+header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:20px;padding:12px 28px;background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;color:var(--text);text-decoration:none;padding:4px 6px;margin-left:-6px;border-radius:8px}
+.wordmark{font:800 25px/1 "Segoe UI Variable Display","SF Pro Display",-apple-system,system-ui,sans-serif;letter-spacing:-1.2px;display:inline-flex;align-items:baseline}
+.wordmark i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:2px;transition:transform .15s}
+.logo:hover .wordmark i{transform:scale(1.4)}
+.logo:focus-visible{outline:2px solid var(--accent)}
+nav{display:flex;gap:4px}
+nav a{padding:7px 14px;border-radius:999px;color:var(--text-2);text-decoration:none;font-weight:600}
+nav a:hover{background:var(--surface-2)}
+nav a.active{background:var(--accent);color:var(--on-accent)}
+.spacer{flex:1}
+.btn{border:1px solid var(--border);background:var(--surface);padding:7px 14px;border-radius:10px;cursor:pointer;font-weight:600;white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);box-shadow:0 3px 0 var(--hard);transform:translateY(-1px)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.primary:active{box-shadow:0 1px 0 var(--hard);transform:translateY(1px)}
+.btn.small{padding:4px 10px;font-size:12.5px;border-radius:8px}
+.btn.danger{color:var(--bad)}
+details.menu{position:relative}
+details.menu summary{list-style:none}
+details.menu summary::-webkit-details-marker{display:none}
+.menu-pop{position:absolute;right:0;top:42px;width:280px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:6px;box-shadow:0 12px 40px rgba(0,0,0,.35);z-index:20}
+.menu-pop button{display:block;width:100%;text-align:left;border:0;background:none;padding:8px 10px;border-radius:8px;cursor:pointer}
+.menu-pop button:hover{background:var(--surface-2)}
+.menu-pop p{margin:6px 10px 8px;color:var(--muted);font-size:12px}
+.menu-pop .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700;margin:8px 10px 6px}
+.swatches{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:0 6px 6px}
+.swatches button{display:flex;align-items:center;gap:7px;padding:6px 8px;font-size:12.5px;border:1px solid transparent}
+.swatches button.on{border-color:var(--text)}
+.swatches i{width:14px;height:14px;border-radius:50%;flex:none}
+main{max-width:1320px;margin:0 auto;padding:24px 28px 60px}
+h1{font-size:28px;margin:0 0 2px;letter-spacing:-.6px}
+h2{font-size:15.5px;margin:0 0 2px;letter-spacing:-.2px}
+.sub{color:var(--muted);margin:0}
+.page-head{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--border);background:var(--surface);padding:5px 13px;border-radius:999px;cursor:pointer;color:var(--text-2);font-weight:600}
+.chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;min-width:0}
+.card .card-sub{color:var(--muted);font-size:12.5px;margin:0 0 14px}
+.span-4{grid-column:span 4}.span-5{grid-column:span 5}.span-6{grid-column:span 6}.span-7{grid-column:span 7}.span-8{grid-column:span 8}.span-12{grid-column:span 12}
+@media (max-width:1000px){.span-4,.span-5,.span-6,.span-7,.span-8{grid-column:span 12}}
+/* hero */
+/* hero: flat accent panel, halftone dots, hard "sticker" shadow */
+.hero{grid-column:span 12;position:relative;border-radius:18px;padding:28px 32px;min-height:200px;display:flex;align-items:center;gap:24px;
+  background-color:var(--accent);color:var(--on-accent);
+  background-image:radial-gradient(color-mix(in srgb,var(--on-accent) 16%,transparent) 1.3px,transparent 1.7px);background-size:14px 14px;
+  border:2px solid var(--edge);box-shadow:6px 6px 0 var(--edge);margin:0 6px 6px 0}
+.hero .eyebrow{display:inline-block;font:700 11px/1 ui-monospace,"Cascadia Mono",Consolas,monospace;letter-spacing:1.5px;text-transform:uppercase;background:var(--ink);color:#fff;padding:6px 9px;border-radius:5px}
+.hero h1{color:inherit;font-size:38px;line-height:1.08;letter-spacing:-1.2px;margin:14px 0 6px;max-width:620px}
+.hero h1 .n{display:inline-block;background:var(--on-accent);color:var(--accent);padding:0 8px;border-radius:6px;margin:2px 0}
+.hero .sub{color:inherit;opacity:.85;font-size:14.5px}
+.hero .chips{margin-top:16px}
+.hero .chip{background:transparent;border:2px solid currentColor;color:inherit}
+.hero .chip:hover{background:color-mix(in srgb,var(--on-accent) 14%,transparent)}
+.hero .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.fan{position:relative;flex:none;width:370px;height:170px;margin-left:auto}
+.fan .cover{position:absolute;bottom:0;width:96px;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);transition:transform .15s;cursor:pointer}
+.fan .cover:hover{transform:translateY(-10px) rotate(0deg)!important;z-index:9!important}
+@media (max-width:900px){.fan{display:none}}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;grid-column:span 12}
+@media (max-width:1000px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi .label{color:var(--muted);font:700 11px/1.2 ui-monospace,"Cascadia Mono",Consolas,monospace;letter-spacing:1px;text-transform:uppercase}
+.kpi .value{font-size:34px;font-weight:800;letter-spacing:-1px;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .value small{font-size:15px;color:var(--muted);font-weight:500;letter-spacing:0}
+.kpi .foot{color:var(--muted);font-size:12px;margin-top:2px}
+svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{fill:var(--muted);font-size:11px}
+svg .val{fill:var(--text-2);font-weight:600}
+svg .grid-l{stroke:var(--border);stroke-width:1}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text-2);margin:-4px 0 10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.legend i.ring{background:none!important;border:2px solid var(--muted);border-radius:50%}
+.hrow{display:grid;grid-template-columns:90px 1fr 34px;align-items:center;gap:10px;margin:7px 0;font-size:13px}
+.hrow .track{height:14px}
+.hrow .bar{height:100%;border-radius:0 4px 4px 0;min-width:2px}
+.hrow .n{text-align:right;color:var(--text-2);font-variant-numeric:tabular-nums;font-weight:600}
+.stack{display:flex;gap:2px;height:16px;margin:4px 0 12px}
+.stack div{height:100%}
+.stack div:first-child{border-radius:4px 0 0 4px}.stack div:last-child{border-radius:0 4px 4px 0}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--border)}
+.list li:first-child{border-top:0}
+.list .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;font-weight:600}
+.list .t:hover{text-decoration:underline}
+.list .m{color:var(--muted);font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* scores: tiered colors */
+.score{display:inline-grid;place-items:center;min-width:38px;height:24px;padding:0 6px;border-radius:7px;font-weight:800;font-size:12.5px;background:var(--surface-2);color:var(--text-2);font-variant-numeric:tabular-nums}
+.score.t10{background:linear-gradient(135deg,#ffe27a,#f5b301);color:#3a2a00;box-shadow:0 2px 10px rgba(245,179,1,.35)}
+.score.t9{background:color-mix(in srgb,#22c55e 22%,var(--surface));color:#22c55e}
+.score.t8{background:color-mix(in srgb,#3b82f6 22%,var(--surface));color:#60a5fa}
+.score.t7{background:color-mix(in srgb,#a78bfa 22%,var(--surface));color:#a78bfa}
+.score.t6{background:color-mix(in srgb,#f59e0b 20%,var(--surface));color:#f59e0b}
+.score.t0{background:color-mix(in srgb,#ef4444 20%,var(--surface));color:#ef4444}
+:root[data-theme="light"] .score.t9{color:#15803d}:root[data-theme="light"] .score.t8{color:#1d4ed8}:root[data-theme="light"] .score.t7{color:#6d28d9}:root[data-theme="light"] .score.t6{color:#b45309}:root[data-theme="light"] .score.t0{color:#b91c1c}
+/* status badges */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent)}
+.badge b{font-size:10px}
+.plat{display:inline-block;padding:1px 8px;border-radius:6px;font-size:11.5px;font-weight:700;color:#fff;background:var(--pc,#666)}
+/* covers */
+.cover{--h:220;position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;flex:none;display:grid;place-items:center;
+  background:linear-gradient(145deg,hsl(var(--h) 65% 48%),hsl(calc(var(--h) + 45) 70% 26%))}
+.cover .ini{font-weight:900;color:rgba(255,255,255,.92);font-size:22px;letter-spacing:-.5px;text-shadow:0 2px 8px rgba(0,0,0,.3)}
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cover.xs{width:30px;border-radius:6px}.cover.xs .ini{font-size:10px}
+.cover.sm{width:48px;border-radius:8px}.cover.sm .ini{font-size:14px}
+.cover.md{width:72px}.cover.md .ini{font-size:18px}
+.cover.lg{width:150px;border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.45)}.cover.lg .ini{font-size:34px}
+.cover.fill{width:100%}
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:14px}
+.tile{cursor:pointer;min-width:0}
+.tile .cover{transition:transform .15s, box-shadow .15s}
+.tile:hover .cover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(0,0,0,.35)}
+.tile .cover .score{position:absolute;right:6px;top:6px;z-index:1}
+.tile .cover .badge{position:absolute;left:6px;bottom:6px;z-index:1;background:color-mix(in srgb,var(--c) 85%,#000);color:#fff}
+.tile .tt{font-weight:650;font-size:13px;margin-top:7px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tile .tm{font-size:12px;color:var(--muted)}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fact{background:var(--surface-2);border-radius:12px;padding:10px 12px;cursor:pointer;display:flex;gap:10px;align-items:center;min-width:0}
+.fact > div{min-width:0}
+.fact .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+.fact .v{font-weight:700;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fact .d{font-size:12.5px;color:var(--text-2)}
+.now{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.now .g{background:var(--surface-2);border-radius:12px;padding:12px;display:flex;gap:12px;min-width:0}
+.now .g .body{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
+.now .g .title{font-weight:700;cursor:pointer}
+.now .g .meta{color:var(--muted);font-size:12px}
+.now .g .row{display:flex;gap:6px;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+.years{display:flex;gap:5px;flex-wrap:wrap}
+.years span{font-size:11.5px;padding:1px 7px;border-radius:6px;background:var(--surface);color:var(--text-2);font-variant-numeric:tabular-nums}
+.years span b{color:var(--text)}
+.empty{color:var(--muted);padding:12px 0}
+/* library */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.toolbar input,.toolbar select{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:7px 12px}
+.toolbar input[type=search]{min-width:260px}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:7px 12px;cursor:pointer;font-weight:600;color:var(--text-2)}
+.seg button.on{background:var(--text);color:var(--bg)}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px 14px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+th{font-size:12px;color:var(--muted);font-weight:700;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--surface)}
+th:hover{color:var(--text)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--surface-2)}
+td.title{font-weight:650;white-space:normal;min-width:240px}
+td.title > div{display:flex;align-items:center;gap:10px}
+td.note{color:var(--muted);max-width:320px;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}
+/* backlog */
+.bl-group{margin-bottom:26px}
+.bl-group h3{font-size:13px;color:var(--text-2);text-transform:uppercase;letter-spacing:.6px;margin:0 0 10px;display:flex;gap:8px;align-items:center}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+/* play order queue (drag to reorder) */
+.queue{display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
+.qrow{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px 12px 8px 6px;cursor:grab;user-select:none}
+.qrow:hover{border-color:color-mix(in srgb,var(--text) 25%,var(--border))}
+.qrow .grip{color:var(--muted);font-size:16px;letter-spacing:-3px;padding:0 4px;cursor:grab}
+.qrow .rank{font:800 15px/1 ui-monospace,"Cascadia Mono",Consolas,monospace;width:34px;text-align:center;color:var(--muted)}
+.qrow:nth-child(-n+3) .rank{color:var(--accent)}
+.qrow .info{flex:1;min-width:0}
+.qrow .title{font-weight:700;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qrow .meta{display:flex;gap:10px;color:var(--muted);font-size:12.5px;align-items:center;margin-top:2px}
+.qrow .row{display:flex;gap:6px}
+.dragging{opacity:.4;outline:2px dashed var(--accent);outline-offset:2px}
+[data-dnd] > [draggable]{cursor:grab}
+.rankpin{position:absolute;left:6px;top:6px;z-index:1;font:800 12px/1 ui-monospace,"Cascadia Mono",Consolas,monospace;background:var(--ink);color:#fff;padding:5px 7px;border-radius:6px}
+.cover img{pointer-events:none}
+.bl{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;display:flex;gap:12px}
+.bl .body{display:flex;flex-direction:column;gap:7px;flex:1;min-width:0}
+.bl .title{font-weight:700;cursor:pointer}
+.bl .meta{display:flex;gap:10px;color:var(--muted);font-size:12.5px;flex-wrap:wrap;align-items:center}
+.hype{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.hype div{height:100%;background:linear-gradient(90deg,#f59e0b,#ef4444);border-radius:3px}
+.bl .row{display:flex;gap:6px;margin-top:auto;flex-wrap:wrap}
+/* journal */
+.journal{columns:2 420px;column-gap:16px}
+.entry{break-inside:avoid;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.entry h3{margin:0 0 8px;font-size:15px;display:flex;gap:10px;align-items:center}
+.entry h3 .nm{flex:1}
+.entry p{margin:0;white-space:pre-wrap;color:var(--text-2)}
+.entry .acts{display:flex;gap:6px;margin-top:10px}
+/* dialogs */
+dialog{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:20px;padding:0;width:min(840px,94vw);max-height:92vh}
+dialog::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}
+.dlg-head{display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:2}
+.dlg-head h2{font-size:18px;flex:1}
+.dlg-body{padding:18px 22px}
+.dlg-foot{display:flex;gap:8px;justify-content:flex-end;padding:14px 22px;border-top:1px solid var(--border);position:sticky;bottom:0;background:var(--surface);z-index:2}
+.dlg-foot .left{margin-right:auto}
+.icon-btn{border:1px solid var(--border);background:var(--surface);width:34px;height:34px;border-radius:10px;cursor:pointer}
+.det-hero{position:relative;overflow:hidden;display:flex;gap:20px;align-items:flex-end;padding:22px;min-height:200px}
+.det-hero .bgimg{position:absolute;inset:-40px;background-size:cover;background-position:center;filter:blur(28px) saturate(1.4);opacity:.55}
+.det-hero .bgfade{position:absolute;inset:0;background:linear-gradient(180deg,transparent,var(--surface) 95%)}
+.det-hero > *:not(.bgimg):not(.bgfade):not(.x){position:relative}
+.det-hero h2{font-size:24px;letter-spacing:-.5px;margin:6px 0}
+.det-hero .x{position:absolute;right:16px;top:16px;z-index:3}
+.det-hero .tier{font-size:13px;color:var(--text-2);font-weight:600}
+.form{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 14px}
+.form .sec{grid-column:span 4;font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--accent);font-weight:800;margin-top:8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.form .hint{grid-column:span 4;font-size:12.5px;color:var(--text-2);background:color-mix(in srgb,#a855f7 14%,transparent);border-radius:10px;padding:8px 12px}
+.form label{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--text-2);font-weight:600}
+.form label.checkline{flex-direction:row;align-items:center;gap:9px;font-size:13.5px;color:var(--text);cursor:pointer}
+.form .checkline input{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.pbar{height:8px;border-radius:4px;background:var(--surface);overflow:hidden;margin-top:2px}
+.pbar i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.pbar.over i{background:repeating-linear-gradient(45deg,var(--accent) 0 6px,color-mix(in srgb,var(--accent) 60%,#000) 6px 12px)}
+.form .span-2{grid-column:span 2}.form .span-4{grid-column:span 4}
+@media (max-width:700px){.form{grid-template-columns:repeat(2,1fr)}.form .sec,.form .span-4,.form .hint{grid-column:span 2}}
+.form input,.form select,.form textarea{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:8px 10px;width:100%}
+.form textarea{resize:vertical;min-height:60px}
+.form input:focus,.form select:focus,.form textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+@media (max-width:700px){.detail-grid{grid-template-columns:repeat(2,1fr)}}
+.detail-grid div{background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.detail-grid .k{font-size:11.5px;color:var(--muted)}
+.detail-grid .v{font-weight:700;margin-top:2px}
+.quote{border-left:3px solid var(--accent);padding:4px 0 4px 14px;margin:0 0 14px;color:var(--text-2);white-space:pre-wrap}
+.label-s{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin:14px 0 6px}
+.pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;margin:12px 0}
+.pick-grid button{border:2px solid transparent;background:none;padding:0;cursor:pointer;border-radius:12px;text-align:left}
+.pick-grid button:hover{border-color:var(--accent)}
+.pick-grid small{display:block;font-size:11.5px;color:var(--muted);margin-top:4px;padding:0 2px}
+.row-flex{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row-flex input{flex:1;min-width:200px;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:8px 10px}
+#tip{position:fixed;pointer-events:none;z-index:100;background:var(--text);color:var(--bg);padding:7px 10px;border-radius:8px;font-size:12.5px;max-width:260px;opacity:0;transition:opacity .08s}
+#tip b{display:block}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:10px;opacity:0;transition:.2s;z-index:200;font-weight:600}
+#toast.show{opacity:1;transform:translateX(-50%)}
+/* shows */
+.poster{position:relative;flex:none;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:var(--surface-2);cursor:pointer}
+.poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.watch{display:flex;gap:18px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;min-width:0}
+.watch .poster{width:120px;align-self:flex-start}
+.watch .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.watch h3{margin:0;font-size:19px;letter-spacing:-.3px}
+.watch .tags{display:flex;gap:6px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:12.5px}
+.watch .now-ep{font-size:13.5px;color:var(--text-2)}
+.watch .now-ep b{color:var(--text);font-family:ui-monospace,"Cascadia Mono",Consolas,monospace}
+.seasonbar{display:flex;gap:3px;height:10px}
+.seasonbar div{flex:var(--n);background:var(--surface-2);border-radius:3px;overflow:hidden;position:relative}
+.seasonbar div i{position:absolute;inset:0 auto 0 0;background:var(--accent);width:var(--p)}
+.stats4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.stats4 div{background:var(--surface-2);border-radius:10px;padding:8px 10px;min-width:0}
+.stats4 .k{font:700 10.5px/1.2 ui-monospace,"Cascadia Mono",Consolas,monospace;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.stats4 .v{font-weight:800;font-size:16px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:700px){.stats4{grid-template-columns:repeat(2,minmax(0,1fr))}.watch .poster{width:84px}}
+.watch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(520px,1fr));gap:16px;margin-bottom:24px}
+@media (max-width:700px){.watch-grid{grid-template-columns:1fr}}
+.logtable{width:100%;border-collapse:collapse;margin-top:6px}
+.logtable td,.logtable th{padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+.logtable input{width:110px}
+.ni{display:none}
+/* ---------- iPhone / small screens ---------- */
+@media (max-width:700px){
+  header{padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top));gap:8px;backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)}   /* a blurred header would trap the fixed tab bar inside it */
+  .wordmark{font-size:22px}
+  .hide-sm{display:none}
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:30;justify-content:space-around;gap:0;background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  nav a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;padding:4px 2px;border-radius:10px;flex:1}
+  nav a.active,nav a:hover{background:none;color:var(--accent)}
+  .ni{display:block;font-size:20px;line-height:1}
+  main{padding:16px 14px calc(92px + env(safe-area-inset-bottom))}
+  h1{font-size:24px}
+  .hero{padding:20px;min-height:0;border-radius:14px;box-shadow:4px 4px 0 var(--edge);margin:0 4px 4px 0}
+  .hero h1{font-size:26px;letter-spacing:-.8px}
+  .grid{gap:12px}
+  .card{padding:14px 15px}
+  .kpis{gap:10px}
+  .kpi .value{font-size:26px}
+  .shelf{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+  #view-library .shelf{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px 10px!important}
+  .toolbar input[type=search]{min-width:0;flex:1 1 100%}
+  .toolbar select{flex:1 1 40%}
+  .cards,.now,.facts{grid-template-columns:1fr}
+  .journal{columns:1}
+  .qrow{flex-wrap:wrap}
+  .qrow .row{width:100%;padding-left:46px;flex-wrap:wrap}
+  .watch{gap:12px;padding:12px}
+  .watch .poster{width:84px!important}
+  .watch h3{font-size:17px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .stats4 .v{font-size:14.5px}
+  .stats4 div{padding:7px 9px}
+  dialog{width:100vw;max-width:100vw;height:100%;max-height:100%;border-radius:0;margin:0;border:0}
+  .dlg-head{padding-top:max(14px,env(safe-area-inset-top))}
+  .dlg-body{padding:14px 16px}
+  .dlg-foot{padding:12px 16px calc(12px + env(safe-area-inset-bottom));flex-wrap:wrap}
+  .det-hero{padding:max(22px,env(safe-area-inset-top)) 16px 16px;gap:14px;min-height:0}
+  .det-hero .cover.lg,.det-hero .poster{width:88px!important}
+  .det-hero h2{font-size:20px}
+  .det-hero .x{top:max(14px,env(safe-area-inset-top))}
+  input,select,textarea{font-size:16px!important}   /* stops the iPhone zooming in when you tap a field */
+  .menu-pop{position:fixed;right:10px;top:calc(58px + env(safe-area-inset-top))}
+  #tip{display:none}
+  #toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" id="logo" href="#dashboard" aria-label="Backlog, go to dashboard" title="Back to dashboard"></a>
+  <nav>
+    <a href="#dashboard" data-view="dashboard"><span class="ni">⌂</span>Dashboard</a>
+    <a href="#library" data-view="library"><span class="ni">▦</span>Library</a>
+    <a href="#backlog" data-view="backlog"><span class="ni">☰</span>Backlog</a>
+    <a href="#journal" data-view="journal"><span class="ni">✎</span>Journal</a>
+    <a href="#shows" data-view="shows"><span class="ni">▶</span>Shows</a>
+  </nav>
+  <div class="spacer"></div>
+  <button class="btn primary" id="btnLog">+ Log<span class="hide-sm"> a game</span></button>
+  <details class="menu" id="dataMenu">
+    <summary class="btn">Data ▾</summary>
+    <div class="menu-pop">
+      <p id="saveNote">Everything is saved automatically in this browser.</p>
+      <p style="opacity:.7">Version 2026-10-23 10:06</p>
+      <button data-act="covers">🖼 Find missing covers</button>
+      <button data-act="export">⬇ Export backup (.json)</button>
+      <button data-act="import">⬆ Import backup (.json)</button>
+      <button data-act="csv">⬇ Export to Excel (.csv)</button>
+      <button data-act="reset" class="danger">↺ Reset to original spreadsheet</button>
+    </div>
+  </details>
+  <details class="menu" id="styleMenu">
+    <summary class="icon-btn" title="Colors & theme" style="display:grid;place-items:center">🎨</summary>
+    <div class="menu-pop">
+      <div class="lbl">Accent color</div>
+      <div class="swatches" id="swatches"></div>
+      <div class="lbl">Mode</div>
+      <div class="swatches"><button data-mode="dark">🌙 Dark</button><button data-mode="light">☀️ Light</button></div>
+    </div>
+  </details>
+  <input type="file" id="fileImport" accept=".json,application/json" class="hidden">
+  <input type="file" id="fileCover" accept="image/*" class="hidden">
+</header>
+
+<main>
+  <section id="view-dashboard"></section>
+  <section id="view-library" class="hidden"></section>
+  <section id="view-backlog" class="hidden"></section>
+  <section id="view-journal" class="hidden"></section>
+  <section id="view-shows" class="hidden"></section>
+</main>
+
+<dialog id="dlgForm">
+  <form id="gameForm" novalidate>
+    <div class="dlg-head"><h2 id="formTitle">Log a game</h2><button type="button" class="icon-btn" data-close>✕</button></div>
+    <div class="dlg-body"><div class="form" id="formFields"></div></div>
+    <div class="dlg-foot"><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary">Save</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgDetail">
+  <div class="det-hero" id="detHero"></div>
+  <div class="dlg-body" id="detBody"></div>
+  <div class="dlg-foot"><button class="btn danger left" id="detDelete">Delete</button><button class="btn" id="detReplay" title="Start a new playthrough of this game">↺ Play again</button><button class="btn" id="detCover">🖼 Change cover</button><button class="btn" data-close>Close</button><button class="btn primary" id="detEdit">Edit</button></div>
+</dialog>
+
+<dialog id="dlgCover">
+  <div class="dlg-head"><h2 id="coverTitle">Choose a cover</h2><button type="button" class="icon-btn" data-close>✕</button></div>
+  <div class="dlg-body">
+    <form class="row-flex" id="coverSearch"><input name="q" placeholder="Search Wikipedia for a game…"><button class="btn primary">Search</button></form>
+    <div class="pick-grid" id="coverResults"></div>
+    <div class="label-s">Or use your own image</div>
+    <form class="row-flex" id="coverUrl"><input name="url" placeholder="Paste an image link (https://…)"><button class="btn">Use link</button></form>
+    <div class="row-flex" style="margin-top:10px"><button class="btn" id="coverUpload">⬆ Upload an image</button><button class="btn danger" id="coverRemove">Remove cover</button></div>
+  </div>
+</dialog>
+
+<dialog id="dlgJournal">
+  <form id="journalForm" novalidate>
+    <div class="dlg-head"><h2>Journal entry</h2><button type="button" class="icon-btn" data-close>✕</button></div>
+    <div class="dlg-body form">
+      <label class="span-4">Game<input name="game" required list="dlGames"></label>
+      <label class="span-4">Thoughts<textarea name="text" rows="12"></textarea></label>
+    </div>
+    <div class="dlg-foot"><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary">Save</button></div>
+  </form>
+</dialog>
+<datalist id="dlGames"></datalist>
+
+<dialog id="dlgShowSearch">
+  <div class="dlg-head"><h2>Add a show</h2><button type="button" class="icon-btn" data-close>✕</button></div>
+  <div class="dlg-body">
+    <form class="row-flex" id="showSearch"><input name="q" placeholder="Search for a TV show or anime…"><button class="btn primary">Search</button></form>
+    <p class="sub" style="font-size:12px;margin-top:8px">Show info and episode lengths come from TVmaze.</p>
+    <div class="pick-grid" id="showResults"></div>
+  </div>
+</dialog>
+
+<dialog id="dlgShow">
+  <form id="showForm" novalidate>
+    <div class="det-hero" id="showHero"></div>
+    <div class="dlg-body">
+      <div class="form">
+        <div class="sec">Where are you?</div>
+        <label class="span-2" id="progSeasonWrap">Season<select name="season"></select></label>
+        <label class="span-2" id="progEpWrap">Last episode watched<input name="ep" type="number" min="0" step="1"></label>
+        <div class="hint" style="display:block" id="progHint"></div>
+        <div class="sec">Your take</div>
+        <label>Status<select name="status"></select></label>
+        <label>Rating (0–10)<input name="rating" type="number" min="0" max="10" step="0.1"></label>
+        <label>Watch-through<select name="rewatch"></select></label>
+        <label>Where you watch it<input name="where" list="dl-where" autocomplete="off"><datalist id="dl-where"><option value="Netflix"><option value="Crunchyroll"><option value="Disney+"><option value="Prime Video"><option value="HBO Max"><option value="Apple TV+"></datalist></label>
+        <label class="span-4">Notes<textarea name="notes" rows="3"></textarea></label>
+        <div class="sec">Watch history (per year)</div>
+        <div class="span-4"><p class="sub" style="font-size:12.5px;margin:0 0 4px">For each year: the episode you had reached by the end of that year. Hours per year are worked out from this.</p><p class="sub" id="pastRunsNote" style="font-size:12.5px;margin:0 0 4px"></p>
+          <table class="logtable"><thead><tr><th>Year</th><th>Up to episode #</th><th>Hours that year</th><th></th></tr></thead><tbody id="logRows"></tbody></table>
+          <button type="button" class="btn small" id="logAdd" style="margin-top:8px">+ Add year</button></div>
+      </div>
+    </div>
+    <div class="dlg-foot"><button type="button" class="btn danger left" id="showDelete">Delete</button><button type="button" class="btn" id="showRefresh">↻ Update episodes</button><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary">Save</button></div>
+  </form>
+</dialog>
+
+<div id="tip"></div>
+<div id="toast"></div>
+
+<script id="seed" type="application/json">{"version":1,"games":[{"id":"g1","title":"Hogwarts Legacy","year":2023,"platform":"","estHours":40,"released":"Yes","purchased":"Yes","excitement":9.5,"credits":"Yes","hours":55,"platinum":"No","duration":"4 weeks","rating":8.5,"reasonDropped":"","notes":"Harry Potter","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"","tooShort":"","focus":"Both","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/f/fb/Hogwarts_legacyboxart.png","hltbId":83145,"hltb":45.3},{"id":"g2","title":"Pokemon Legends: Arceus","year":2023,"platform":"","estHours":30,"released":"Yes","purchased":"Yes","excitement":10,"credits":"Yes","hours":30,"platinum":"N/A","duration":"few months","rating":9.5,"reasonDropped":"","notes":"Open world pokemon game. Did it in the winter time and it was super awesome to do and very cosy","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/9/9c/Pokemon_Legends_Arceus_cover.jpg","hltbId":89107,"hltb":45.3},{"id":"g3","title":"Pikmin 3","year":2023,"platform":"","estHours":10,"released":"Yes","purchased":"Yes","excitement":6,"credits":"Yes","hours":9,"platinum":"N/A","duration":"1 week","rating":8,"reasonDropped":"","notes":"Very fun and cute","blownAway":"No","stunner":"No","bummer":"","tooLong":"","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/5/53/Pikmin_3_box_artwork.png","hltbId":7044,"hltb":15.9},{"id":"g4","title":"Xenoblade Chronicles 3 + DLC","year":2023,"platform":"","estHours":70,"released":"Yes","purchased":"Yes","excitement":9,"credits":"Yes","hours":70,"platinum":"N/A","duration":"4 weeks","rating":9,"reasonDropped":"","notes":"Damn, what a finisher for the trilogy","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"","tooShort":"","focus":"Story","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/7/76/Xenoblade_3.png","hltbId":103825,"hltb":102.4},{"id":"g5","title":"Zelda: Tears of the Kingdom","year":2023,"platform":"","estHours":100,"released":"Yes","purchased":"Yes","excitement":10,"credits":"Yes","hours":80,"platinum":"N/A","duration":"6 weeks","rating":10,"reasonDropped":"","notes":"Man","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"","tooShort":"","focus":"Both","worthIt":"Hell yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/f/fb/The_Legend_of_Zelda_Tears_of_the_Kingdom_cover.jpg","hltbId":72589,"hltb":117.5},{"id":"g6","title":"Sekiro: Shadows Die Twice + Plat","year":2023,"platform":"","estHours":30,"released":"Yes","purchased":"Yes","excitement":8.5,"credits":"Yes","hours":46,"platinum":"Yes","duration":"6 weeks","rating":10,"reasonDropped":"","notes":"Man, might be the best souls game","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"","tooShort":"","focus":"Both","worthIt":"Hell yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/6/6e/Sekiro_art.jpg","hltbId":57415,"hltb":43},{"id":"g7","title":"Kirby and the Forgotten World","year":2023,"platform":"","estHours":10,"released":"Yes","purchased":"Yes","excitement":7,"credits":"Yes","hours":11,"platinum":"N/A","duration":"2 weeks","rating":8.5,"reasonDropped":"","notes":"Very fun platformer","blownAway":"No","stunner":"No","bummer":"","tooLong":"","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/e/e7/Kirby_and_The_Forgotten_Land_Icon.jpg","hltbId":98273,"hltb":15.4},{"id":"g8","title":"Metroid Prime Remastered","year":2023,"platform":"","estHours":10,"released":"Yes","purchased":"Yes","excitement":8.5,"credits":"Yes","hours":15,"platinum":"N/A","duration":"3 weeks","rating":9,"reasonDropped":"","notes":"First 3D metroid game, very cool but also very confusing a lot of the times. Followed a walkthrough occasionally","blownAway":"No","stunner":"Yes","bummer":"","tooLong":"","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/b/ba/MetroidPrimebox.jpg","hltbId":5953,"hltb":15.9},{"id":"g9","title":"Super Mario Bros. Wonder","year":2023,"platform":"","estHours":20,"released":"Yes","purchased":"Yes","excitement":10,"credits":"Yes","hours":17,"platinum":"N/A","duration":"2 weeks","rating":10,"reasonDropped":"","notes":"Best 2D mario platformer.","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"","tooShort":"","focus":"Gameplay","worthIt":"Hell yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/a/a3/Mariowonder.png","hltbId":130444,"hltb":13.7},{"id":"g10","title":"Pokemon Violet: The Indigo Disk","year":2024,"platform":"","estHours":15,"released":"Yes","purchased":"Yes","excitement":9,"credits":"Yes","hours":35,"platinum":"N/A","duration":"3 weeks","rating":8.5,"reasonDropped":"","notes":"It's Pokemon.","blownAway":"No","stunner":"No","bummer":"","tooLong":"","tooShort":"","focus":"Both","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/0/00/Pok%C3%A9mon_Scarlet_and_Violet_banner.png","hltbId":124705,"hltb":14.7},{"id":"g11","title":"Super Mario RPG","year":2024,"platform":"","estHours":12,"released":"Yes","purchased":"Yes","excitement":9,"credits":"Yes","hours":12,"platinum":"N/A","duration":"2 months","rating":8.5,"reasonDropped":"","notes":"Never played the original and it was really fun and short","blownAway":"No","stunner":"No","bummer":"","tooLong":"","tooShort":"Perfect","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/8/89/SuperMarioRPGSNESCoverArtUS.jpg","hltbId":130456,"hltb":14.3},{"id":"g12","title":"Persona 3: Reload","year":2024,"platform":"","estHours":70,"released":"Yes","purchased":"Yes","excitement":8,"credits":"Yes","hours":83,"platinum":"N/A","duration":"6 weeks","rating":9.7,"reasonDropped":"","notes":"Persona","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"","tooShort":"Perfect","focus":"Both","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/6/65/Persona_3_Reload_box_art.jpg","hltbId":129805,"hltb":85.8},{"id":"g13","title":"Resident Evil 2 Remake","year":2024,"platform":"","estHours":9,"released":"Yes","purchased":"No","excitement":8,"credits":"Yes","hours":10,"platinum":"N/A","duration":"1 week","rating":9.5,"reasonDropped":"","notes":"Felt like a metroidvania and it was really creepy, fucking mr x","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"","tooShort":"Felt longer","focus":"Both","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/f/fd/Resident_Evil_2_Remake.jpg","hltbId":57479,"hltb":15.5},{"id":"g14","title":"Final Fantasy VII: Rebirth","year":2024,"platform":"","estHours":40,"released":"Yes","purchased":"Yes","excitement":9,"credits":"Yes","hours":100,"platinum":"No","duration":"4 months","rating":10,"reasonDropped":"","notes":"Man.","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"Hmmm","tooShort":"","focus":"Both","worthIt":"Hell yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/7/75/Boxart_for_Final_Fantasy_VII_Rebirth.png","hltbId":109434,"hltb":91.4},{"id":"g15","title":"Elden Ring: Shadow of the Erdtee","year":2024,"platform":"","estHours":20,"released":"Yes","purchased":"Yes","excitement":10,"credits":"Yes","hours":36,"platinum":"Yes","duration":"1 month","rating":10,"reasonDropped":"","notes":"Elden Ring","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"No, perfect","tooShort":"","focus":"Both","worthIt":"Hell yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/d/de/Elden-Ring-Shadow-of-the-Erdtree-cover-art.jpg","hltbId":139385,"hltb":39.3},{"id":"g16","title":"ASTROBOT","year":2024,"platform":"","estHours":10,"released":"Yes","purchased":"Yes","excitement":10,"credits":"Yes","hours":16,"platinum":"Yes","duration":"1 month","rating":10,"reasonDropped":"","notes":"ONE OF THE BEST 3D PLATFORMERS EVER","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"","tooShort":"YES","focus":"Gameplay","worthIt":"Hell yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/a/a9/Astro_Bot_cover_art.jpg","hltbId":151301,"hltb":15.2},{"id":"g17","title":"Spongebob Squarepants: Battle For Bikinibottom: Rehydrated","year":2024,"platform":"","estHours":10,"released":"Yes","purchased":"Yes","excitement":7,"credits":"Yes","hours":12,"platinum":"Yes","duration":"1 week","rating":7,"reasonDropped":"","notes":"Fun platformer","blownAway":"No","stunner":"No","bummer":"","tooLong":"No, perfect","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/a/aa/SBBFBBRehydrated.jpeg","hltbId":67967,"hltb":11},{"id":"g18","title":"A Short Hike","year":2024,"platform":"","estHours":5,"released":"Yes","purchased":"Yes","excitement":8,"credits":"Yes","hours":4,"platinum":"Yes","duration":"1 week","rating":8,"reasonDropped":"","notes":"Fun indie game","blownAway":"No","stunner":"Yes","bummer":"","tooLong":"No, perfect","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/9/9d/A_Short_Hike.png","hltbId":66152,"hltb":2.2},{"id":"g19","title":"Lil Gator Game","year":2024,"platform":"","estHours":5,"released":"Yes","purchased":"Yes","excitement":7,"credits":"Yes","hours":5,"platinum":"Yes","duration":"1 week","rating":7,"reasonDropped":"","notes":"Fun indie game","blownAway":"No","stunner":"No","bummer":"","tooLong":"No, perfect","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/c/c0/Lil_Gator_Game_Cover_Art.jpg","hltbId":91184,"hltb":4.1},{"id":"g20","title":"TOEM","year":2024,"platform":"","estHours":7,"released":"Yes","purchased":"Yes","excitement":8,"credits":"Yes","hours":6,"platinum":"Yes","duration":"1 week","rating":7.5,"reasonDropped":"","notes":"Fun indie game","blownAway":"No","stunner":"No","bummer":"","tooLong":"No, perfect","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/5/58/Toem_game_cover_art.jpg","hltbId":86977,"hltb":4.5},{"id":"g21","title":"Spongebob Squarepants: Cosmic Shake","year":2024,"platform":"","estHours":14,"released":"Yes","purchased":"Yes","excitement":9,"credits":"Yes","hours":11,"platinum":"Yes","duration":"2 weeks","rating":8,"reasonDropped":"","notes":"Very fun, more fun than BFBB","blownAway":"No","stunner":"No","bummer":"","tooLong":"No, perfect","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/b/b4/SpongeBob_The_Cosmic_Shake_cover_art.png","hltbId":98115,"hltb":9.3},{"id":"g22","title":"Spyro Reignited 1","year":2024,"platform":"","estHours":9,"released":"Yes","purchased":"No","excitement":7,"credits":"Yes","hours":9,"platinum":"Yes","duration":"2 weeks","rating":6.5,"reasonDropped":"","notes":"Short and collectathon","blownAway":"No","stunner":"No","bummer":"Yes","tooLong":"No","tooShort":"No","focus":"Gameplay","worthIt":"Meh","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/5/54/Spyro_Reignited_Trilogy.png","hltbId":9006,"hltb":7.5},{"id":"g23","title":"Spyro Reignited 2","year":2024,"platform":"","estHours":8,"released":"Yes","purchased":"No","excitement":7,"credits":"Yes","hours":10,"platinum":"Yes","duration":"2 weeks","rating":6.5,"reasonDropped":"","notes":"Short and collectathon","blownAway":"No","stunner":"No","bummer":"Yes","tooLong":"No","tooShort":"No","focus":"Gameplay","worthIt":"Meh","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/5/54/Spyro_Reignited_Trilogy.png","hltbId":9004,"hltb":8.3},{"id":"g24","title":"Resident Evil 4","year":2024,"platform":"","estHours":20,"released":"Yes","purchased":"Yes","excitement":9.5,"credits":"Yes","hours":25,"platinum":"No","duration":"4 weeks","rating":9.5,"reasonDropped":"","notes":"Man. Such a cool game, love playing as Leon and the action was really fun even though I was hesitant at first because my aim is shit","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"No, perfect","tooShort":"Perfect","focus":"Both","worthIt":"","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/d/df/Resident_Evil_4_remake_cover_art.jpg","hltbId":108881,"hltb":21.8},{"id":"g25","title":"Resident Evil 4 Separate Ways","year":2024,"platform":"","estHours":6,"released":"Yes","purchased":"Yes","excitement":9.5,"credits":"Yes","hours":7,"platinum":"No","duration":"1 week","rating":9,"reasonDropped":"","notes":"Very nice add-on to the base game, the stories really do intertwine nicely","blownAway":"No","stunner":"Yes","bummer":"","tooLong":"No, perfect","tooShort":"Perfect","focus":"Both","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/d/df/Resident_Evil_4_remake_cover_art.jpg","hltbId":137868,"hltb":6.1},{"id":"g26","title":"The Legends of Zelda: Echoes of Wisdom","year":2025,"platform":"","estHours":25,"released":"Yes","purchased":"Yes","excitement":9,"credits":"Yes","hours":36,"platinum":"N/A","duration":"4 weeks","rating":9,"reasonDropped":"","notes":"One of the best 2D zelda games, damn.","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"No, perfect","tooShort":"Perfect","focus":"Gameplay","worthIt":"Hell yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/1/1e/The_Legend_of_Zelda_%E2%80%93_Echoes_of_Wisdom.jpg","hltbId":152370,"hltb":26.6},{"id":"g27","title":"Balatro","year":2025,"platform":"","estHours":30,"released":"Yes","purchased":"Yes","excitement":9.5,"credits":"Sort of","hours":17,"platinum":"No","duration":"2 months","rating":9,"reasonDropped":"","notes":"Still playing here and there","blownAway":"No","stunner":"Yes","bummer":"","tooLong":"","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/8/89/Balatro_cover.jpg","hltbId":132112,"hltb":46.4},{"id":"g28","title":"Paper Mario and the Thousand Year Door","year":2025,"platform":"","estHours":30,"released":"Yes","purchased":"Yes","excitement":8,"credits":"Yes","hours":41,"platinum":"N/A","duration":"3 months","rating":8.5,"reasonDropped":"","notes":"Very fun game","blownAway":"No","stunner":"No","bummer":"","tooLong":"No, perfect","tooShort":"","focus":"Both","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/1/18/Paper_Mario_The_Thousand-Year_Door_%28artwork%29.jpg","hltbId":6911,"hltb":38},{"id":"g29","title":"Outer Wilds","year":2025,"platform":"","estHours":17,"released":"Yes","purchased":"Yes","excitement":8.5,"credits":"Yes","hours":20,"platinum":"No","duration":"2 weeks","rating":10,"reasonDropped":"","notes":"Wow….","blownAway":"Hell yes","stunner":"Hell yes","bummer":"","tooLong":"No","tooShort":"","focus":"Both","worthIt":"Hell yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/f/f6/Outer_Wilds_Steam_artwork.jpg","hltbId":57527,"hltb":22.7},{"id":"g30","title":"Outer Wilds Echoes of the Eye","year":2025,"platform":"","estHours":10,"released":"Yes","purchased":"Yes","excitement":10,"credits":"Yes","hours":9,"platinum":"No","duration":"1 week","rating":9.7,"reasonDropped":"","notes":"Amazing expansion to the main story, really adds more world building and details to everything, going to miss this world","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"No, perfect","tooShort":"","focus":"Both","worthIt":"Hell yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/f/f6/Outer_Wilds_Steam_artwork.jpg","hltbId":96280,"hltb":13.3},{"id":"g31","title":"Slay the Spire","year":2025,"platform":"","estHours":12,"released":"Yes","purchased":"Yes","excitement":6,"credits":"Yes, kinda","hours":50,"platinum":"N/A","duration":"Ongoing","rating":8,"reasonDropped":"","notes":"Ongoing experience","blownAway":"Kinda","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/b/b7/Slay_the_spire_cover.jpg","hltbId":51390,"hltb":47.5},{"id":"g32","title":"Nintendo Welcome Tour","year":2025,"platform":"","estHours":6,"released":"Yes","purchased":"Yes","excitement":6,"credits":"Yes","hours":6,"platinum":"N/A","duration":"2 weeks","rating":7,"reasonDropped":"","notes":"Very fun demo's","blownAway":"No","stunner":"No","bummer":"No","tooLong":"A bit","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/9/91/Nintendo_Switch_2_Welcome_Tour.jpg","hltbId":166266,"hltb":8},{"id":"g33","title":"Wario Land 4","year":2025,"platform":"","estHours":7,"released":"Yes","purchased":"Yes","excitement":9.5,"credits":"Yes","hours":6,"platinum":"N/A","duration":"2 weeks","rating":9,"reasonDropped":"","notes":"Such a good platformer, graphics are some of the best pixel art graphics I've ever seen","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"","tooShort":"Yes","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/9/9a/Wario_Land_4_NA_Box_Art.png","hltbId":11064,"hltb":6.9},{"id":"g34","title":"Chibi Robo!","year":2025,"platform":"","estHours":12,"released":"Yes","purchased":"Yes","excitement":8,"credits":"Yes","hours":13,"platinum":"N/A","duration":"1 week","rating":7.5,"reasonDropped":"","notes":"Cute and funny chill game, but way too sluggish and slow for my taste","blownAway":"No","stunner":"No","bummer":"No","tooLong":"Fine","tooShort":"No","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/1/1f/Chibi-Robo_series_logo.png","hltbId":1668,"hltb":16},{"id":"g35","title":"Donkey Kong Bananza","year":2025,"platform":"","estHours":25,"released":"Yes","purchased":"Yes","excitement":9.5,"credits":"Yes","hours":45,"platinum":"N/A","duration":"3 months","rating":10,"reasonDropped":"","notes":"DAMN.","blownAway":"Hell yes","stunner":"Hell yes","bummer":"","tooLong":"PERFECT","tooShort":"","focus":"Gameplay","worthIt":"Hell yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/0/01/Donkey_Kong_Bananza_updated_box_art.png","hltbId":166252,"hltb":30.3},{"id":"g36","title":"The Legend of Zelda: The Wind Waker","year":2025,"platform":"","estHours":35,"released":"Yes","purchased":"Yes","excitement":9,"credits":"Yes","hours":36,"platinum":"N/A","duration":"3 months","rating":9,"reasonDropped":"","notes":"Awesome Zelda title, rough controls tho.","blownAway":"No","stunner":"Yes","bummer":"","tooLong":"Fine","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/7/79/The_Legend_of_Zelda_The_Wind_Waker.jpg","hltbId":10045,"hltb":35},{"id":"g37","title":"Hollow Knight: Silksong","year":2025,"platform":"","estHours":25,"released":"Yes","purchased":"Yes","excitement":10,"credits":"Yes","hours":60,"platinum":"N/A","duration":"1 month","rating":10,"reasonDropped":"","notes":"DAMN. The dark souls of 2D platformers with AMAZING bosses, this is an insanely good game","blownAway":"Hell yes","stunner":"Hell yes","bummer":"","tooLong":"NOPE","tooShort":"","focus":"Both","worthIt":"Hell yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/0/05/Silksong.jpg","hltbId":65945,"hltb":47.3},{"id":"g38","title":"Super Mario Galaxy 2 Remastered","year":2025,"platform":"","estHours":20,"released":"Yes","purchased":"Yes","excitement":9,"credits":"Yes","hours":20,"platinum":"N/A","duration":"2 months","rating":10,"reasonDropped":"","notes":"It's mario galaxy bro","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"No","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/6/65/Super_Mario_Galaxy_2_Box_Art.jpg","hltbId":9378,"hltb":20.1},{"id":"g39","title":"Luigi's Mansion (GCN)","year":2025,"platform":"","estHours":5,"released":"Yes","purchased":"Yes","excitement":8,"credits":"Yes","hours":4,"platinum":"N/A","duration":"2 weeks","rating":8.5,"reasonDropped":"","notes":"Replay","blownAway":"No","stunner":"Yes","bummer":"","tooLong":"Perfect","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/5/5e/Lmbox.jpg","hltbId":5423,"hltb":7.5},{"id":"g40","title":"Super Mario Party Jamboree","year":2025,"platform":"","estHours":15,"released":"Yes","purchased":"Yes","excitement":8,"credits":"No","hours":23,"platinum":"N/A","duration":"6 months","rating":8,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Played","cover":"https://upload.wikimedia.org/wikipedia/en/3/3a/Super_Mario_Party_Jamboree_cover_art.jpg","hltbId":152389,"hltb":19.4},{"id":"g41","title":"Mario Kart World","year":2025,"platform":"","estHours":40,"released":"Yes","purchased":"Yes","excitement":10,"credits":"Yes","hours":24,"platinum":"N/A","duration":"7 months","rating":9.5,"reasonDropped":"","notes":"MARIO KART!!!","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/6/65/Mario_Kart_World_Cover_Artwork.png","hltbId":162277,"hltb":16.6},{"id":"g42","title":"Pokemon Legends: Z-A + DLC","year":2025,"platform":"","estHours":25,"released":"Yes","purchased":"Yes","excitement":9.5,"credits":"Yes","hours":75,"platinum":"N/A","duration":"2 months","rating":9,"reasonDropped":"","notes":"Really fun new Pokemon game. Finished the dex right away and also finished the DLC very quickly. The battle system is awesome","blownAway":"No","stunner":"No","bummer":"","tooLong":"Perfect","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/2/2d/Pokemon_Legends_Z-A_Key_Art_Logo.png","hltbId":146234,"hltb":40.4},{"id":"g43","title":"Elden Ring Neightreign (almost)","year":2025,"platform":"","estHours":30,"released":"Yes","purchased":"Yes","excitement":8,"credits":"No","hours":23,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Paused","cover":"https://upload.wikimedia.org/wikipedia/en/f/f0/Elden_Ring_Nightreign_cover_art.png","hltbId":160589,"hltb":40.9},{"id":"g44","title":"Hyrule Warriors: Age of Imprisonment (first half)","year":2025,"platform":"","estHours":30,"released":"Yes","purchased":"Yes","excitement":7.5,"credits":"No","hours":13,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Paused","cover":"https://upload.wikimedia.org/wikipedia/en/8/82/HyruleWarriors-AgeOfImprisonment-KeyArt.png","hltbId":166254,"hltb":30.1},{"id":"g45","title":"Baldur's Gate 3 (start)","year":2025,"platform":"","estHours":100,"released":"Yes","purchased":"Yes","excitement":9.5,"credits":"No","hours":8,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Paused","cover":"https://upload.wikimedia.org/wikipedia/en/1/12/Baldur%27s_Gate_3_cover_art.jpg","hltbId":68033,"hltb":117.2},{"id":"g46","title":"Pokemon Mystery Dungeon Rescue Team DX (start)","year":2025,"platform":"","estHours":20,"released":"Yes","purchased":"Yes","excitement":6,"credits":"No","hours":2,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Paused","cover":"https://upload.wikimedia.org/wikipedia/en/9/9e/Pok%C3%A9mon_Mystery_Dungeon_Rescue_Team_DX.jpg","hltbId":74108,"hltb":32.7},{"id":"g47","title":"Stardew Valley 1.6 (replay)","year":2025,"platform":"","estHours":50,"released":"Yes","purchased":"Yes","excitement":9,"credits":"No","hours":10,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Paused","cover":"https://upload.wikimedia.org/wikipedia/en/f/fd/Logo_of_Stardew_Valley.png","hltbId":34716,"hltb":94.9},{"id":"g48","title":"Wario World","year":2026,"platform":"","estHours":6,"released":"Yes","purchased":"Yes","excitement":8,"credits":"Yes","hours":5,"platinum":"N/A","duration":"3 weeks","rating":6,"reasonDropped":"","notes":"Decent platformer","blownAway":"No","stunner":"No","bummer":"","tooLong":"Good","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/4/4c/Wario_World_game_cover.jpg","hltbId":11068,"hltb":6.8},{"id":"g49","title":"Hyrule Warriors: Age of Imprisonment","year":2026,"platform":"","estHours":30,"released":"Yes","purchased":"Yes","excitement":7.5,"credits":"Yes","hours":17,"platinum":"N/A","duration":"6 weeks","rating":8.5,"reasonDropped":"","notes":"Real fun warriors game, awesome characters and mechanics. Filled my Warriors appetite for a good while though.","blownAway":"Yes","stunner":"No","bummer":"","tooLong":"Perfect","tooShort":"No","focus":"Both","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/8/82/HyruleWarriors-AgeOfImprisonment-KeyArt.png","hltbId":166254,"hltb":30.1},{"id":"g50","title":"Metroid Prime 4: Beyond","year":2026,"platform":"","estHours":13,"released":"Yes","purchased":"Yes","excitement":9,"credits":"Yes","hours":22,"platinum":"N/A","duration":"3 weeks","rating":9,"reasonDropped":"","notes":"Awesome metroid prime game","blownAway":"No","stunner":"Yes","bummer":"No","tooLong":"Perfect","tooShort":"","focus":"Both","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/4/48/Metroid_Prime_4_Beyond_cover_art.png","hltbId":46437,"hltb":16.1},{"id":"g51","title":"Stellar Blade","year":2026,"platform":"","estHours":35,"released":"Yes","purchased":"Yes","excitement":9,"credits":"Yes","hours":23,"platinum":"N/A","duration":"4 weeks","rating":8,"reasonDropped":"","notes":"Very fun combat system, and you know the other reason why ;)","blownAway":"No","stunner":"Yes","bummer":"No","tooLong":"Fine","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/6/63/Stellar_Blade_Pre_Order_Box.png","hltbId":97758,"hltb":37.4},{"id":"g52","title":"Fire Emblem: Path of Radience","year":2026,"platform":"","estHours":45,"released":"Yes","purchased":"Yes","excitement":7.5,"credits":"Yes","hours":28,"platinum":"N/A","duration":"6 weeks","rating":8,"reasonDropped":"","notes":"Awesome fire emblem game","blownAway":"No","stunner":"No","bummer":"No","tooLong":"Fine","tooShort":"","focus":"Both","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/a/a5/Fire_Emblem_PoR_Boxart.JPG","hltbId":3559,"hltb":38.7},{"id":"g53","title":"Luigi's Mansion 2 HD","year":2026,"platform":"","estHours":15,"released":"Yes","purchased":"Yes","excitement":8.5,"credits":"Yes","hours":12,"platinum":"N/A","duration":"2 weeks","rating":8.5,"reasonDropped":"","notes":"Damn, better than I played it back in the day on my 3DS (didn't get far back then).","blownAway":"No","stunner":"Yes","bummer":"","tooLong":"Perfect","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/a/a4/Luigi%27s_Mansion_Dark_Moon_%28Boxart%29.png","hltbId":5424,"hltb":17.4},{"id":"g54","title":"Pokemon Pokopia","year":2026,"platform":"","estHours":25,"released":"Yes","purchased":"Yes","excitement":9.5,"credits":"Yes","hours":40,"platinum":"N/A","duration":"5 weeks","rating":9.5,"reasonDropped":"","notes":"Fucking awesome, can't wait to play it more with DLC","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"","tooShort":"Yes","focus":"Gameplay","worthIt":"Hell yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/6/6a/Pok%C3%A9mon_Pokopia_box_art.png","hltbId":174354,"hltb":53.9},{"id":"g55","title":"Pokemon Legends: Z-A (Shiny hunt)","year":2026,"platform":"","estHours":null,"released":"Yes","purchased":"Yes","excitement":9,"credits":"","hours":7,"platinum":"N/A","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Playing","cover":"https://upload.wikimedia.org/wikipedia/en/2/2d/Pokemon_Legends_Z-A_Key_Art_Logo.png","hltbId":146234,"hltb":40.4},{"id":"g56","title":"Dead Cells","year":2026,"platform":"","estHours":14,"released":"Yes","purchased":"Yes","excitement":7,"credits":"Yes","hours":15,"platinum":"N/A","duration":"3 weeks","rating":9,"reasonDropped":"","notes":"Awesome roguelike, didn't get true ending yet but I might pick it back up down the road","blownAway":"No","stunner":"Yes","bummer":"","tooLong":"Good","tooShort":"","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/1/1f/Dead_cells_cover_art.png","hltbId":45727,"hltb":32.3},{"id":"g57","title":"Pokemon XD: Gale of Darkness","year":2026,"platform":"","estHours":35,"released":"Yes","purchased":"Yes","excitement":8,"credits":"","hours":16,"platinum":"N/A","duration":"5 weeks","rating":4,"reasonDropped":"","notes":"Sunken cost fallacy, didn't really enjoy this game. Way too slow and repetetive","blownAway":"No","stunner":"No","bummer":"Yes","tooLong":"Yes","tooShort":"","focus":"","worthIt":"No","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/b/b7/Pok%C3%A9mon_XD-_Gale_of_Darkness_Coverart.png","hltbId":7181,"hltb":36.3},{"id":"g58","title":"Rayman 30th Anniversary Edition","year":2026,"platform":"","estHours":10,"released":"Yes","purchased":"Yes","excitement":9.5,"credits":"Yes","hours":6,"platinum":"N/A","duration":"4 months","rating":9,"reasonDropped":"","notes":"Awesome game from back in the day, still want to play the extra levels sometime in the future.","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/4/45/Rayman_1_cover.png","hltbId":7607,"hltb":12.1},{"id":"g59","title":"Splatoon Raiders","year":2026,"platform":"","estHours":14,"released":"Yes","purchased":"Yes","excitement":9,"credits":"","hours":20,"platinum":"N/A","duration":"1 month","rating":9.5,"reasonDropped":"","notes":"Super fun, did not expect it to be so addicting and chaotic.","blownAway":"Yes","stunner":"Yes","bummer":"","tooLong":"No","tooShort":"No","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/b/ba/SplatoonRaidersCoverArt.jpg","hltbId":169519,"hltb":20.9},{"id":"g60","title":"OlliOlli World","year":2026,"platform":"","estHours":5,"released":"Yes","purchased":"Yes","excitement":7.5,"credits":"","hours":7,"platinum":"N/A","duration":"1 week","rating":8,"reasonDropped":"","notes":"Awesome mechanics, really deep but ultimately too hard for me","blownAway":"No","stunner":"No","bummer":"","tooLong":"No","tooShort":"No","focus":"Gameplay","worthIt":"Yes","status":"Completed","cover":"https://upload.wikimedia.org/wikipedia/en/4/49/Olli_Olli_World_Cover_Art.jpg","hltbId":91070,"hltb":12},{"id":"g61","title":"Metaphor: ReFantazio","year":2026,"platform":"","estHours":90,"released":"Yes","purchased":"No","excitement":9.5,"credits":"","hours":4,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Playing","cover":"https://upload.wikimedia.org/wikipedia/en/4/4d/Metaphor_Refantazio_Cover_Art.png","hltbId":129956,"hltb":88.4},{"id":"g62","title":"Mario Kart World - 2026","year":2026,"platform":"","estHours":null,"released":"Yes","purchased":"Yes","excitement":9,"credits":"","hours":21,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Playing","cover":"https://upload.wikimedia.org/wikipedia/en/6/65/Mario_Kart_World_Cover_Artwork.png","hltb":16.6,"hltbId":162277},{"id":"g63","title":"Super Mario Party Jamboree","year":2026,"platform":"","estHours":null,"released":"","purchased":"","excitement":null,"credits":"","hours":18,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Playing","cover":"https://upload.wikimedia.org/wikipedia/en/3/3a/Super_Mario_Party_Jamboree_cover_art.jpg","hltbId":152389,"hltb":19.4},{"id":"g64","title":"Kirby Air Riders","year":2026,"platform":"","estHours":20,"released":"Yes","purchased":"Yes","excitement":8,"credits":"","hours":2,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Playing","cover":"https://upload.wikimedia.org/wikipedia/en/b/bc/AirRidersKey.jpg","hltbId":166263,"hltb":14.3},{"id":"g65","title":"Super Mario Galaxy","year":null,"platform":"Switch","estHours":15,"released":"Yes","purchased":"Yes","excitement":9,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Backlog","cover":"https://upload.wikimedia.org/wikipedia/en/7/76/SuperMarioGalaxy.jpg","hltbId":9377,"hltb":20.4},{"id":"g66","title":"Owlboy","year":null,"platform":"Switch","estHours":8,"released":"Yes","purchased":"Yes","excitement":8,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Backlog","cover":"https://upload.wikimedia.org/wikipedia/en/7/71/Owlboy_cover_art.jpg","hltbId":26278,"hltb":10.1},{"id":"g67","title":"Pikmin 1","year":null,"platform":"Switch","estHours":8,"released":"Yes","purchased":"Yes","excitement":7,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Backlog","cover":"https://upload.wikimedia.org/wikipedia/en/1/13/Pikmin_cover_art.jpg","hltbId":7042,"hltb":8.1},{"id":"g68","title":"Pikmin 2","year":null,"platform":"Switch","estHours":13,"released":"Yes","purchased":"Yes","excitement":7,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Backlog","cover":"https://upload.wikimedia.org/wikipedia/en/3/38/Pikmin_2_Case.jpg","hltbId":7043,"hltb":19.8},{"id":"g69","title":"Pikmin 4","year":null,"platform":"Switch","estHours":20,"released":"Yes","purchased":"Yes","excitement":7,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Backlog","cover":"https://upload.wikimedia.org/wikipedia/en/4/4d/Pikmin_icon_4.jpg","hltbId":31013,"hltb":28.8},{"id":"g70","title":"Pokemon Mystery Dungeon Rescue Team DX","year":null,"platform":"Switch","estHours":20,"released":"Yes","purchased":"Yes","excitement":7,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Backlog","cover":"https://upload.wikimedia.org/wikipedia/en/9/9e/Pok%C3%A9mon_Mystery_Dungeon_Rescue_Team_DX.jpg","hltbId":74108,"hltb":32.7},{"id":"g71","title":"Dragon Quest I & II HD-2D Remake","year":null,"platform":"Switch","estHours":45,"released":"Yes","purchased":"Yes","excitement":8.5,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Backlog","cover":"https://upload.wikimedia.org/wikipedia/en/f/fd/Dragon_Warrior_II.jpg","hltbId":152376,"hltb":48.2},{"id":"g72","title":"Mario + Rabbids Sparks of Hope","year":null,"platform":"Switch","estHours":23,"released":"Yes","purchased":"Yes","excitement":6,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Backlog","cover":"https://upload.wikimedia.org/wikipedia/en/6/66/Mario_%2B_Rabbids_Sparks_of_Hope_cover_art.jpg","hltbId":93886,"hltb":33.3},{"id":"g73","title":"Nier Automata","year":null,"platform":"PlayStation","estHours":21,"released":"Yes","purchased":"Yes","excitement":6,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Backlog","cover":"https://upload.wikimedia.org/wikipedia/en/2/21/Nier_Automata_cover_art.jpg","hltbId":38029,"hltb":37.6},{"id":"g74","title":"Crisis Core - Final Fantasy VII Reunion","year":null,"platform":"PlayStation","estHours":null,"released":"","purchased":"","excitement":null,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Backlog","cover":"https://upload.wikimedia.org/wikipedia/en/3/32/Crisis_Core.png","hltbId":109435,"hltb":21.1},{"id":"g75","title":"Tony Hawk's Pro Skater 3+4","year":null,"platform":"PlayStation","estHours":null,"released":"","purchased":"","excitement":null,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Backlog","cover":"https://upload.wikimedia.org/wikipedia/en/8/82/Tony_Hawk%27s_Pro_Skater_3_%2B_4_cover_art.png","hltbId":164871,"hltb":16},{"id":"g76","title":"Live a Live","year":null,"platform":"PlayStation","estHours":25,"released":"Yes","purchased":"No","excitement":7.5,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Backlog","cover":"https://upload.wikimedia.org/wikipedia/en/b/b8/LiveALiveBoxArt.jpg","hltbId":103830,"hltb":26.3},{"id":"g77","title":"Hades","year":null,"platform":"PlayStation","estHours":25,"released":"Yes","purchased":"Yes","excitement":7,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Backlog","cover":"https://upload.wikimedia.org/wikipedia/en/c/cc/Hades_cover_art.jpg","hltbId":62941,"hltb":48.6},{"id":"g78","title":"Final Fantasy XVI","year":null,"platform":"PlayStation","estHours":40,"released":"Yes","purchased":"Yes","excitement":7.5,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Backlog","cover":"https://upload.wikimedia.org/wikipedia/en/0/00/Final_Fantasy_XVI_cover_art.png","hltbId":83152,"hltb":59.5},{"id":"g79","title":"Mario & Luigi Brothership","year":null,"platform":"","estHours":45,"released":"Yes","purchased":"Yes","excitement":null,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Waiting for patch","cover":"https://upload.wikimedia.org/wikipedia/en/0/0f/Mario_%26_Luigi_-_Brothership_%28cover_art%29.jpg","hltbId":152369,"hltb":49.3},{"id":"g80","title":"Monster Hunter Rise","year":null,"platform":"","estHours":15,"released":"Yes","purchased":"Yes","excitement":6,"credits":"","hours":null,"platinum":"","duration":"","rating":null,"reasonDropped":"","notes":"","blownAway":"","stunner":"","bummer":"","tooLong":"","tooShort":"","focus":"","worthIt":"","status":"Dropped","cover":"https://upload.wikimedia.org/wikipedia/en/4/41/Monster_hunter_rise_cover.jpg","hltbId":83169,"hltb":82.7}],"journal":[{"id":"j13","game":"Outer Wilds","text":"I wrote a whole ass video on this lmao","date":"","gameId":"g29"},{"id":"j29","game":"The Legend of Zelda: Tears of the Kingdom","text":"This was simply everything I've ever wanted in a video game. A grand adventure with every bit as much heart and charm as it is dark and twisted. The game absolutely has it's flaws, but when you swing for the fences like TOTK does, there will be a few strikes. That didnt stop this from being a grand slam. The world is so interconnected, being at any of the 3 levels constantly gave you reason to go visit another level. The side quests were often a little tedious, but most of the time they only added value to the world and fleshed out it's inhabitants. MYstery abounded and even though the prize for completing certain things might have been a little underwhelming, it was the mystery leading up to it and the sense of discovery that made it shine. The Dungeons never disapointed even if they were a far cry from what old 3D Zelda dungeons were like. They had character, they were challenging, and the boss fights were exciting. The Gerudo dungeon was easily my fave. And the ending. OH MY GOD THE ENDING. What a final boss. And the ending sequence was just magical. I cried when I beat it. I balled when Link reached out for Zelda as they fell thru the sky and a subtle rendition of Zelda's lullaby played. Incredible game. If it was the only game I could play for the rest of my life, I'd be perfectly happy.","date":"","gameId":"g5"},{"id":"j49","game":"Resident Evil 4 Remake","text":"HOLY SHIT WHAT A GAME. I forgot how special a really polished non-Nintendo triple AAA game can be.\r\n\r\nThis was fire from beginning to end. I had the wrong impression of Resi. I thought it was this uber-serious harcore horror series. And it kind of is, but its also SO silly and video gamey sometimes! Like some of this was so shamelessly corny and it worked. I had so much just genuine fun with this game dude.\r\n\r\nShooters continually baffle me, I suck at them, I get frustrated and I certainly have issues with the combat in this game. But I really don't think it has anything to do with the game itself, just my lack of skill with this type of combat haha. I was missing mfs at point blank range. I'm not him in these games. But everything else? Music, characters, level design, puzzles, LOCATION? This was a fucking adventure. Beautiful in the creepiest of ways. Loved it loved it loved it. I get why there are people obsessed with these games now lol. Easy masterpiece rating right here.","date":"","gameId":"g24"}],"shows":[{"id":"s1","tvmazeId":41469,"title":"Demon Slayer","premiered":"2019-04-06","showStatus":"Ended","network":"Fuji TV","genres":["Action","Anime","Fantasy","Horror"],"tvRating":7.9,"poster":"https://static.tvmaze.com/uploads/images/medium_portrait/456/1140750.jpg","seasons":[[1,26],[2,18],[3,11],[4,8]],"rt":"30x33,60,30x10,60,30x10,49,30x5,35,40","rating":null,"notes":"Watched season 1","status":"Paused","log":[{"year":2026,"upTo":26}],"fetched":"2026-10-23"},{"id":"s2","tvmazeId":169,"title":"Breaking Bad","premiered":"2008-01-20","showStatus":"Ended","network":"AMC","genres":["Drama","Crime","Thriller"],"tvRating":9.2,"poster":"https://static.tvmaze.com/uploads/images/medium_portrait/501/1253519.jpg","seasons":[[1,7],[2,13],[3,13],[4,13],[5,16]],"rt":"60x62","rating":null,"notes":"","status":"Finished","log":[{"year":2026,"upTo":62}],"fetched":"2026-10-23"},{"id":"s3","tvmazeId":618,"title":"Better Call Saul","premiered":"2015-02-08","showStatus":"Ended","network":"AMC","genres":["Drama","Crime","Legal"],"tvRating":8.6,"poster":"https://static.tvmaze.com/uploads/images/medium_portrait/501/1253515.jpg","seasons":[[1,10],[2,10],[3,10],[4,10],[5,10],[6,13]],"rt":"60x20,70x8,77,76,60x10,75,60,75,60,70x2,68,75,85x2,60x12,72","rating":null,"notes":"","status":"Watching","log":[{"year":2026,"upTo":23}],"fetched":"2026-10-23"},{"id":"s4","tvmazeId":1505,"title":"One Piece","premiered":"1999-10-20","showStatus":"Running","network":"Fuji TV","genres":["Action","Adventure","Anime","Fantasy"],"tvRating":8.7,"poster":"https://static.tvmaze.com/uploads/images/medium_portrait/504/1262497.jpg","seasons":[[1999,8],[2000,44],[2001,42],[2002,44],[2003,37],[2004,39],[2005,39],[2006,38],[2007,45],[2008,47],[2009,49],[2010,49],[2011,48],[2012,49],[2013,48],[2014,50],[2015,48],[2016,46],[2017,49],[2018,47],[2019,49],[2020,41],[2021,48],[2022,41],[2023,43],[2024,34],[2025,33],[2026,25]],"rt":"25x713,30x75,24x2,30x16,60,30x123,25x250","rating":null,"notes":"","status":"Watching","log":[{"year":2025,"upTo":80},{"year":2026,"upTo":920}],"fetched":"2026-10-23"}]}</script>
+<script>
+"use strict";
+const SEED = JSON.parse(document.getElementById('seed').textContent);
+const KEY = 'gamelog.v1', THEME_KEY = 'gamelog.theme', ACCENT_KEY = 'gamelog.accent', BACKUP_KEY = 'gamelog.lastBackup', VIEW_KEY = 'gamelog.libView';
+const THIS_YEAR = new Date().getFullYear();
+const DATA_VERSION = 6;
+const STATUSES = ['Completed','Played','Playing','Recurring','Carried over','Paused','Backlog','Waiting for patch','Dropped'];
+const LOGGED = new Set(['Completed','Played','Playing','Recurring','Carried over','Paused']);
+const STATUS_META = {
+  'Completed':{icon:'✓',c:'#22c55e'}, 'Played':{icon:'◐',c:'#14b8a6'}, 'Playing':{icon:'▶',c:'#3b82f6'},
+  'Recurring':{icon:'↻',c:'#a855f7'}, 'Carried over':{icon:'⇢',c:'#06b6d4'},'Paused':{icon:'❚❚',c:'#94a3b8'}, 'Backlog':{icon:'☰',c:'#94a3b8'},
+  'Waiting for patch':{icon:'⧗',c:'#f59e0b'}, 'Dropped':{icon:'✕',c:'#ef4444'}
+};
+const PLATFORM_COLORS = {'switch':'#e60012','switch 2':'#e60012','playstation':'#0070d1','ps5':'#0070d1','ps4':'#0070d1','pc':'#4b5563','steam deck':'#1a9fff','xbox':'#107c10'};
+const ACCENTS = [['Mario','#e5383b'],['Hyrule','#16a34a'],['Kirby','#ec4899'],['Pikachu','#f5b301','#1a1400'],['Sonic','#2563eb'],['Wario','#8b5cf6']];
+const RATING_TIERS = [[10,'t10','Masterpiece 🏆'],[9,'t9','Amazing'],[8,'t8','Great'],[7,'t7','Good'],[6,'t6','Okay'],[0,'t0','Not for me']];
+const FOCUS = [['Story','--s1'],['Gameplay','--s2'],['Both','--s3']];
+const YN = ['','Hell yes','Yes','Kinda','No'];
+const FIELDS = [
+  {sec:'The basics'},
+  {k:'title',label:'Game',type:'text',span:2,req:true},
+  {k:'status',label:'Status',type:'select',opts:STATUSES},
+  {k:'year',label:'Year played',type:'number',step:1},
+  {hint:'Recurring', text:'↻ <b>Recurring</b> is for games you keep coming back to (Mario Kart, Mario Party…). Make one entry per year with the hours you played that year. They count toward that year\'s hours, but not as a “finished” game. Tip: use <b>+ Hours</b> on the dashboard to add time quickly.'},
+  {hint:'Carried over', text:'⇢ <b>Carried over</b> is for a playthrough split across years: you played part of it this year and finished it in a later year. Log the hours you played this year here, and make a separate entry for the year you finished it. Its hours count toward this year, but it only counts as finished once.'},
+  {k:'replay',label:'↺ This is a replay (I\'ve played it before)',type:'check',span:4},
+  {k:'platform',label:'Platform',type:'list',opts:['Switch','Switch 2','PlayStation','PC','Steam Deck','Xbox']},
+  {k:'focus',label:'Story / gameplay / both?',type:'select',opts:['','Story','Gameplay','Both']},
+  {k:'released',label:'Released?',type:'select',opts:['','Yes','No']},
+  {k:'purchased',label:'Purchased?',type:'select',opts:['','Yes','No']},
+  {sec:'Before playing'},
+  {k:'hltb',label:'HowLongToBeat: Main + Extra (hrs)',type:'number',step:0.5,min:0,lookup:true},
+  {k:'estHours',label:'My own estimate (hrs)',type:'number',step:0.5,min:0},
+  {k:'excitement',label:'Excitement (0–10)',type:'number',step:0.5,min:0,max:10},
+  {sec:'The playthrough'},
+  {k:'hours',label:'Time played (hrs)',type:'number',step:0.5,min:0},
+  {k:'duration',label:'…over the course of',type:'list',opts:['1 week','2 weeks','3 weeks','4 weeks','5 weeks','6 weeks','1 month','2 months','3 months','4 months','6 months','Ongoing']},
+  {k:'credits',label:'Rolled credits?',type:'select',opts:['','Yes','Sort of','No']},
+  {k:'platinum',label:'Platinum / 100%?',type:'select',opts:['','Yes','No','N/A']},
+  {sec:'The verdict'},
+  {k:'rating',label:'Rating (0–10)',type:'number',step:0.1,min:0,max:10},
+  {k:'worthIt',label:'Worth my time?',type:'select',opts:['','Hell yes','Yes','Meh','No']},
+  {k:'blownAway',label:'Blown away?',type:'select',opts:YN},
+  {k:'stunner',label:'Stunner?',type:'select',opts:YN},
+  {k:'bummer',label:'Bummer?',type:'select',opts:YN},
+  {k:'tooLong',label:'Too long?',type:'list',opts:['No, perfect','Perfect','Fine','A bit','Yes']},
+  {k:'tooShort',label:'Too short?',type:'list',opts:['No','Perfect','Felt longer','Yes']},
+  {k:'notes',label:'Reason finished / one-liner',type:'textarea',span:4,rows:2},
+  {k:'reasonDropped',label:'Reason dropped',type:'textarea',span:4,rows:2},
+  {k:'thoughts',label:'Full thoughts (also saved to your Journal)',type:'textarea',span:4,rows:5},
+];
+const NUM_FIELDS = new Set(['year','hltb','estHours','excitement','hours','rating']);
+// length estimate: HowLongToBeat "Main + Extra" when known, otherwise your own estimate
+const est = g => g.hltb ?? g.estHours ?? null;
+const hltbUrl = g => g.hltbId ? `https://howlongtobeat.com/game/${g.hltbId}` : `https://howlongtobeat.com/?q=${encodeURIComponent(searchTitle(g.title||''))}`;
+
+// ---------- state & storage ----------
+const state = {
+  view:'dashboard', dashYear:'all',
+  lib:{q:'',status:'',year:'',focus:'',sort:'year',dir:-1, mode:localStorage.getItem(VIEW_KEY)||'covers'},
+  blSort:'order', jq:''
+};
+let db = load();
+function migrate(d){
+  d.version = d.version || 1;
+  if(d.version < 2){
+    // Recurring games: one entry per year, same base title
+    const RECURRING = ['mariokartworld','supermariopartyjamboree'];
+    d.games.forEach(g=>{
+      g.title = g.title.replace(/\s+[-–]\s+20\d\d$/,'');
+      if(RECURRING.includes(norm(g.title)) && LOGGED.has(g.status)) g.status = 'Recurring';
+      // pick up the hand-checked cover art that ships with the app
+      if(!g.cover){ const s = SEED.games.find(x=>x.cover && norm(baseTitle(x))===norm(g.title)); if(s) g.cover = s.cover; }
+    });
+    d.version = 2;
+  }
+  if(d.version < 3){
+    // Hyrule Warriors: first half in 2025, finished in 2026
+    d.games.forEach(g=>{ if(g.year===2025 && g.status==='Paused' && /^hyrule warriors: age of imprisonment \(first half\)$/i.test(g.title)) g.status = 'Carried over'; });
+    // starting play order for the backlog: most hyped first, shortest breaks ties
+    d.games.filter(g=>g.status==='Backlog').sort((a,b)=>(b.excitement??0)-(a.excitement??0) || (a.estHours??999)-(b.estHours??999)).forEach((g,i)=>g.priority=i+1);
+    d.version = 3;
+  }
+  if(d.version < 4){
+    // HowLongToBeat "Main + Extra" times (looked up once, ships with the app)
+    d.games.forEach(g=>{ if(g.hltb==null){ const s = SEED.games.find(x=>x.hltb!=null && norm(baseTitle(x))===norm(baseTitle(g))); if(s){ g.hltb = s.hltb; g.hltbId = s.hltbId; } } });
+    d.version = 4;
+  }
+  if(d.version < 5){
+    // replays: "(replay)" in the title or "Replay" as the note becomes the replay flag
+    d.games.forEach(g=>{
+      if(/\s*\(replay\)\s*/i.test(g.title)){ g.replay = true; g.title = g.title.replace(/\s*\(replay\)\s*/i,' ').trim(); }
+      if(/^replay\.?$/i.test(g.notes||'')) g.replay = true;
+    });
+    (d.shows||[]).forEach(s=>{ s.rewatch = s.rewatch||0; s.pastRuns = s.pastRuns||[]; });
+    d.version = 5;
+  }
+  if(d.version < 6){
+    // drop the imported "Full Game Thoughts" you didn't write; keep your own 3 and anything you wrote in the app
+    const keep = new Map(SEED.journal.map(j=>[j.id,j]));
+    d.journal = (d.journal||[]).filter(j=>!/^j\d+$/.test(j.id) || keep.has(j.id)).map(j=>keep.has(j.id) && !j.gameId ? {...j, gameId:keep.get(j.id).gameId} : j);
+    d.version = 6;
+  }
+  d.journal = d.journal || [];
+  if(!Array.isArray(d.shows)) d.shows = structuredClone(SEED.shows || []);
+  return d;
+}
+function load(){
+  try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && Array.isArray(s.games)){ const v=s.version; migrate(s); if(v!==s.version) localStorage.setItem(KEY, JSON.stringify(s)); return s; } }catch(e){}
+  return migrate(structuredClone(SEED));
+}
+function persist(){
+  try{ localStorage.setItem(KEY, JSON.stringify(db)); }
+  catch(e){ toast('Browser storage is full. Try using image links instead of uploads.'); }
+}
+function save(msg){ persist(); render(); if(msg) toast(msg); }
+
+// ---------- helpers ----------
+const $ = (s,el=document)=>el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sum = a => a.reduce((x,y)=>x+y,0);
+const fmt1 = n => n==null ? '—' : (Math.round(n*10)/10).toString();
+const fmtH = n => n==null ? '—' : Math.round(n).toLocaleString();
+function norm(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g,''); }
+const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+const byId = id => db.games.find(g=>g.id===id);
+const cssVar = v => `var(${v})`;
+const hueOf = s => { let h=0; for(const c of norm(s)) h=(h*31+c.charCodeAt(0))%360; return h; };
+const BLANK = {replay:false,title:'',status:'Completed',year:null,platform:'',focus:'',released:'',purchased:'',hltb:null,hltbId:null,estHours:null,excitement:null,hours:null,duration:'',credits:'',platinum:'',rating:null,worthIt:'',blownAway:'',stunner:'',bummer:'',tooLong:'',tooShort:'',notes:'',reasonDropped:'',cover:''};
+function tier(r){ return r==null ? null : RATING_TIERS.find(t=>r>=t[0]); }
+// how far into a game you probably are: hours played vs. HowLongToBeat Main + Extra (or your own estimate)
+function playBar(g){
+  const e = est(g), h = g.hours || 0;
+  if(!e) return `<div class="meta">${h?fmtH(h)+'h played':'Just started'} · <a href="${hltbUrl(g)}" target="_blank" rel="noopener" style="color:inherit">add a length for a progress bar ↗</a></div>`;
+  const p = Math.min(1, h/e), over = h > e;
+  const src = g.hltb!=null ? 'HowLongToBeat Main + Extra' : 'your own estimate';
+  return `<div class="pbar ${over?'over':''}" data-tip="<b>${Math.round(h/e*100)}% of ${fmtH(e)}h</b>Based on ${src}"><i style="width:${Math.max(p*100,2)}%"></i></div>
+    <div class="meta">${fmt1(h)}h of ~${fmtH(e)}h · ${over?`${fmtH(h-e)}h past the usual length`:`about ${Math.round(p*100)}% through`}</div>`;
+}
+const replayTag = g => g.replay ? '<span class="badge" style="--c:#f59e0b" title="Played it before"><b>↺</b>Replay</span>' : '';
+function badge(status){ const m = STATUS_META[status]||{icon:'•',c:'#94a3b8'}; return `<span class="badge" style="--c:${m.c}"><b>${m.icon}</b>${esc(status)}</span>`; }
+function score(r){ const t = tier(r); return r==null ? '<span class="score">—</span>' : `<span class="score ${t[1]}">${fmt1(r)}</span>`; }
+function plat(p){ return p ? `<span class="plat" style="--pc:${PLATFORM_COLORS[p.toLowerCase()]||'#6b7280'}">${esc(p)}</span>` : ''; }
+function initials(t){ return esc(String(t).replace(/[^\p{L}\p{N} ]/gu,'').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase() || '🎮'); }
+function cover(g, size='sm', inner='', attrs='', style=''){
+  return `<div class="cover ${size}" data-cover="${g.id}" ${attrs} style="--h:${hueOf(baseTitle(g))};${style}"><span class="ini">${initials(baseTitle(g))}</span>${g.cover?`<img src="${esc(g.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:''}${inner}</div>`;
+}
+function baseTitle(g){ return String(g.title||'').replace(/\s+[-–]\s+20\d\d$/,''); }
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2400); }
+function journalFor(g){ return db.journal.find(j=>j.gameId===g.id) || db.journal.find(j=>!j.gameId && norm(j.game)===norm(g.title)); }
+function loggedGames(){ return db.games.filter(g=>LOGGED.has(g.status) && g.year); }
+function recurringGroups(){
+  const m = new Map();
+  db.games.filter(g=>g.status==='Recurring').forEach(g=>{ const k=norm(baseTitle(g)); if(!m.has(k)) m.set(k,[]); m.get(k).push(g); });
+  return [...m.entries()].map(([key,gs])=>({key, entries:gs.sort((a,b)=>(a.year||0)-(b.year||0))}));
+}
+
+// same game across several years (split playthroughs, replays, DLC): strip "(first half)", "+ DLC" etc.
+const coreTitle = t => norm(String(t).replace(/\(.*?\)/g,'').replace(/\s+\+.*$/,'').replace(/\s+[-–]\s+20\d\d$/,''));
+function playthroughs(g){ return db.games.filter(x=>LOGGED.has(x.status) && x.year && coreTitle(x.title)===coreTitle(g.title)).sort((a,b)=>a.year-b.year); }
+
+// ---------- play order (backlog priority) ----------
+function backlogOrdered(){
+  const b = db.games.filter(g=>g.status==='Backlog');
+  let max = Math.max(0, ...b.map(g=>g.priority||0));
+  b.filter(g=>!g.priority).forEach(g=>g.priority = ++max);   // newly added games go to the end
+  return b.sort((a,c)=>a.priority-c.priority);
+}
+function applyOrder(ids){
+  const full = backlogOrdered(), moved = ids.map(byId).filter(Boolean);
+  [...moved, ...full.filter(g=>!ids.includes(g.id))].forEach((g,i)=>g.priority = i+1);
+  save('Play order updated');
+}
+let dragEl = null, dragStartOrder = '';
+document.addEventListener('dragstart', e=>{
+  const it = e.target.closest?.('[data-dnd] > [data-id]'); if(!it) return;
+  dragEl = it; dragStartOrder = [...it.parentElement.children].map(c=>c.dataset.id).join();
+  e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', it.dataset.id);
+  requestAnimationFrame(()=>it.classList.add('dragging'));
+});
+document.addEventListener('dragover', e=>{
+  if(!dragEl) return;
+  const box = dragEl.parentElement; if(!box.contains(e.target)) return;
+  e.preventDefault();
+  const over = e.target.closest('[data-id]');
+  if(!over || over===dragEl || over.parentElement!==box) return;
+  const kids = [...box.children];
+  box.insertBefore(dragEl, kids.indexOf(dragEl) < kids.indexOf(over) ? over.nextSibling : over);
+});
+document.addEventListener('drop', e=>{ if(dragEl) e.preventDefault(); });
+document.addEventListener('dragend', ()=>{
+  if(!dragEl) return;
+  const box = dragEl.parentElement; dragEl.classList.remove('dragging'); dragEl = null;
+  const ids = [...box.children].map(c=>c.dataset.id).filter(Boolean);
+  if(ids.join()!==dragStartOrder) applyOrder(ids);
+});
+
+// ---------- logo: clean wordmark "backlog." with an accent dot ----------
+function buildLogo(){
+  $('#logo').innerHTML = `<span class="wordmark">backlog<i></i></span>`;
+  // favicon: a "b." on the accent color
+  const acc = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#e5383b';
+  const fav = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="${acc}"/><path d="M9 6h4v8.2a6.5 6.5 0 1 1-4 6V6zm4 14.2a3 3 0 1 0 6 0 3 3 0 1 0-6 0z" fill="#fff" fill-rule="evenodd"/><circle cx="25" cy="24.5" r="2.2" fill="#fff"/></svg>`;
+  let link = document.querySelector('link[rel="icon"]'); if(!link){ link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+  link.href = 'data:image/svg+xml,' + encodeURIComponent(fav);
+}
+
+// ---------- cover art (Wikipedia, no account needed) ----------
+function searchTitle(t){ return String(t).replace(/\(.*?\)/g,'').replace(/\s+\+\s*(DLC|Plat\w*)\s*$/i,'').replace(/\s+[-–]\s+20\d\d$/,'').replace(/\b(DLC|Remastered)\b/gi,'').replace(/\s+1\s*$/,'').replace(/\s+/g,' ').trim(); }
+async function wikiSearch(q, limit=1, template=true){
+  const u = 'https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit='+limit+
+    '&gsrsearch='+encodeURIComponent(q+(template?' hastemplate:"Infobox video game"':''))+'&prop=pageimages&piprop=thumbnail&pithumbsize=400&pilicense=any';
+  const r = await (await fetch(u)).json();
+  if(!r.query) return [];
+  return Object.values(r.query.pages).sort((a,b)=>a.index-b.index).filter(p=>p.thumbnail).map(p=>({title:p.title, url:p.thumbnail.source.split('?')[0]}));
+}
+async function findCover(title){
+  const t = searchTitle(title);
+  const words = s => String(s).toLowerCase().normalize('NFD').replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(Boolean);
+  const fit = r => { const qw = words(t), tw = words(r.title), hit = qw.filter(w=>tw.includes(w)).length;
+    return hit/Math.max(qw.length,1) - 0.15*(tw.length-hit)/Math.max(tw.length,1) + (norm(r.title.replace(/\(.*?\)/g,''))===norm(t)?1:0); };
+  for(const [q,tpl] of [[t,true],[t.split(':')[0],true],[t,false]]){
+    const res = await wikiSearch(q,5,tpl);
+    if(res.length) return res.reduce((a,b)=>fit(b)>fit(a)?b:a).url;
+  }
+  return '';
+}
+function paintCover(g){ document.querySelectorAll(`[data-cover="${g.id}"]`).forEach(el=>{ el.querySelector('img')?.remove(); if(g.cover) el.insertAdjacentHTML('beforeend',`<img src="${esc(g.cover)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`); }); }
+let coverQueue = [], coverRunning = 0;
+function queueCovers(games){
+  games.forEach(g=>{ if(!g.cover && !coverQueue.includes(g)) coverQueue.push(g); });
+  for(let i=coverRunning;i<3;i++) nextCover();
+}
+async function nextCover(){
+  const g = coverQueue.shift(); if(!g) return;
+  coverRunning++;
+  try{
+    const twin = db.games.find(x=>x!==g && x.cover && norm(baseTitle(x))===norm(baseTitle(g)));
+    g.cover = twin ? twin.cover : await findCover(g.title);
+    g.coverTried = true;
+    if(g.cover){ persist(); paintCover(g); }
+  }catch(e){ /* offline or blocked: try again next time */ }
+  coverRunning--; nextCover();
+}
+
+// ---------- tooltip ----------
+const tip = $('#tip');
+document.addEventListener('mousemove', e=>{
+  const el = e.target.closest('[data-tip]');
+  if(!el){ tip.style.opacity=0; return; }
+  tip.innerHTML = el.getAttribute('data-tip');
+  const r = tip.getBoundingClientRect();
+  let x = e.clientX + 14, y = e.clientY + 14;
+  if(x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
+  if(y + r.height > innerHeight - 8) y = e.clientY - r.height - 14;
+  tip.style.left = x+'px'; tip.style.top = y+'px'; tip.style.opacity = 1;
+});
+
+// ---------- charts (plain SVG) ----------
+function niceMax(v){ if(v<=4) return 4; const raw=v/4, p=Math.pow(10,Math.floor(Math.log10(raw))); return 4*[1,1.5,2,2.5,3,4,5,6,8,10].map(m=>m*p).find(s=>s>=raw); }
+function barTop(x,y,w,h,r=4){ r=Math.min(r,w/2,h); if(h<=0) return ''; return `M${x},${y+h}V${y+r}Q${x},${y} ${x+r},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${y+h}Z`; }
+function columnChart(data,{h=200,color='--s1'}={}){
+  const W=520, pad={l:34,r:8,t:18,b:26}, iw=W-pad.l-pad.r, ih=h-pad.t-pad.b;
+  const max = niceMax(Math.max(1,...data.map(d=>d.value)));
+  const step = iw/data.length, bw = Math.min(56, step*0.62);
+  let s = `<svg viewBox="0 0 ${W} ${h}" role="img">`;
+  for(let i=0;i<=4;i++){ const v=max*i/4, y=pad.t+ih-ih*i/4; s+=`<line class="grid-l" x1="${pad.l}" x2="${W-pad.r}" y1="${y}" y2="${y}"/><text x="${pad.l-6}" y="${y+4}" text-anchor="end">${Math.round(v)}</text>`; }
+  data.forEach((d,i)=>{
+    const bh = ih*d.value/max, x = pad.l + step*i + (step-bw)/2, y = pad.t+ih-bh;
+    s += `<g data-tip="${esc(d.tip)}" opacity="${d.dim?0.3:1}"><rect x="${pad.l+step*i}" y="${pad.t}" width="${step}" height="${ih}" fill="transparent"/>`;
+    if(d.parts){ let yy = pad.t+ih; d.parts.forEach((p,pi)=>{ const ph = ih*p.value/max; if(ph<=0) return; yy -= ph; const top = pi===d.parts.length-1 || d.parts.slice(pi+1).every(q=>!q.value); s += top ? `<path d="${barTop(x,yy,bw,ph)}" fill="${cssVar(p.color)}"/>` : `<rect x="${x}" y="${yy}" width="${bw}" height="${Math.max(0,ph-2)}" fill="${cssVar(p.color)}" transform="translate(0,2)"/>`; }); }
+    else s += `<path d="${barTop(x,y,bw,bh)}" fill="${cssVar(color)}"/>`;
+    if(d.value>0) s += `<text class="val" x="${x+bw/2}" y="${y-6}" text-anchor="middle">${esc(d.show ?? d.value)}</text>`;
+    s += `<text x="${x+bw/2}" y="${h-8}" text-anchor="middle">${esc(d.label)}</text></g>`;
+  });
+  return s + '</svg>';
+}
+function scatterChart(games){
+  const W=520, H=320, pad={l:34,r:12,t:12,b:34}, iw=W-pad.l-pad.r, ih=H-pad.t-pad.b;
+  const vals = games.flatMap(g=>[g.excitement,g.rating]);
+  const lo = Math.max(0, Math.min(5, Math.floor(Math.min(...vals,10)))), hi = 10.3;
+  const X = v => pad.l + (v-lo)/(hi-lo)*iw, Y = v => pad.t + ih - (v-lo)/(hi-lo)*ih;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  for(let v=lo; v<=10; v++){ s+=`<line class="grid-l" x1="${pad.l}" x2="${W-pad.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${pad.l-6}" y="${Y(v)+4}" text-anchor="end">${v}</text><text x="${X(v)}" y="${H-18}" text-anchor="middle">${v}</text>`; }
+  s += `<line x1="${X(lo)}" y1="${Y(lo)}" x2="${X(10)}" y2="${Y(10)}" stroke="var(--muted)" stroke-dasharray="4 4" stroke-width="1.5"/>`;
+  s += `<text x="${X(lo)+8}" y="${Y(10)+12}">↖ better than expected</text><text x="${X(10)-6}" y="${Y(lo)-8}" text-anchor="end">worse than expected ↘</text>`;
+  s += `<text x="${pad.l+iw/2}" y="${H-2}" text-anchor="middle">Excitement before playing →</text>`;
+  const seen = {};
+  games.forEach(g=>{
+    const key = g.excitement+'|'+g.rating, n = (seen[key]=(seen[key]||0)+1)-1;
+    const ang = n*2.4, rad = n ? 4+n*1.2 : 0;
+    const cx = X(g.excitement)+Math.cos(ang)*rad, cy = Y(g.rating)+Math.sin(ang)*rad;
+    const col = (FOCUS.find(f=>f[0]===g.focus)||[null,'--muted'])[1];
+    const t = `<b>${esc(g.title)}</b>Excitement ${fmt1(g.excitement)} → Rating ${fmt1(g.rating)}${g.focus?'<br>'+esc(g.focus):''}`;
+    s += `<g data-tip="${esc(t)}" data-open="${g.id}" style="cursor:pointer"><circle cx="${cx}" cy="${cy}" r="11" fill="transparent"/><circle cx="${cx}" cy="${cy}" r="5" fill="${cssVar(col)}" stroke="var(--surface)" stroke-width="2"/></g>`;
+  });
+  return s + '</svg>';
+}
+function dumbbellChart(games){
+  const W=520, rowH=30, pad={l:170,r:52,t:6,b:22}, H=pad.t+pad.b+rowH*games.length, iw=W-pad.l-pad.r;
+  const max = niceMax(Math.max(1,...games.flatMap(g=>[est(g),g.hours])));
+  const X = v => pad.l + v/max*iw;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img">`;
+  for(let i=0;i<=4;i++){ const v=max*i/4; s+=`<line class="grid-l" x1="${X(v)}" x2="${X(v)}" y1="${pad.t}" y2="${H-pad.b}"/><text x="${X(v)}" y="${H-6}" text-anchor="middle">${Math.round(v)}h</text>`; }
+  games.forEach((g,i)=>{
+    const y = pad.t + rowH*i + rowH/2, d = g.hours-est(g);
+    const name = g.title.length>26 ? g.title.slice(0,25)+'…' : g.title;
+    const t = `<b>${esc(g.title)}</b>Estimated ${fmtH(est(g))}h · played ${fmtH(g.hours)}h`;
+    s += `<g data-tip="${esc(t)}" data-open="${g.id}" style="cursor:pointer"><rect x="0" y="${y-rowH/2}" width="${W}" height="${rowH}" fill="transparent"/>`;
+    s += `<text x="${pad.l-10}" y="${y+4}" text-anchor="end" style="fill:var(--text-2);font-size:12px">${esc(name)}</text>`;
+    s += `<line x1="${X(est(g))}" x2="${X(g.hours)}" y1="${y}" y2="${y}" stroke="var(--muted)" stroke-width="2"/>`;
+    s += `<circle cx="${X(est(g))}" cy="${y}" r="5" fill="var(--surface)" stroke="var(--muted)" stroke-width="2"/>`;
+    s += `<circle cx="${X(g.hours)}" cy="${y}" r="5.5" fill="var(--s2)" stroke="var(--surface)" stroke-width="2"/>`;
+    s += `<text class="val" x="${W-pad.r+8}" y="${y+4}">${d>0?'+':''}${Math.round(d)}h</text></g>`;
+  });
+  return s + '</svg>';
+}
+
+// ---------- views ----------
+function render(){
+  document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active', a.dataset.view===state.view));
+  document.querySelectorAll('main > section').forEach(s=>s.classList.toggle('hidden', s.id!=='view-'+state.view));
+  ({dashboard:renderDashboard, library:renderLibrary, backlog:renderBacklog, journal:renderJournal, shows:renderShows})[state.view]();
+  $('#dlGames').innerHTML = [...new Set(db.games.map(g=>baseTitle(g)))].map(t=>`<option value="${esc(t)}">`).join('');
+  const lb = localStorage.getItem(BACKUP_KEY);
+  $('#saveNote').textContent = 'Everything is saved automatically in this browser. ' + (lb ? `Last backup: ${lb}.` : 'Tip: export a backup now and then.');
+}
+
+function renderDashboard(){
+  const logged = loggedGames();
+  const years = [...new Set(logged.map(g=>g.year))].sort((a,b)=>a-b);
+  if(state.dashYear!=='all' && !years.includes(+state.dashYear)) state.dashYear='all';
+  const sel = state.dashYear, inY = sel==='all' ? logged : logged.filter(g=>g.year==sel);
+  const done = inY.filter(g=>g.status==='Completed');
+  const rated = inY.filter(g=>g.rating!=null);
+  const hours = sum(inY.map(g=>g.hours||0));
+  const recHours = sum(inY.filter(g=>g.status==='Recurring').map(g=>g.hours||0));
+  const avg = rated.length ? sum(rated.map(g=>g.rating))/rated.length : null;
+  const tens = rated.filter(g=>g.rating>=10);
+  const backlog = db.games.filter(g=>g.status==='Backlog');
+  const playing = db.games.filter(g=>g.status==='Playing');
+  const groups = recurringGroups();
+  const span = years.length ? (years.length>1 ? `${years[0]}–${years.at(-1)}` : years[0]) : '';
+  const label = sel==='all' ? `across ${span}` : `in ${sel}`;
+
+  const yHours = years.map(y=>{
+    const ys = logged.filter(g=>g.year===y);
+    const rec = sum(ys.filter(g=>g.status==='Recurring').map(g=>g.hours||0)), oth = sum(ys.filter(g=>g.status!=='Recurring').map(g=>g.hours||0)), v = Math.round(rec+oth);
+    return {label:y, value:v, show:v+'h', dim:sel!=='all'&&sel!=y, parts:[{value:oth,color:'--s1'},{value:rec,color:'--s3'}],
+      tip:`<b>${y}${y===THIS_YEAR?' (so far)':''}</b>${v} hours played<br>${Math.round(oth)}h in regular games<br>${Math.round(rec)}h in recurring games`};
+  });
+  const yDone = years.map(y=>{ const v=logged.filter(g=>g.year===y&&g.status==='Completed').length; return {label:y, value:v, dim:sel!=='all'&&sel!=y, tip:`<b>${y}${y===THIS_YEAR?' (so far)':''}</b>${v} games finished`}; });
+  const bins = [['< 6',0,6],['6–6.9',6,7],['7–7.9',7,8],['8–8.9',8,9],['9–9.9',9,10],['10',10,11]].map(([l,a,b])=>{
+    const gs = rated.filter(g=>g.rating>=a && g.rating<b);
+    return {label:l, value:gs.length, tip:`<b>Rated ${l}</b>${gs.length} game${gs.length===1?'':'s'}${gs.length?'<br>'+gs.slice(0,6).map(g=>esc(g.title)).join('<br>')+(gs.length>6?'<br>…':''):''}`};
+  });
+  const fRated = rated.filter(g=>g.focus);
+  const fData = FOCUS.map(([f,c])=>{ const gs=fRated.filter(g=>g.focus===f); return {f,c,n:gs.length,avg:gs.length?sum(gs.map(g=>g.rating))/gs.length:null}; });
+  const fTot = sum(fData.map(d=>d.n));
+  const worth = [['Hell yes','--seq-1'],['Yes','--seq-2'],['Meh','--seq-3'],['No','--seq-4']].map(([k,c])=>({k,c,n:inY.filter(g=>g.worthIt===k).length}));
+  const wMax = Math.max(1,...worth.map(w=>w.n));
+  const withBoth = rated.filter(g=>g.excitement!=null);
+  const longest = [...inY].filter(g=>g.hours&&g.status!=='Recurring').sort((a,b)=>b.hours-a.hours)[0];
+  const surprise = [...withBoth].sort((a,b)=>(b.rating-b.excitement)-(a.rating-a.excitement))[0];
+  const letdown = [...withBoth].sort((a,b)=>(a.rating-a.excitement)-(b.rating-b.excitement))[0];
+  const quickest = [...done].filter(g=>g.hours&&g.rating!=null).sort((a,b)=>(b.rating/Math.max(b.hours,1))-(a.rating/Math.max(a.hours,1)))[0];
+  const sinks = inY.filter(g=>est(g)!=null && g.hours!=null && g.status==='Completed').sort((a,b)=>Math.abs(b.hours-est(b))-Math.abs(a.hours-est(a))).slice(0,8);
+  const next = backlogOrdered().slice(0,7);
+  const fanGames = [...(tens.length>=3?tens:rated.filter(g=>g.rating>=9))].sort((a,b)=>(b.year-a.year)||(b.rating-a.rating)).slice(0,6).reverse();
+  const fact = (k,g,d)=> g ? `<div class="fact" data-open="${g.id}">${cover(g,'sm')}<div><div class="k">${k}</div><div class="v">${esc(g.title)}</div><div class="d">${d}</div></div></div>` : '';
+
+  $('#view-dashboard').innerHTML = `
+  <div class="grid">
+    <div class="hero">
+      <div>
+        <span class="eyebrow">Player 1 · ${sel==='all'?(span||THIS_YEAR):sel}</span>
+        <h1><span class="n">${done.length}</span> games cleared, <span class="n">${fmtH(hours)}</span> hours played${sel==='all'?'':' in '+sel}.</h1>
+        <p class="sub">${logged.length} games logged ${span?'since '+years[0]:''} · ${backlog.length} waiting in the backlog</p>
+        <div class="chips">${['all',...years].map(y=>`<button class="chip ${String(sel)===String(y)?'on':''}" data-year="${y}">${y==='all'?'All time':y}</button>`).join('')}</div>
+      </div>
+      <div class="fan">${fanGames.map((g,i,a)=>{ const mid=(a.length-1)/2; return cover(g,'md','',`data-open="${g.id}" data-tip="${esc('<b>'+esc(g.title)+'</b>Rated '+fmt1(g.rating))}"`,`left:${i*52}px;transform:rotate(${(i-mid)*5}deg) translateY(${Math.abs(i-mid)*6}px);z-index:${i}`); }).join('')}</div>
+    </div>
+    <div class="kpis">
+      <div class="card kpi"><div class="label">Games finished</div><div class="value">${done.length}</div><div class="foot">${label}${done.filter(g=>g.replay).length?` · ${done.filter(g=>g.replay).length} replay${done.filter(g=>g.replay).length>1?'s':''}`:''}</div></div>
+      <div class="card kpi"><div class="label">Hours played</div><div class="value">${fmtH(hours)}<small> h</small></div><div class="foot">≈ ${Math.round(hours/24)} full days${recHours?` · ${fmtH(recHours)}h recurring`:''}</div></div>
+      <div class="card kpi"><div class="label">Average rating</div><div class="value">${fmt1(avg)}<small> / 10</small></div><div class="foot">${rated.length} rated games</div></div>
+      <div class="card kpi"><div class="label">Perfect 10s</div><div class="value">${tens.length}</div><div class="foot">${rated.length?Math.round(tens.length/rated.length*100):0}% of rated games</div></div>
+      <div class="card kpi"><div class="label">Backlog</div><div class="value">${backlog.length}</div><div class="foot">≈ ${fmtH(sum(backlog.map(g=>est(g)||0)))} h to clear</div></div>
+    </div>
+
+    ${playing.length?`<div class="card span-${groups.length?7:12}"><h2>Now playing</h2><p class="card-sub">Games you're working through right now</p><div class="now">${playing.map(g=>`
+      <div class="g">${cover(g,'md')}<div class="body"><div class="title" data-open="${g.id}">${esc(g.title)}</div>${g.replay?`<div>${replayTag(g)}</div>`:''}${playBar(g)}
+      <div class="row"><button class="btn small primary" data-finish="${g.id}">Log finish</button><button class="btn small" data-plushour="${g.id}" title="Add an hour of play time">+1h</button><button class="btn small" data-edit="${g.id}">Update</button></div></div></div>`).join('')}</div></div>`:''}
+    ${groups.length?`<div class="card span-${playing.length?5:12}"><h2>Recurring games</h2><p class="card-sub">Games you keep coming back to. Hours count toward each year.</p><div class="now" style="grid-template-columns:1fr">${groups.map(gr=>{ const last=gr.entries.at(-1); const tot=sum(gr.entries.map(g=>g.hours||0));
+      return `<div class="g">${cover(last,'md')}<div class="body"><div class="title" data-open="${last.id}">${esc(baseTitle(last))}</div><div class="meta">${fmtH(tot)}h total</div>
+      <div class="years">${gr.entries.map(g=>`<span data-open="${g.id}" style="cursor:pointer">${g.year}: <b>${fmt1(g.hours||0)}h</b></span>`).join('')}</div>
+      <div class="row"><button class="btn small primary" data-addhours="${gr.key}">+ Hours for ${THIS_YEAR}</button></div></div></div>`; }).join('')}</div></div>`:''}
+
+    <div class="card span-12"><div class="row-flex" style="align-items:flex-start"><div style="flex:1"><h2>Up next</h2><p class="card-sub">Your play order. Drag the covers to change it.</p></div><a class="btn small" href="#backlog">Full play order →</a></div>
+      ${next.length?`<div class="shelf" data-dnd>${next.map((g,i)=>`<div class="tile" draggable="true" data-id="${g.id}" data-open="${g.id}">${cover(g,'fill',`<span class="rankpin">#${i+1}</span>`+(g.excitement!=null?`<span class="score" data-tip="Excitement ${fmt1(g.excitement)} / 10">${fmt1(g.excitement)}</span>`:''))}<div class="tt">${esc(g.title)}</div><div class="tm">${g.platform?esc(g.platform)+' · ':''}${est(g)?'~'+fmtH(est(g))+'h':''}</div><button class="btn small" style="margin-top:6px" data-start="${g.id}">▶ Start</button></div>`).join('')}</div>`:'<div class="empty">Backlog is empty. Nice!</div>'}</div>
+
+    <div class="card span-6"><h2>Hours played per year</h2><p class="card-sub">${THIS_YEAR} is the year so far</p>
+      <div class="legend"><span><i style="background:var(--s1)"></i>Regular games</span><span><i style="background:var(--s3)"></i>Recurring games</span></div>${columnChart(yHours)}</div>
+    <div class="card span-6"><h2>Games finished per year</h2><p class="card-sub">Games that rolled credits (recurring games not included)</p>${columnChart(yDone,{color:'--s2'})}</div>
+
+    <div class="card span-7"><h2>Hype vs. reality</h2><p class="card-sub">How excited you were before playing vs. how you rated it. Above the line = it beat your expectations. Click a dot to open the game.</p>
+      <div class="legend">${FOCUS.map(([f,c])=>`<span><i style="background:${cssVar(c)}"></i>${f}</span>`).join('')}</div>
+      ${withBoth.length?scatterChart(withBoth):'<div class="empty">No rated games yet.</div>'}</div>
+    <div class="card span-5"><h2>Rating distribution</h2><p class="card-sub">How you scored games ${label}</p>${columnChart(bins,{h:180,color:'--s1'})}
+      <h2 style="margin-top:22px">Story, gameplay or both?</h2><p class="card-sub">What carried the game for you, with average rating</p>
+      ${fTot?`<div class="stack">${fData.filter(d=>d.n).map(d=>`<div style="flex:${d.n};background:${cssVar(d.c)}" data-tip="<b>${d.f}</b>${d.n} games · avg ${fmt1(d.avg)}"></div>`).join('')}</div>
+      <div class="legend">${fData.map(d=>`<span><i style="background:${cssVar(d.c)}"></i>${d.f}: ${d.n} · avg ${fmt1(d.avg)}</span>`).join('')}</div>`:'<div class="empty">No data yet.</div>'}
+    </div>
+
+    <div class="card span-7"><h2>Where the time went</h2><p class="card-sub">Biggest gaps between HowLongToBeat's Main + Extra time and your actual time played</p>
+      <div class="legend"><span><i class="ring"></i>HowLongToBeat Main + Extra</span><span><i style="background:var(--s2)"></i>Actually played</span></div>
+      ${sinks.length?dumbbellChart(sinks):'<div class="empty">No finished games with both an estimate and time played.</div>'}</div>
+    <div class="card span-5"><h2>Was it worth my time?</h2><p class="card-sub">Your verdict ${label}</p>
+      ${worth.map(w=>`<div class="hrow" data-tip="<b>${w.k}</b>${w.n} games"><span>${w.k}</span><div class="track"><div class="bar" style="width:${w.n/wMax*100}%;background:${cssVar(w.c)}"></div></div><span class="n">${w.n}</span></div>`).join('')}
+      <h2 style="margin-top:22px">Highlights</h2><p class="card-sub">${label}</p>
+      <div class="facts">
+        ${fact('Biggest time sink',longest,longest?fmtH(longest.hours)+' hours':'')}
+        ${fact('Pleasant surprise',surprise,surprise?`Hype ${fmt1(surprise.excitement)} → rated ${fmt1(surprise.rating)}`:'')}
+        ${fact('Biggest letdown',letdown,letdown?`Hype ${fmt1(letdown.excitement)} → rated ${fmt1(letdown.rating)}`:'')}
+        ${fact('Best bang for your hours',quickest,quickest?`${fmt1(quickest.rating)} in just ${fmtH(quickest.hours)}h`:'')}
+      </div>
+    </div>
+
+    <div class="card span-12"><h2>Hall of fame</h2><p class="card-sub">Your 10/10s ${label}</p>
+      ${tens.length?`<div class="shelf">${tens.sort((a,b)=>b.year-a.year).map(g=>`<div class="tile" data-open="${g.id}">${cover(g,'fill','<span class="score t10">10</span>')}<div class="tt">${esc(g.title)}</div><div class="tm">${g.year} · ${fmtH(g.hours)}h</div></div>`).join('')}</div>`:'<div class="empty">No perfect scores here yet.</div>'}</div>
+  </div>`;
+}
+
+function libFiltered(){
+  const L = state.lib;
+  let gs = db.games.filter(g=>
+    (!L.q || norm(g.title+' '+g.notes+' '+g.platform).includes(norm(L.q))) &&
+    (!L.status || g.status===L.status) && (!L.year || String(g.year)===L.year) && (!L.focus || g.focus===L.focus));
+  return gs.sort((a,b)=>{ let x=L.sort==='est'?est(a):a[L.sort], y=L.sort==='est'?est(b):b[L.sort]; if(x==null||x==='') return 1; if(y==null||y==='') return -1;
+    if(typeof x==='string') return x.localeCompare(y)*L.dir; return (x-y)*L.dir || a.title.localeCompare(b.title); });
+}
+function renderLibrary(){
+  const L = state.lib;
+  const years = [...new Set(db.games.map(g=>g.year).filter(Boolean))].sort((a,b)=>b-a);
+  const gs = libFiltered();
+  const cols = [['title','Game'],['year','Year','num'],['status','Status'],['hours','Hours','num'],['est','Length','num'],['excitement','Hype','num'],['rating','Rating','num'],['focus','Focus'],['worthIt','Worth it?'],['notes','Notes']];
+  const opt = (v,cur,lab) => `<option value="${esc(v)}" ${String(cur)===String(v)?'selected':''}>${esc(lab??v)}</option>`;
+  const sortOpts = [['year','Year'],['rating','Rating'],['hours','Hours played'],['excitement','Hype'],['title','Title']];
+  $('#view-library').innerHTML = `
+  <div class="page-head"><div><h1>Library</h1><p class="sub">Every game you've logged, backlogged or dropped. Click a game for details.</p></div></div>
+  <div class="toolbar">
+    <input type="search" id="libQ" placeholder="Search games or notes…" value="${esc(L.q)}">
+    <select id="libStatus">${opt('',L.status,'All statuses')}${STATUSES.map(s=>opt(s,L.status)).join('')}</select>
+    <select id="libYear">${opt('',L.year,'All years')}${years.map(y=>opt(y,L.year)).join('')}</select>
+    <select id="libFocus">${opt('',L.focus,'Any focus')}${FOCUS.map(f=>opt(f[0],L.focus)).join('')}</select>
+    ${L.mode==='covers'?`<select id="libSort">${sortOpts.map(([k,l])=>opt(k,L.sort,'Sort: '+l)).join('')}</select>`:''}
+    <span class="sub">${gs.length} games</span><div class="spacer"></div>
+    <div class="seg"><button data-libmode="covers" class="${L.mode==='covers'?'on':''}">▦ Covers</button><button data-libmode="table" class="${L.mode==='table'?'on':''}">☰ Table</button></div>
+  </div>
+  ${L.mode==='covers' ? `<div class="shelf" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:18px">${gs.map(g=>`<div class="tile" data-open="${g.id}">${cover(g,'fill',(g.rating!=null?score(g.rating):'')+badge(g.status))}<div class="tt">${esc(g.title)}</div><div class="tm">${[g.replay?'↺ Replay':'',g.year,g.hours!=null?fmtH(g.hours)+'h':''].filter(Boolean).join(' · ')}</div></div>`).join('') || '<div class="empty">No games match.</div>'}</div>`
+  : `<div class="table-wrap"><table><thead><tr>${cols.map(([k,l,c])=>`<th class="${c||''}" data-sort="${k}">${l}${L.sort===k?(L.dir>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead>
+  <tbody>${gs.map(g=>`<tr data-open="${g.id}"><td class="title"><div>${cover(g,'xs')}${esc(g.title)}${g.replay?' '+replayTag(g):''}</div></td><td class="num">${g.year??''}</td><td>${badge(g.status)}</td><td class="num">${g.hours!=null?fmtH(g.hours):''}</td><td class="num">${est(g)!=null?fmtH(est(g)):''}</td><td class="num">${g.excitement!=null?fmt1(g.excitement):''}</td><td class="num">${g.rating!=null?score(g.rating):''}</td><td>${esc(g.focus)}</td><td>${esc(g.worthIt)}</td><td class="note">${esc(g.notes||g.reasonDropped)}</td></tr>`).join('') || `<tr><td colspan="10" class="empty">No games match.</td></tr>`}</tbody></table></div>`}`;
+  const q = $('#libQ'); q.oninput = ()=>{ L.q=q.value; renderLibrary(); const n=$('#libQ'); n.focus(); n.setSelectionRange(n.value.length,n.value.length); };
+  $('#libStatus').onchange = e=>{ L.status=e.target.value; renderLibrary(); };
+  $('#libYear').onchange = e=>{ L.year=e.target.value; renderLibrary(); };
+  $('#libFocus').onchange = e=>{ L.focus=e.target.value; renderLibrary(); };
+  if($('#libSort')) $('#libSort').onchange = e=>{ L.sort=e.target.value; L.dir = L.sort==='title'?1:-1; renderLibrary(); };
+}
+
+function renderBacklog(){
+  const sorters = { excitement:(a,b)=>(b.excitement??0)-(a.excitement??0), short:(a,b)=>(est(a)??999)-(est(b)??999), title:(a,b)=>a.title.localeCompare(b.title) };
+  const card = g => `<div class="bl">${cover(g,'md')}<div class="body"><div class="title" data-open="${g.id}">${esc(g.title)}</div>
+    <div class="meta">${plat(g.platform)}<span>${est(g)?'~'+fmtH(est(g))+'h':'length ?'}</span>${g.hours?`<span>${fmtH(g.hours)}h played</span>`:''}<span>🔥 ${g.excitement!=null?fmt1(g.excitement):'?'}</span></div>
+    <div class="hype" data-tip="Excitement ${g.excitement!=null?fmt1(g.excitement):'not set'} / 10"><div style="width:${(g.excitement||0)*10}%"></div></div>
+    ${g.reasonDropped?`<div class="sub" style="font-size:12.5px">${esc(g.reasonDropped)}</div>`:''}
+    <div class="row"><button class="btn small primary" data-start="${g.id}">${g.status==='Paused'?'Resume':'▶ Start'}</button><button class="btn small" data-edit="${g.id}">Edit</button>${g.status!=='Dropped'?`<button class="btn small" data-drop="${g.id}">Drop</button>`:''}</div></div></div>`;
+  const back = db.games.filter(g=>g.status==='Backlog').sort(sorters[state.blSort]);
+  const plats = [...new Set(back.map(g=>g.platform||'Other'))];
+  const groups = plats.map(p=>[p, back.filter(g=>(g.platform||'Other')===p)]);
+  const extraSort = sorters[state.blSort] || sorters.excitement;
+  const extra = [['Paused / unfinished','Paused'],['Waiting for patch','Waiting for patch'],['Dropped','Dropped']].map(([l,s])=>[l, db.games.filter(g=>g.status===s).sort(extraSort)]).filter(x=>x[1].length);
+  const qrow = (g,i) => `<div class="qrow" draggable="true" data-id="${g.id}"><span class="grip" title="Drag to reorder">⋮⋮</span><span class="rank">#${i+1}</span>${cover(g,'sm')}
+    <div class="info"><div class="title" data-open="${g.id}">${esc(g.title)}</div><div class="meta">${plat(g.platform)}<span>${est(g)?'~'+fmtH(est(g))+'h':'length ?'}</span><span data-tip="Excitement">🔥 ${g.excitement!=null?fmt1(g.excitement):'?'}</span></div></div>
+    <div class="row"><button class="btn small" data-move="${g.id}" data-dir="-1" title="Move up" ${i===0?'disabled':''}>▲</button><button class="btn small" data-move="${g.id}" data-dir="1" title="Move down">▼</button>${i>0?`<button class="btn small" data-top="${g.id}" title="Move to the top of your play order">⤒ Top</button>`:''}<button class="btn small primary" data-start="${g.id}">▶ Start</button><button class="btn small" data-edit="${g.id}">Edit</button><button class="btn small" data-drop="${g.id}">Drop</button></div></div>`;
+  $('#view-backlog').innerHTML = `
+  <div class="page-head"><div><h1>Backlog</h1><p class="sub">${back.length} games waiting · about ${fmtH(sum(back.map(g=>est(g)||0)))} hours of gaming</p></div><div class="spacer"></div>
+    <div class="chips">${[['order','⇅ Play order'],['excitement','Most hyped'],['short','Shortest first'],['title','A–Z']].map(([k,l])=>`<button class="chip ${state.blSort===k?'on':''}" data-blsort="${k}">${l}</button>`).join('')}</div>
+    <button class="btn primary" id="btnAddBacklog">+ Add to backlog</button></div>
+  ${state.blSort==='order'
+    ? (back.length ? `<p class="sub" style="margin:-8px 0 12px">Drag games (or use ▲ ▼) to set what you'll play next. The top games show up under “Up next” on the dashboard.</p><div class="queue" data-dnd>${backlogOrdered().map(qrow).join('')}</div>` : '<div class="empty">Your backlog is empty.</div>')
+    : (groups.map(([p,gs])=>`<div class="bl-group"><h3>${p==='Other'?'Other':plat(p)} · ${gs.length}</h3><div class="cards">${gs.map(card).join('')}</div></div>`).join('') || '<div class="empty">Your backlog is empty.</div>')}
+  ${extra.map(([l,gs])=>`<div class="bl-group"><h3>${esc(l)} · ${gs.length}</h3><div class="cards">${gs.map(card).join('')}</div></div>`).join('')}`;
+  $('#btnAddBacklog').onclick = ()=>openForm(null,{status:'Backlog',year:null});
+}
+
+function renderJournal(){
+  const q = norm(state.jq);
+  const es = db.journal.filter(j=>!q || norm(j.game+' '+j.text).includes(q));
+  $('#view-journal').innerHTML = `
+  <div class="page-head"><div><h1>Journal</h1><p class="sub">Your longer write-ups. ${db.journal.length} entries.</p></div><div class="spacer"></div>
+    <input type="search" id="jq" placeholder="Search thoughts…" value="${esc(state.jq)}" style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:7px 12px;min-width:240px">
+    <button class="btn primary" id="btnNewEntry">+ New entry</button></div>
+  <div class="journal">${es.map(j=>{ const g = j.gameId ? byId(j.gameId) : db.games.find(x=>norm(x.title)===norm(j.game));
+    return `<div class="entry"><h3>${g?cover(g,'sm'):''}<span class="nm">${esc(j.game)}</span>${g&&g.rating!=null?score(g.rating):''}</h3>${j.date?`<div class="sub" style="font-size:12px;margin-bottom:6px">${esc(j.date)}</div>`:''}<p>${esc(j.text)||'<i>No thoughts written yet.</i>'}</p>
+    <div class="acts"><button class="btn small" data-jedit="${j.id}">Edit</button>${g?`<button class="btn small" data-open="${g.id}">Open game</button>`:''}<button class="btn small danger" data-jdel="${j.id}">Delete</button></div></div>`; }).join('') || '<div class="empty">No entries found.</div>'}</div>`;
+  const jq = $('#jq'); jq.oninput = ()=>{ state.jq=jq.value; renderJournal(); const n=$('#jq'); n.focus(); n.setSelectionRange(n.value.length,n.value.length); };
+  $('#btnNewEntry').onclick = ()=>openJournal(null);
+}
+
+// ---------- detail ----------
+let detailId = null;
+function openDetail(id){
+  const g = byId(id); if(!g) return; detailId = id;
+  $('#detReplay').classList.toggle('hidden', ['Backlog','Recurring','Playing','Waiting for patch'].includes(g.status));
+  const t = tier(g.rating);
+  $('#detHero').innerHTML = `${g.cover?`<div class="bgimg" style="background-image:url('${esc(g.cover)}')"></div>`:`<div class="bgimg" style="background:hsl(${hueOf(baseTitle(g))} 60% 40%)"></div>`}<div class="bgfade"></div>
+    <button type="button" class="icon-btn x" data-close>✕</button>
+    ${cover(g,'lg')}
+    <div><div class="row-flex">${badge(g.status)}${replayTag(g)}${plat(g.platform)}${g.year?`<span class="sub">${g.year}</span>`:''}</div>
+      <h2>${esc(g.title)}</h2>
+      ${g.rating!=null?`<div class="row-flex">${score(g.rating)}<span class="tier">${t[2]}</span></div>`:''}</div>`;
+  const cell = (k,v)=> `<div><div class="k">${k}</div><div class="v">${v===''||v==null?'—':v}</div></div>`;
+  const flags = [['Blown away?',g.blownAway],['Stunner?',g.stunner],['Bummer?',g.bummer],['Too long?',g.tooLong],['Too short?',g.tooShort],['Rolled credits?',g.credits],['Platinum / 100%?',g.platinum],['Released?',g.released],['Purchased?',g.purchased]].filter(f=>f[1]);
+  const j = journalFor(g);
+  const siblings = g.status==='Recurring' ? (recurringGroups().find(r=>r.key===norm(baseTitle(g)))||{entries:[]}).entries : [];
+  const runs = g.status!=='Recurring' ? playthroughs(g) : [];
+  $('#detBody').innerHTML = `
+    ${runs.length>1?`<div class="label-s">⇢ Played across years · ${fmt1(sum(runs.map(r=>r.hours||0)))}h total</div><div class="years" style="margin-bottom:14px">${runs.map(r=>`<span data-open="${r.id}" style="cursor:pointer;background:var(--surface-2);padding:4px 10px;font-size:13px;${r.id===g.id?'outline:2px solid var(--accent)':''}">${r.year}: <b>${fmt1(r.hours||0)}h</b> · ${esc(r.status)}</span>`).join('')}</div>`:''}
+    ${siblings.length?`<div class="label-s">↻ Hours per year</div><div class="years" style="margin-bottom:14px">${siblings.map(s=>`<span style="background:var(--surface-2);padding:4px 10px;font-size:13px">${s.year}: <b>${fmt1(s.hours||0)}h</b></span>`).join('')}<button class="btn small primary" data-addhours="${norm(baseTitle(g))}">+ Hours for ${THIS_YEAR}</button></div>`:''}
+    <div class="detail-grid">
+      ${cell('Rating', g.rating!=null?fmt1(g.rating)+' / 10':'')}${cell('Excitement before', g.excitement!=null?fmt1(g.excitement)+' / 10':'')}
+      ${cell('Time played', g.hours!=null?fmtH(g.hours)+' h':'')}${cell('HowLongToBeat (Main + Extra)', g.hltb!=null?`<a href="${hltbUrl(g)}" target="_blank" rel="noopener" style="color:inherit">${fmtH(g.hltb)} h ↗</a>`:(g.estHours!=null?fmtH(g.estHours)+' h (own estimate)':''))}
+      ${cell('Year', g.year)}${cell('Over the course of', esc(g.duration))}${cell('Focus', esc(g.focus))}${cell('Worth my time?', esc(g.worthIt))}
+    </div>
+    ${g.notes?`<div class="label-s">Why I finished it</div><p class="quote">${esc(g.notes)}</p>`:''}
+    ${g.reasonDropped?`<div class="label-s">Why I dropped it</div><p class="quote">${esc(g.reasonDropped)}</p>`:''}
+    ${flags.length?`<div class="label-s">Quick verdicts</div><div class="detail-grid">${flags.map(f=>cell(f[0],esc(f[1]))).join('')}</div>`:''}
+    ${j&&j.text?`<div class="label-s">Journal</div><p class="quote">${esc(j.text)}</p>`:''}`;
+  if(!$('#dlgDetail').open) $('#dlgDetail').showModal();
+  $('#dlgDetail').scrollTop = 0;
+}
+$('#detEdit').onclick = ()=>{ $('#dlgDetail').close(); openForm(detailId); };
+$('#detCover').onclick = ()=>openCoverPicker(detailId);
+// replay: a fresh entry for the new playthrough, so each playthrough keeps its own hours and verdict
+$('#detReplay').onclick = ()=>{
+  const g = byId(detailId); if(!g) return;
+  const n = {...BLANK, id:uid('g'), title:baseTitle(g).replace(/s*((first half|start|almost))s*/i,' ').trim(), status:'Playing', year:THIS_YEAR, replay:true,
+    platform:g.platform, focus:g.focus, cover:g.cover, coverTried:true, hltb:g.hltb, hltbId:g.hltbId, estHours:g.estHours, released:'Yes', purchased:'Yes'};
+  db.games.push(n); $('#dlgDetail').close(); save(`Replaying ${n.title} ↺`);
+  openForm(n.id);
+};
+$('#detDelete').onclick = ()=>{
+  const g = byId(detailId); if(!g || !confirm(`Delete “${g.title}” from your log? This can't be undone (unless you have a backup).`)) return;
+  db.games = db.games.filter(x=>x.id!==detailId); $('#dlgDetail').close(); save('Deleted '+g.title);
+};
+
+// ---------- cover picker ----------
+let coverFor = null;
+function setCover(url){
+  const g = byId(coverFor); if(!g) return;
+  g.cover = url; g.coverTried = true;
+  // recurring entries share their cover
+  db.games.forEach(x=>{ if(x!==g && x.status==='Recurring' && g.status==='Recurring' && norm(baseTitle(x))===norm(baseTitle(g))) x.cover = url; });
+  $('#dlgCover').close(); save(url?'Cover updated':'Cover removed');
+  if($('#dlgDetail').open) openDetail(g.id);
+}
+async function runCoverSearch(q){
+  const box = $('#coverResults'); box.innerHTML = '<div class="empty">Searching…</div>';
+  try{
+    let res = await wikiSearch(q,10,true);
+    if(res.length<3) res = res.concat((await wikiSearch(q,10,false)).filter(r=>!res.some(x=>x.url===r.url)));
+    box.innerHTML = res.length ? res.map(r=>`<button type="button" data-pick="${esc(r.url)}"><div class="cover fill"><img src="${esc(r.url)}" alt="" referrerpolicy="no-referrer"></div><small>${esc(r.title)}</small></button>`).join('') : '<div class="empty">Nothing found. Try a different spelling, or paste a link below.</div>';
+  }catch(e){ box.innerHTML = '<div class="empty">Couldn\'t reach Wikipedia. Are you online?</div>'; }
+}
+function openCoverPicker(id){
+  coverFor = id; const g = byId(id);
+  $('#coverTitle').textContent = 'Cover for ' + g.title;
+  const f = $('#coverSearch'); f.elements.q.value = searchTitle(g.title);
+  $('#coverUrl').elements.url.value = '';
+  $('#dlgCover').showModal(); runCoverSearch(f.elements.q.value);
+}
+$('#coverSearch').onsubmit = e=>{ e.preventDefault(); runCoverSearch(e.target.elements.q.value); };
+$('#coverUrl').onsubmit = e=>{ e.preventDefault(); const u = e.target.elements.url.value.trim(); if(!/^(https?:|data:image\/)/.test(u)){ toast('That doesn\'t look like an image link'); return; } setCover(u); };
+$('#coverRemove').onclick = ()=>setCover('');
+$('#coverUpload').onclick = ()=>$('#fileCover').click();
+$('#fileCover').onchange = e=>{
+  const file = e.target.files[0]; e.target.value=''; if(!file) return;
+  const img = new Image(); img.onload = ()=>{
+    const w = 300, h = Math.round(img.height * w / img.width), c = document.createElement('canvas');
+    c.width = w; c.height = h; c.getContext('2d').drawImage(img,0,0,w,h); URL.revokeObjectURL(img.src);
+    setCover(c.toDataURL('image/jpeg',0.82));
+  };
+  img.onerror = ()=>toast('Couldn\'t read that image');
+  img.src = URL.createObjectURL(file);
+};
+
+// ---------- form ----------
+let editingId = null;
+function buildForm(){
+  $('#formFields').innerHTML = FIELDS.map(f=>{
+    if(f.sec) return `<div class="sec">${f.sec}</div>`;
+    if(f.hint) return `<div class="hint hidden" data-hint="${f.hint}">${f.text}</div>`;
+    const cls = f.span ? `span-${f.span}` : '';
+    let inp;
+    if(f.type==='select') inp = `<select name="${f.k}">${f.opts.map(o=>`<option value="${esc(o)}">${o===''?'—':esc(o)}</option>`).join('')}</select>`;
+    else if(f.type==='textarea') inp = `<textarea name="${f.k}" rows="${f.rows||3}"></textarea>`;
+    else if(f.type==='list') inp = `<input name="${f.k}" list="dl-${f.k}" autocomplete="off"><datalist id="dl-${f.k}">${f.opts.map(o=>`<option value="${esc(o)}">`).join('')}</datalist>`;
+    else inp = `<input name="${f.k}" type="${f.type}" ${f.step?`step="${f.step}"`:''} ${f.min!=null?`min="${f.min}"`:''} ${f.max!=null?`max="${f.max}"`:''} ${f.req?'required':''} ${f.k==='title'?'list="dlGames" autocomplete="off"':''}>`;
+    if(f.type==='check') return `<label class="${cls} checkline"><input type="checkbox" name="${f.k}">${f.label}</label>`;
+    if(f.lookup) return `<label class="${cls||'span-2'}"><span style="display:flex;gap:8px">${f.label}<a href="#" data-hltb style="margin-left:auto;color:var(--accent);font-weight:700">Look up ↗</a></span>${inp}</label>`;
+    return `<label class="${cls}">${f.label}${inp}</label>`;
+  }).join('');
+  $('#gameForm').elements.status.addEventListener('change', syncHint);
+}
+function syncHint(){ const s = $('#gameForm').elements.status.value; document.querySelectorAll('[data-hint]').forEach(h=>h.classList.toggle('hidden', h.dataset.hint!==s)); }
+function openForm(id, preset={}){
+  editingId = id;
+  const g = id ? byId(id) : {...BLANK, status:'Completed', year:THIS_YEAR, released:'Yes', purchased:'Yes'};
+  const data = {...g, ...preset};
+  if(id){ const j = journalFor(g); data.thoughts = j ? j.text : ''; } else data.thoughts = '';
+  const form = $('#gameForm');
+  FIELDS.filter(f=>f.k).forEach(f=>{
+    const el = form.elements[f.k]; let v = data[f.k];
+    if(el.type==='checkbox'){ el.checked = !!v; return; }
+    v = v==null ? '' : String(v);
+    if(el.tagName==='SELECT' && ![...el.options].some(o=>o.value===v)) el.add(new Option(v,v));
+    el.value = v;
+  });
+  syncHint();
+  $('#formTitle').textContent = id ? `Edit: ${g.title}` : (data.status==='Backlog' ? 'Add to backlog' : 'Log a game');
+  $('#dlgForm').showModal();
+  form.elements.title.focus();
+}
+$('#gameForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const form = e.target, out = {};
+  FIELDS.filter(f=>f.k).forEach(f=>{ const el = form.elements[f.k]; if(el.type==='checkbox'){ out[f.k] = el.checked; return; } const v = el.value.trim(); out[f.k] = NUM_FIELDS.has(f.k) ? (v===''?null:Math.round(parseFloat(v)*100)/100) : v; });
+  if(!out.title){ form.elements.title.focus(); toast('Give the game a name first'); return; }
+  for(const k of ['excitement','rating']) if(out[k]!=null && (out[k]<0||out[k]>10)){ form.elements[k].focus(); toast('Scores go from 0 to 10'); return; }
+  if(LOGGED.has(out.status) && !out.year) out.year = THIS_YEAR;
+  if(out.status==='Recurring'){
+    const dupe = db.games.find(x=>x.id!==editingId && x.status==='Recurring' && x.year===out.year && norm(baseTitle(x))===norm(out.title));
+    if(dupe){ toast(`${out.title} already has a ${out.year} entry. Use “+ Hours” to add time to it.`); return; }
+  }
+  const thoughts = out.thoughts; delete out.thoughts;
+  let g;
+  if(editingId){ g = byId(editingId); const renamed = norm(g.title)!==norm(out.title); Object.assign(g, out); if(renamed && !g.coverTried){ g.cover=''; } }
+  else { g = {...BLANK, id:uid('g'), ...out}; db.games.push(g); }
+  const j = journalFor(g);
+  if(thoughts){
+    if(j){ j.text = thoughts; j.game = g.title; j.gameId = g.id; }
+    else db.journal.unshift({id:uid('j'), game:g.title, gameId:g.id, text:thoughts, date:new Date().toISOString().slice(0,10)});
+  } else if(j && j.gameId===g.id){ db.journal = db.journal.filter(x=>x!==j); }
+  $('#dlgForm').close();
+  save(editingId ? 'Saved changes' : `Logged ${g.title} 🎉`);
+  if(!g.cover) queueCovers([g]);
+});
+
+// ---------- recurring: add hours ----------
+function addHours(key){
+  const gr = recurringGroups().find(r=>r.key===key); if(!gr) return;
+  const latest = gr.entries.at(-1), name = baseTitle(latest);
+  let cur = gr.entries.find(g=>g.year===THIS_YEAR);
+  const ans = prompt(`How many hours did you play ${name}? This gets added to your ${THIS_YEAR} total${cur?` (currently ${fmtH(cur.hours||0)}h)`:''}.`, '');
+  if(ans===null) return;
+  const n = parseFloat(ans.replace(',','.'));
+  if(!(n>0)){ toast('Enter a number of hours, like 2 or 1.5'); return; }
+  if(!cur){
+    cur = {...BLANK, id:uid('g'), title:name, status:'Recurring', year:THIS_YEAR, hours:0,
+      platform:latest.platform, focus:latest.focus, released:latest.released, purchased:latest.purchased, cover:latest.cover, coverTried:true};
+    db.games.push(cur);
+  }
+  cur.hours = Math.round(((cur.hours||0)+n)*100)/100;
+  save(`+${n}h ${name} (${THIS_YEAR}: ${fmtH(cur.hours)}h)`);
+  if($('#dlgDetail').open) openDetail(cur.id);
+}
+
+// ---------- journal form ----------
+let editingJ = null;
+function openJournal(id){
+  editingJ = id; const j = id ? db.journal.find(x=>x.id===id) : {game:'',text:''};
+  const f = $('#journalForm'); f.elements.game.value = j.game; f.elements.text.value = j.text;
+  $('#dlgJournal').showModal();
+}
+$('#journalForm').addEventListener('submit', e=>{
+  e.preventDefault(); const f = e.target, game = f.elements.game.value.trim(), text = f.elements.text.value.trim();
+  if(!game){ toast('Which game is this about?'); return; }
+  const linked = db.games.find(g=>norm(g.title)===norm(game));
+  if(editingJ){ const j = db.journal.find(x=>x.id===editingJ); Object.assign(j,{game,text}); if(linked) j.gameId = linked.id; }
+  else db.journal.unshift({id:uid('j'), game, text, gameId:linked?.id, date:new Date().toISOString().slice(0,10)});
+  $('#dlgJournal').close(); save('Journal saved');
+});
+
+// ---------- TV shows (episode data from TVmaze, no account needed) ----------
+const SHOW_STATUSES = ['Watching','Caught up','Finished','Paused','Plan to watch','Dropped'];
+const SHOW_META = {'Watching':{icon:'▶',c:'#3b82f6'},'Caught up':{icon:'◉',c:'#14b8a6'},'Finished':{icon:'✓',c:'#22c55e'},'Paused':{icon:'❚❚',c:'#94a3b8'},'Plan to watch':{icon:'☰',c:'#94a3b8'},'Dropped':{icon:'✕',c:'#ef4444'}};
+const SHOW_COLORS = ['--s1','--s2','--s3','--s4'];
+const showById = id => db.shows.find(s=>s.id===id);
+function showBadge(st){ const m = SHOW_META[st]||{icon:'•',c:'#94a3b8'}; return `<span class="badge" style="--c:${m.c}"><b>${m.icon}</b>${esc(st)}</span>`; }
+// episode runtimes are stored run-length encoded ("25x713,30x75,…" = 713 episodes of 25 min, then 75 of 30 min)
+const rtCache = new Map();
+function runtimes(s){
+  const key = s.rt || '';
+  if(!rtCache.has(key)){ const a = []; key.split(',').filter(Boolean).forEach(p=>{ const [r,n] = p.split('x'); for(let i=0;i<(+n||1);i++) a.push(+r||0); }); rtCache.set(key,a); }
+  return rtCache.get(key);
+}
+const totalEps = s => runtimes(s).length;
+const watchedEps = s => Math.min(totalEps(s), Math.max(0, ...(s.log||[]).map(l=>l.upTo||0)));
+const mins = (s,a,b) => sum(runtimes(s).slice(Math.max(0,a), Math.max(0,b)));
+// the log holds, per year, the episode reached by the end of that year → episodes & hours per year
+function yearly(s, log=s.log){
+  let prev = 0;
+  return [...(log||[])].sort((a,b)=>a.year-b.year).map(l=>{ const to = Math.max(prev, Math.min(l.upTo||0, totalEps(s))); const r = {year:l.year, eps:to-prev, hours:mins(s,prev,to)/60}; prev = to; return r; });
+}
+// long-running anime are listed per year on TVmaze, so number those episodes 1…N instead of S/E
+const absNum = s => (s.seasons||[]).some(x=>x[0]>1900);
+function epLabel(s, idx){
+  if(idx<=0) return '—';
+  if(absNum(s)) return `Ep ${idx}`;
+  let n = idx; for(const [se,c] of s.seasons||[]){ if(n<=c) return `S${se} E${n}`; n -= c; }
+  return `Ep ${idx}`;
+}
+// every watch-through (earlier ones + the current one) added up per year
+function yearlyAll(s){
+  const m = new Map();
+  [...(s.pastRuns||[]).map(r=>r.log), s.log].forEach(log=>yearly(s,log).forEach(r=>{ const c = m.get(r.year)||{year:r.year,eps:0,hours:0}; c.eps += r.eps; c.hours += r.hours; m.set(r.year,c); }));
+  return [...m.values()].sort((a,b)=>a.year-b.year);
+}
+const rewatchLabel = n => n===1 ? 'Rewatch' : `Rewatch #${n}`;
+function rewatchTag(s){ return s.rewatch ? `<span class="badge" style="--c:#f59e0b"><b>↺</b>${rewatchLabel(s.rewatch)}</span>` : ''; }
+function startRewatch(s){
+  if(!confirm(`Start watching “${s.title}” again from episode 1? Your earlier watch-through and its hours are kept.`)) return;
+  s.pastRuns = [...(s.pastRuns||[]), {rewatch:s.rewatch||0, log:s.log||[]}];
+  s.log = []; s.rewatch = (s.rewatch||0) + 1; s.status = 'Watching';
+  save(`${rewatchLabel(s.rewatch)} of ${s.title} started ↺`);
+}
+function seasonStart(s, se){ let i = 0; for(const [x,c] of s.seasons||[]){ if(x===se) return i; i += c; } return 0; }
+function paceThisYear(s){
+  const y = yearlyAll(s).find(r=>r.year===THIS_YEAR); if(!y || !y.eps) return 0;
+  return y.eps / Math.max(1, (Date.now()-new Date(THIS_YEAR,0,1))/864e5);   // episodes per day
+}
+function setProgress(s, upTo){
+  const total = totalEps(s); s.log = s.log || [];
+  const prevMax = Math.max(0, ...s.log.filter(l=>l.year<THIS_YEAR).map(l=>l.upTo||0));
+  upTo = Math.max(prevMax, Math.min(Math.round(upTo)||0, total));
+  const cur = s.log.find(l=>l.year===THIS_YEAR);
+  if(cur) cur.upTo = upTo; else if(upTo>prevMax) s.log.push({year:THIS_YEAR, upTo});
+  if(total && upTo>=total) s.status = s.showStatus==='Ended' ? 'Finished' : 'Caught up';
+  else if(upTo>0 && ['Plan to watch','Finished','Caught up','Paused'].includes(s.status)) s.status = 'Watching';
+  save(`${s.title}: watched up to ${epLabel(s,upTo)}`);
+}
+async function tvmazeShow(id){
+  const s = await (await fetch(`https://api.tvmaze.com/shows/${id}?embed=episodes`)).json();
+  const today = new Date().toISOString().slice(0,10);
+  const eps = (s._embedded?.episodes||[]).filter(e=>e.airdate && e.airdate<=today);
+  const seasons = []; eps.forEach(e=>{ const l = seasons.at(-1); if(l && l[0]===e.season) l[1]++; else seasons.push([e.season,1]); });
+  const rle = []; eps.map(e=>e.runtime||s.averageRuntime||s.runtime||24).forEach(r=>{ const l = rle.at(-1); if(l && l[0]===r) l[1]++; else rle.push([r,1]); });
+  return {tvmazeId:s.id, title:s.name, premiered:s.premiered, showStatus:s.status, network:(s.network||s.webChannel||{}).name||'',
+    genres:s.genres||[], tvRating:s.rating?.average??null, poster:s.image?.medium||'', seasons, rt:rle.map(([r,n])=>n>1?r+'x'+n:''+r).join(','), fetched:today};
+}
+async function refreshShow(s, quiet){
+  try{
+    Object.assign(s, await tvmazeShow(s.tvmazeId));
+    if(s.status==='Caught up' && watchedEps(s)<totalEps(s)) s.status = 'Watching';   // new episodes aired
+    persist(); if(!quiet) toast('Episodes updated'); return true;
+  }catch(e){ if(!quiet) toast('Couldn\'t reach TVmaze. Are you online?'); return false; }
+}
+let showsRefreshed = false;
+function autoRefreshShows(){   // shows still airing get their new episodes every few days
+  if(showsRefreshed) return; showsRefreshed = true;
+  const stale = db.shows.filter(s=>s.showStatus==='Running' && (!s.fetched || (Date.now()-new Date(s.fetched))/864e5 > 3));
+  Promise.all(stale.map(s=>refreshShow(s,true))).then(r=>{ if(r.some(Boolean) && state.view==='shows') renderShows(); });
+}
+
+function showCard(s){
+  const w = watchedEps(s), t = totalEps(s), pct = t ? w/t : 0, left = mins(s,w,t)/60, pace = paceThisYear(s);
+  let eta = (s.status==='Watching' && pace>0 && w<t) ? new Date(Date.now() + (t-w)/pace*864e5) : null;
+  if(eta && eta.getFullYear() > THIS_YEAR+5) eta = null;   // too far out to be a useful guess
+  const bar = absNum(s)
+    ? `<div class="seasonbar"><div style="--n:1;--p:${pct*100}%" data-tip="${w} of ${t} episodes"><i></i></div></div>`
+    : `<div class="seasonbar">${(s.seasons||[]).map(([se,c])=>{ const st = seasonStart(s,se), done = Math.max(0,Math.min(c,w-st)); return `<div style="--n:${c};--p:${done/c*100}%" data-tip="Season ${se}: ${done}/${c} episodes"><i></i></div>`; }).join('')}</div>`;
+  return `<div class="watch"><div class="poster" data-showedit="${s.id}" style="width:120px">${s.poster?`<img src="${esc(s.poster)}" alt="" loading="lazy">`:''}</div>
+    <div class="body">
+      <div class="tags">${showBadge(s.status)}${rewatchTag(s)}<span>${esc(s.network)}</span>${s.where?`<span>· ${esc(s.where)}</span>`:''}<span class="spacer"></span>${s.rating!=null?score(s.rating):''}</div>
+      <h3 data-showedit="${s.id}" style="cursor:pointer">${esc(s.title)}</h3>
+      <div class="now-ep">${w?`Watched up to <b>${epLabel(s,w)}</b>`:'Not started yet'}${w<t?` · next up: <b>${epLabel(s,w+1)}</b>`:(s.showStatus==='Running'?' · all caught up':' · watched it all')}</div>
+      ${bar}
+      <div class="stats4">
+        <div><div class="k">Progress</div><div class="v">${Math.round(pct*100)}%</div></div>
+        <div><div class="k">Watched</div><div class="v">${fmtH(mins(s,0,w)/60)}h</div></div>
+        <div><div class="k">${s.showStatus==='Running'?'To catch up':'To go'}</div><div class="v">${fmtH(left)}h</div></div>
+        <div><div class="k">${eta?'Done around':'Episodes'}</div><div class="v" ${eta?'data-tip="If you keep watching at this year\'s pace"':''}>${eta?eta.toLocaleDateString('en-GB',{month:'short',year:'numeric'}):`${w} / ${t}`}</div></div>
+      </div>
+      <div class="row-flex">${w<t?`<button class="btn small primary" data-ep="${s.id}" data-n="1">+1 episode</button><button class="btn small" data-ep="${s.id}" data-n="5">+5</button>`:''}<button class="btn small" data-showedit="${s.id}">Update progress</button>${w>=t&&t?`<button class="btn small" data-rewatch="${s.id}">↺ Watch again</button>`:''}${pace>0&&w<t?`<span class="sub" style="font-size:12px">${fmt1(pace*7)} episodes a week this year</span>`:''}</div>
+    </div></div>`;
+}
+
+function renderShows(){
+  autoRefreshShows();
+  const shows = db.shows, yr = shows.map(s=>({s, y:yearlyAll(s)}));
+  const years = [...new Set(yr.flatMap(o=>o.y.map(r=>r.year)))].sort((a,b)=>a-b);
+  const inYear = (o,y,k) => sum(o.y.filter(r=>r.year===y).map(r=>r[k]));
+  const tvH = sum(yr.map(o=>inYear(o,THIS_YEAR,'hours'))), tvE = sum(yr.map(o=>inYear(o,THIS_YEAR,'eps')));
+  const gameH = sum(loggedGames().filter(g=>g.year===THIS_YEAR).map(g=>g.hours||0));
+  const finished = shows.filter(s=>s.status==='Finished' && inYear(yr.find(o=>o.s===s),THIS_YEAR,'eps')>0).length;
+  const watching = shows.filter(s=>['Watching','Caught up'].includes(s.status));
+  const others = shows.filter(s=>!['Watching','Caught up'].includes(s.status));
+  // hours per year, stacked per show (biggest 4 get their own color, the rest fold into "Other shows")
+  const rank = [...yr].sort((a,b)=>sum(b.y.map(r=>r.hours))-sum(a.y.map(r=>r.hours)));
+  const series = rank.slice(0,4).map((o,i)=>({name:o.s.title, color:SHOW_COLORS[i], of:y=>inYear(o,y,'hours')}));
+  if(rank.length>4) series.push({name:'Other shows', color:'--muted', of:y=>sum(rank.slice(4).map(o=>inYear(o,y,'hours')))});
+  const yData = years.map(y=>{ const parts = series.map(se=>({value:se.of(y), color:se.color})), v = Math.round(sum(parts.map(p=>p.value)));
+    return {label:y, value:v, show:v+'h', parts, tip:`<b>${y}${y===THIS_YEAR?' (so far)':''}</b>${v} hours of TV${series.map(se=>se.of(y)?`<br>${esc(se.name)}: ${Math.round(se.of(y))}h`:'').join('')}`}; });
+  const perShow = yr.map(o=>({s:o.s, h:inYear(o,THIS_YEAR,'hours'), e:inYear(o,THIS_YEAR,'eps')})).filter(x=>x.h>0).sort((a,b)=>b.h-a.h);
+  const pMax = Math.max(1,...perShow.map(x=>x.h)), top = perShow[0];
+  const screen = gameH + tvH;
+
+  $('#view-shows').innerHTML = `
+  <div class="page-head"><div><h1>Shows</h1><p class="sub">What you're watching. Episode lengths come from TVmaze, so hours are worked out for you.</p></div><div class="spacer"></div>
+    <button class="btn primary" data-addshow>+ Add a show</button></div>
+  <div class="grid">
+    <div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+      <div class="card kpi"><div class="label">TV hours in ${THIS_YEAR}</div><div class="value">${fmtH(tvH)}<small> h</small></div><div class="foot">≈ ${fmt1(tvH/24)} full days</div></div>
+      <div class="card kpi"><div class="label">Episodes in ${THIS_YEAR}</div><div class="value">${tvE.toLocaleString()}</div><div class="foot">≈ ${fmt1(tvE/Math.max(1,(Date.now()-new Date(THIS_YEAR,0,1))/864e5))} a day</div></div>
+      <div class="card kpi"><div class="label">Shows finished</div><div class="value">${finished}</div><div class="foot">in ${THIS_YEAR}</div></div>
+      <div class="card kpi"><div class="label">Screen time ${THIS_YEAR}</div><div class="value">${fmtH(screen)}<small> h</small></div><div class="foot">games + TV combined</div></div>
+    </div>
+    <div class="span-12">${watching.length?`<div class="watch-grid">${watching.map(showCard).join('')}</div>`:'<div class="card empty">Nothing on the go. Add a show to start tracking.</div>'}</div>
+    <div class="card span-7"><h2>Hours of TV per year</h2><p class="card-sub">Worked out from each show's episode lengths</p>
+      <div class="legend">${series.map(se=>`<span><i style="background:${cssVar(se.color)}"></i>${esc(se.name)}</span>`).join('')}</div>
+      ${years.length?columnChart(yData):'<div class="empty">No watch history yet.</div>'}</div>
+    <div class="card span-5"><h2>${THIS_YEAR}: games vs. TV</h2><p class="card-sub">Where your screen time went this year</p>
+      ${screen?`<div class="stack"><div style="flex:${gameH};background:var(--s1)" data-tip="<b>Games</b>${fmtH(gameH)}h"></div><div style="flex:${tvH};background:var(--s2)" data-tip="<b>TV</b>${fmtH(tvH)}h"></div></div>
+      <div class="legend"><span><i style="background:var(--s1)"></i>Games: ${fmtH(gameH)}h (${Math.round(gameH/screen*100)}%)</span><span><i style="background:var(--s2)"></i>TV: ${fmtH(tvH)}h (${Math.round(tvH/screen*100)}%)</span></div>`:'<div class="empty">Nothing logged yet this year.</div>'}
+      <h2 style="margin-top:18px">Per show in ${THIS_YEAR}</h2><p class="card-sub">Hours and episodes</p>
+      ${perShow.map(x=>`<div class="hrow" style="grid-template-columns:130px 1fr 70px" data-tip="<b>${esc(esc(x.s.title))}</b>${x.e} episodes · ${fmt1(x.h)}h"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.s.title)}</span><div class="track"><div class="bar" style="width:${x.h/pMax*100}%;background:var(--accent)"></div></div><span class="n">${fmtH(x.h)}h</span></div>`).join('') || '<div class="empty">—</div>'}
+      ${top?`<div class="fact" style="margin-top:14px;cursor:default"><div><div class="k">Binge of the year</div><div class="v">${esc(top.s.title)}</div><div class="d">${top.e} episodes, ${fmtH(top.h)}h · ${Math.round(top.h/Math.max(tvH,1)*100)}% of your TV time</div></div></div>`:''}
+    </div>
+    ${others.length?`<div class="span-12"><h2 style="margin:8px 0 12px">Finished, paused & planned</h2><div class="watch-grid">${others.map(showCard).join('')}</div></div>`:''}
+  </div>`;
+}
+
+// ---------- show dialogs ----------
+function openShowSearch(){ $('#showResults').innerHTML = ''; $('#showSearch').elements.q.value = ''; $('#dlgShowSearch').showModal(); $('#showSearch').elements.q.focus(); }
+$('#showSearch').onsubmit = async e=>{
+  e.preventDefault(); const q = e.target.elements.q.value.trim(); if(!q) return;
+  const box = $('#showResults'); box.innerHTML = '<div class="empty">Searching…</div>';
+  try{
+    const r = await (await fetch('https://api.tvmaze.com/search/shows?q='+encodeURIComponent(q))).json();
+    box.innerHTML = r.length ? r.slice(0,12).map(({show:s})=>`<button type="button" data-showpick="${s.id}"><div class="poster" style="width:100%">${s.image?`<img src="${esc(s.image.medium)}" alt="">`:''}</div><small><b>${esc(s.name)}</b><br>${esc((s.premiered||'').slice(0,4))}${(s.network||s.webChannel)?' · '+esc((s.network||s.webChannel).name):''}</small></button>`).join('') : '<div class="empty">No shows found. Try another spelling.</div>';
+  }catch(err){ box.innerHTML = '<div class="empty">Couldn\'t reach TVmaze. Are you online?</div>'; }
+};
+async function addShowFromTvmaze(id){
+  if(db.shows.some(s=>s.tvmazeId===id)){ toast('That show is already on your list'); return; }
+  toast('Fetching episodes…');
+  try{
+    const s = {id:uid('s'), ...(await tvmazeShow(id)), status:'Plan to watch', rating:null, notes:'', where:'', log:[]};
+    db.shows.push(s); $('#dlgShowSearch').close(); save(`Added ${s.title}`); openShow(s.id);
+  }catch(e){ toast('Couldn\'t reach TVmaze. Are you online?'); }
+}
+let editingShow = null;
+const logRow = (y,up) => `<tr><td><input type="number" step="1" data-k="year" value="${y??''}"></td><td><input type="number" min="0" step="1" data-k="upTo" value="${up??''}"></td><td class="hrs sub"></td><td><button type="button" class="btn small" data-rmrow title="Remove">✕</button></td></tr>`;
+function readLogRows(){ return [...$('#logRows').rows].map(r=>({year:parseInt(r.querySelector('[data-k=year]').value), upTo:parseInt(r.querySelector('[data-k=upTo]').value)})).filter(l=>l.year>1900 && l.upTo>=0); }
+function updateLogHours(){
+  const s = showById(editingShow), y = yearly({...s, log:readLogRows()});
+  [...$('#logRows').rows].forEach(r=>{ const yr = parseInt(r.querySelector('[data-k=year]').value), row = y.find(x=>x.year===yr);
+    const up = parseInt(r.querySelector('[data-k=upTo]').value);
+    r.querySelector('.hrs').textContent = row ? `${fmt1(row.hours)}h · ${row.eps} eps${up>0?' · up to '+epLabel(s,Math.min(up,totalEps(s))):''}` : ''; });
+}
+function progAbs(){
+  const s = showById(editingShow), f = $('#showForm'), ep = Math.max(0, parseInt(f.elements.ep.value)||0);
+  if(absNum(s)) return Math.min(ep, totalEps(s));
+  const se = +f.elements.season.value, c = (s.seasons.find(x=>x[0]===se)||[0,0])[1];
+  return seasonStart(s,se) + Math.min(ep,c);
+}
+function syncProgHint(){
+  const s = showById(editingShow), a = progAbs(), t = totalEps(s);
+  $('#progHint').innerHTML = `${a?`<b>${epLabel(s,a)}</b> · ${fmtH(mins(s,0,a)/60)}h watched in total`:'Not started'} · ${a<t?`next up: ${epLabel(s,a+1)} · ${fmtH(mins(s,a,t)/60)}h to go`:'all caught up'}<br><span style="opacity:.8">Changing this updates your ${THIS_YEAR} row below.</span>`;
+}
+function progChanged(){
+  const s = showById(editingShow), a = progAbs();
+  const prev = Math.max(0, ...readLogRows().filter(l=>l.year<THIS_YEAR).map(l=>l.upTo));
+  let row = [...$('#logRows').rows].find(r=>parseInt(r.querySelector('[data-k=year]').value)===THIS_YEAR);
+  if(row) row.querySelector('[data-k=upTo]').value = Math.max(a,prev);
+  else if(a>prev) $('#logRows').insertAdjacentHTML('beforeend', logRow(THIS_YEAR,a));
+  updateLogHours(); syncProgHint();
+}
+function openShow(id){
+  const s = showById(id); if(!s) return; editingShow = id;
+  const f = $('#showForm'), w = watchedEps(s), abs = absNum(s);
+  $('#showHero').innerHTML = `<div class="bgimg" style="background-image:url('${esc(s.poster)}')"></div><div class="bgfade"></div><button type="button" class="icon-btn x" data-close>✕</button>
+    <div class="poster" style="width:110px;cursor:default">${s.poster?`<img src="${esc(s.poster)}" alt="">`:''}</div>
+    <div><div class="row-flex">${showBadge(s.status)}<span class="sub">${esc(s.network)}${s.premiered?' · since '+s.premiered.slice(0,4):''} · ${s.showStatus==='Running'?'still airing':'ended'}</span></div>
+      <h2>${esc(s.title)}</h2><div class="sub">${esc((s.genres||[]).join(' · '))}${s.tvRating?` · TVmaze rating ${s.tvRating}`:''} · ${totalEps(s)} episodes · ${fmtH(mins(s,0,totalEps(s))/60)}h total</div></div>`;
+  f.elements.status.innerHTML = SHOW_STATUSES.map(x=>`<option>${x}</option>`).join('');
+  f.elements.rewatch.innerHTML = [0,1,2,3,4,5].map(n=>`<option value="${n}">${n?'↺ '+rewatchLabel(n):'First time'}</option>`).join('');
+  f.elements.rewatch.value = s.rewatch||0;
+  const past = (s.pastRuns||[]).map(r=>sum(yearly(s,r.log).map(y=>y.hours)));
+  $('#pastRunsNote').textContent = past.length ? `This table is for your current watch-through. Earlier watch-throughs: ${past.map(h=>fmtH(h)+'h').join(', ')} (still counted in your stats).` : '';
+  f.elements.status.value = s.status; f.elements.rating.value = s.rating ?? ''; f.elements.notes.value = s.notes||''; f.elements.where.value = s.where||'';
+  $('#progSeasonWrap').classList.toggle('hidden', abs);
+  $('#progEpWrap').firstChild.textContent = abs ? 'Last episode watched (#)' : 'Last episode watched in that season';
+  if(abs) f.elements.ep.value = w;
+  else {
+    f.elements.season.innerHTML = s.seasons.map(([se,c])=>`<option value="${se}">Season ${se} (${c} episodes)</option>`).join('');
+    let n = w, se = s.seasons[0]?.[0]; for(const [x,c] of s.seasons){ se = x; if(n<=c) break; n -= c; }
+    f.elements.season.value = se; f.elements.ep.value = n;
+  }
+  $('#logRows').innerHTML = [...(s.log||[])].sort((a,b)=>a.year-b.year).map(l=>logRow(l.year,l.upTo)).join('');
+  updateLogHours(); syncProgHint();
+  $('#dlgShow').showModal();
+}
+$('#showForm').elements.season.addEventListener('change', progChanged);
+$('#showForm').elements.ep.addEventListener('input', progChanged);
+$('#logRows').addEventListener('input', updateLogHours);
+$('#logRows').addEventListener('click', e=>{ if(e.target.closest('[data-rmrow]')){ e.target.closest('tr').remove(); updateLogHours(); } });
+$('#logAdd').onclick = ()=>{ const ys = readLogRows().map(l=>l.year); $('#logRows').insertAdjacentHTML('beforeend', logRow(ys.length?Math.max(...ys)+1:THIS_YEAR, '')); };
+$('#showRefresh').onclick = async ()=>{ const s = showById(editingShow); if(await refreshShow(s)){ render(); openShow(s.id); } };
+$('#showDelete').onclick = ()=>{ const s = showById(editingShow); if(!confirm(`Remove “${s.title}” and its watch history?`)) return; db.shows = db.shows.filter(x=>x!==s); $('#dlgShow').close(); save('Removed '+s.title); };
+$('#showForm').addEventListener('submit', e=>{
+  e.preventDefault(); const s = showById(editingShow), f = e.target;
+  const byYear = new Map(); readLogRows().forEach(l=>byYear.set(l.year, Math.max(byYear.get(l.year)||0, l.upTo)));
+  s.log = [...byYear].sort((a,b)=>a[0]-b[0]).map(([year,upTo])=>({year, upTo:Math.min(upTo,totalEps(s))}));
+  const r = f.elements.rating.value;
+  if(r!=='' && (r<0 || r>10)){ toast('Ratings go from 0 to 10'); return; }
+  Object.assign(s, {rewatch:+f.elements.rewatch.value||0, status:f.elements.status.value, rating:r===''?null:Math.round(parseFloat(r)*10)/10, notes:f.elements.notes.value.trim(), where:f.elements.where.value.trim()});
+  if(totalEps(s) && watchedEps(s)>=totalEps(s) && s.status==='Watching') s.status = s.showStatus==='Ended' ? 'Finished' : 'Caught up';
+  $('#dlgShow').close(); save('Saved '+s.title);
+});
+
+// ---------- clicks ----------
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-open],[data-edit],[data-start],[data-drop],[data-finish],[data-year],[data-sort],[data-blsort],[data-jedit],[data-jdel],[data-close],[data-act],[data-addhours],[data-pick],[data-libmode],[data-accent],[data-mode],[data-top],[data-hltb],[data-ep],[data-showedit],[data-showpick],[data-addshow],[data-plushour],[data-rewatch],[data-move]');
+  if(!t) return;
+  const d = t.dataset;
+  if(d.close!==undefined){ t.closest('dialog').close(); return; }
+  if(d.hltb!==undefined){ e.preventDefault(); const f=$('#gameForm'); window.open(hltbUrl({title:f.elements.title.value, hltbId: editingId && byId(editingId)?.title===f.elements.title.value ? byId(editingId).hltbId : null}), '_blank', 'noopener'); return; }
+  if(d.ep){ const s=showById(d.ep); setProgress(s, watchedEps(s)+(+d.n||1)); return; }
+  if(d.showedit){ openShow(d.showedit); return; }
+  if(d.showpick){ addShowFromTvmaze(+d.showpick); return; }
+  if(d.addshow!==undefined){ openShowSearch(); return; }
+  if(d.plushour){ const g = byId(d.plushour); g.hours = Math.round(((g.hours||0)+1)*100)/100; save(`+1h ${g.title} (${fmt1(g.hours)}h)`); return; }
+  if(d.rewatch){ startRewatch(showById(d.rewatch)); return; }
+  if(d.pick){ setCover(d.pick); return; }
+  if(d.addhours){ addHours(d.addhours); return; }
+  if(d.top){ applyOrder([d.top]); return; }
+  if(d.move){ const ids = backlogOrdered().map(g=>g.id), i = ids.indexOf(d.move), j = i + (+d.dir); if(i<0 || j<0 || j>=ids.length) return; [ids[i],ids[j]] = [ids[j],ids[i]]; applyOrder(ids); return; }
+  if(d.edit){ openForm(d.edit); return; }
+  if(d.finish){ openForm(d.finish,{status:'Completed', credits:'Yes'}); return; }
+  if(d.start){ const g=byId(d.start); g.status='Playing'; g.year=THIS_YEAR; save(`Now playing: ${g.title} 🎮`); return; }
+  if(d.drop){ const g=byId(d.drop); const why=prompt(`Why are you dropping “${g.title}”? (optional)`, g.reasonDropped||''); if(why===null) return; g.status='Dropped'; g.reasonDropped=why; save('Moved to dropped'); return; }
+  if(d.year){ state.dashYear = d.year==='all'?'all':+d.year; render(); return; }
+  if(d.sort){ const L=state.lib; if(L.sort===d.sort) L.dir*=-1; else { L.sort=d.sort; L.dir = ['title','status','focus','worthIt','notes'].includes(d.sort)?1:-1; } renderLibrary(); return; }
+  if(d.libmode){ state.lib.mode=d.libmode; localStorage.setItem(VIEW_KEY,d.libmode); renderLibrary(); return; }
+  if(d.blsort){ state.blSort=d.blsort; renderBacklog(); return; }
+  if(d.jedit){ openJournal(d.jedit); return; }
+  if(d.jdel){ const j=db.journal.find(x=>x.id===d.jdel); if(confirm(`Delete your journal entry for “${j.game}”?`)){ db.journal=db.journal.filter(x=>x!==j); save('Entry deleted'); } return; }
+  if(d.act){ $('#dataMenu').open=false; dataAction(d.act); return; }
+  if(d.accent){ applyAccent(d.accent); return; }
+  if(d.mode){ applyTheme(d.mode); return; }
+  if(d.open){ openDetail(d.open); return; }
+});
+$('#btnLog').onclick = ()=>openForm(null);
+
+// ---------- data menu ----------
+function download(name, text, type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
+function dataAction(act){
+  const today = new Date().toISOString().slice(0,10);
+  if(act==='covers'){ const miss = db.games.filter(g=>!g.cover); if(!miss.length){ toast('Every game already has a cover 🎉'); return; } toast(`Looking for ${miss.length} covers…`); queueCovers(miss); }
+  if(act==='export'){ download(`game-log-backup-${today}.json`, JSON.stringify(db,null,2), 'application/json'); localStorage.setItem(BACKUP_KEY,today); render(); toast('Backup downloaded'); }
+  if(act==='import') $('#fileImport').click();
+  if(act==='csv'){
+    const cols = ['title','year','status','platform','hltb','estHours','released','purchased','excitement','credits','hours','platinum','duration','rating','reasonDropped','notes','blownAway','stunner','bummer','tooLong','tooShort','focus','worthIt'];
+    const q = v => { v = v==null?'':String(v); return /[",\n;]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; };
+    download(`game-log-${today}.csv`, '\ufeff'+[cols.join(','), ...db.games.map(g=>cols.map(c=>q(g[c])).join(','))].join('\r\n'), 'text/csv');
+    toast('CSV downloaded');
+  }
+  if(act==='reset' && confirm('Replace everything with the data from your original spreadsheet? Games you logged in this app will be lost unless you exported a backup.')){ db = migrate(structuredClone(SEED)); save('Reset to the original spreadsheet'); queueCovers(db.games); }
+}
+$('#fileImport').onchange = async e=>{
+  const file = e.target.files[0]; e.target.value=''; if(!file) return;
+  try{
+    const data = JSON.parse(await file.text());
+    if(!data || !Array.isArray(data.games)) throw new Error('not a Game Log backup');
+    if(confirm(`Import ${data.games.length} games and ${(data.journal||[]).length} journal entries? This replaces what's in the app now.`)){ db = migrate(data); save('Backup imported'); }
+  }catch(err){ alert('Could not import that file: '+err.message); }
+};
+
+// ---------- theme, accent & routing ----------
+function applyTheme(t){ document.documentElement.dataset.theme = t; localStorage.setItem(THEME_KEY,t); document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===t)); }
+function applyAccent(name){
+  const a = ACCENTS.find(x=>x[0]===name) || ACCENTS[0];
+  document.documentElement.style.setProperty('--accent', a[1]);
+  document.documentElement.style.setProperty('--on-accent', a[2] || '#fff');
+  localStorage.setItem(ACCENT_KEY, a[0]);
+  buildLogo();
+  document.querySelectorAll('[data-accent]').forEach(b=>b.classList.toggle('on',b.dataset.accent===a[0]));
+}
+$('#swatches').innerHTML = ACCENTS.map(([n,c])=>`<button data-accent="${n}"><i style="background:${c}"></i>${n}</button>`).join('');
+applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
+applyAccent(localStorage.getItem(ACCENT_KEY) || 'Mario');
+function route(){ const v = location.hash.slice(1); state.view = ['dashboard','library','backlog','journal','shows'].includes(v) ? v : 'dashboard'; render(); scrollTo(0,0); }
+addEventListener('hashchange', route);
+document.addEventListener('click', e=>{ for(const id of ['dataMenu','styleMenu']){ const m=$('#'+id); if(m.open && !m.contains(e.target)) m.open=false; } });
+buildForm();
+// offline support + home-screen app when hosted (not when opened as a local file)
+if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
+$('#logo').addEventListener('click', e=>{ if(state.view==='dashboard'){ e.preventDefault(); state.dashYear='all'; render(); scrollTo({top:0,behavior:'smooth'}); } });
+route();
+queueCovers(db.games.filter(g=>!g.cover && !g.coverTried));
+</script>
+</body>
+</html>

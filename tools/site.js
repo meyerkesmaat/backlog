@@ -32,7 +32,7 @@ fs.writeFileSync(path.join(out,'icon-512.png'), icon(512));
 
 fs.writeFileSync(path.join(out,'manifest.webmanifest'), JSON.stringify({
   name:'Backlog', short_name:'Backlog', start_url:'./', scope:'./', display:'standalone',
-  background_color:'#111014', theme_color:'#111014',
+  background_color:'#f5f3f7', theme_color:'#f5f3f7',
   icons:[{src:'icon-180.png',sizes:'180x180',type:'image/png'},{src:'icon-512.png',sizes:'512x512',type:'image/png',purpose:'any maskable'}]
 }, null, 2));
 
@@ -56,7 +56,7 @@ const pwa = `<link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Backlog">`;
 const html = fs.readFileSync(src,'utf8');
 if(!html.includes('<!--PWA-->')) throw new Error('PWA placeholder missing');

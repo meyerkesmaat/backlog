@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#111014">
+<meta name="theme-color" content="#f5f3f7">
 <!--PWA-->
 <title>Backlog</title>
 <style>
@@ -492,7 +492,7 @@ dialog::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}
 <script>
 "use strict";
 const SEED = JSON.parse(document.getElementById('seed').textContent);
-const KEY = 'gamelog.v1', THEME_KEY = 'gamelog.theme', ACCENT_KEY = 'gamelog.accent', BACKUP_KEY = 'gamelog.lastBackup', VIEW_KEY = 'gamelog.libView';
+const KEY = 'gamelog.v1', THEME_KEY = 'gamelog.themePick', ACCENT_KEY = 'gamelog.accent', BACKUP_KEY = 'gamelog.lastBackup', VIEW_KEY = 'gamelog.libView';
 const SYNC_KEY = 'gamelog.sync', SYNC_KEYS = ['games','shows','journal'];   // sync settings live per device, never in the synced data
 const THIS_YEAR = new Date().getFullYear();
 const DATA_VERSION = 6;
@@ -1577,7 +1577,7 @@ document.addEventListener('click', e=>{
   if(d.jdel){ const j=db.journal.find(x=>x.id===d.jdel); if(confirm(`Delete your journal entry for “${j.game}”?`)){ db.journal=db.journal.filter(x=>x!==j); save('Entry deleted'); } return; }
   if(d.act){ $('#dataMenu').open=false; dataAction(d.act); return; }
   if(d.accent){ applyAccent(d.accent); return; }
-  if(d.mode){ applyTheme(d.mode); return; }
+  if(d.mode){ applyTheme(d.mode, true); return; }
   if(d.open){ openDetail(d.open); return; }
 });
 $('#btnLog').onclick = ()=>openForm(null);
@@ -1608,7 +1608,7 @@ $('#fileImport').onchange = async e=>{
 };
 
 // ---------- theme, accent & routing ----------
-function applyTheme(t){ document.documentElement.dataset.theme = t; localStorage.setItem(THEME_KEY,t); document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===t)); }
+function applyTheme(t, remember){ document.documentElement.dataset.theme = t; if(remember) localStorage.setItem(THEME_KEY,t); document.querySelector('meta[name="theme-color"]').content = t==='dark' ? '#111014' : '#f5f3f7'; document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===t)); }
 function applyAccent(name){
   const a = ACCENTS.find(x=>x[0]===name) || ACCENTS[0];
   document.documentElement.style.setProperty('--accent', a[1]);
@@ -1618,7 +1618,7 @@ function applyAccent(name){
   document.querySelectorAll('[data-accent]').forEach(b=>b.classList.toggle('on',b.dataset.accent===a[0]));
 }
 $('#swatches').innerHTML = ACCENTS.map(([n,c])=>`<button data-accent="${n}"><i style="background:${c}"></i>${n}</button>`).join('');
-applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
+applyTheme(localStorage.getItem(THEME_KEY) || 'light');   // light unless you picked dark
 applyAccent(localStorage.getItem(ACCENT_KEY) || 'Mario');
 function route(){ const v = location.hash.slice(1); state.view = ['dashboard','library','backlog','journal','shows'].includes(v) ? v : 'dashboard'; render(); scrollTo(0,0); }
 addEventListener('hashchange', route);

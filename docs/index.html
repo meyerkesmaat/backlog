@@ -45,6 +45,7 @@ nav a:hover{background:var(--surface-2)}
 nav a.active{background:var(--accent);color:var(--on-accent)}
 .spacer{flex:1}
 .btn{border:1px solid var(--border);background:var(--surface);padding:7px 14px;border-radius:10px;cursor:pointer;font-weight:600;white-space:nowrap}
+a.btn{display:inline-flex;align-items:center;gap:4px;color:var(--text);text-decoration:none}
 .btn:hover{background:var(--surface-2)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);box-shadow:0 3px 0 var(--hard);transform:translateY(-1px)}
 .btn.primary:hover{filter:brightness(1.08)}
@@ -83,7 +84,7 @@ h2{font-size:15.5px;margin:0 0 2px;letter-spacing:-.2px}
   background-image:radial-gradient(color-mix(in srgb,var(--on-accent) 16%,transparent) 1.3px,transparent 1.7px);background-size:14px 14px;
   border:2px solid var(--edge);box-shadow:6px 6px 0 var(--edge);margin:0 6px 6px 0}
 .hero .eyebrow{display:inline-block;font:700 11px/1 ui-monospace,"Cascadia Mono",Consolas,monospace;letter-spacing:1.5px;text-transform:uppercase;background:var(--ink);color:#fff;padding:6px 9px;border-radius:5px}
-.hero h1{color:inherit;font-size:38px;line-height:1.08;letter-spacing:-1.2px;margin:14px 0 6px;max-width:620px}
+.hero h1{color:inherit;font-size:38px;line-height:1.08;letter-spacing:-1.2px;margin:0 0 6px;max-width:620px}
 .hero h1 .n{display:inline-block;background:var(--on-accent);color:var(--accent);padding:0 8px;border-radius:6px;margin:2px 0}
 .hero .sub{color:inherit;opacity:.85;font-size:14.5px}
 .hero .chips{margin-top:16px}
@@ -333,6 +334,11 @@ dialog::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}
   #tip{display:none}
   #toast{bottom:calc(84px + env(safe-area-inset-bottom))}
 }
+.steps{margin:10px 0 14px;padding-left:20px;color:var(--text-2)}
+.steps li{margin:6px 0}
+.steps code,.sync-box code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:12.5px}
+.sync-box{background:var(--surface-2);border-radius:12px;padding:12px 14px;margin:10px 0;color:var(--text-2)}
+#dataMenu summary.warn::after{content:" ⚠";color:var(--warn)}
 .hidden{display:none!important}
 </style>
 </head>
@@ -352,7 +358,9 @@ dialog::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}
     <summary class="btn">Data ▾</summary>
     <div class="menu-pop">
       <p id="saveNote">Everything is saved automatically in this browser.</p>
-      <p style="opacity:.7">Version 2026-10-23 10:06</p>
+      <button data-act="sync">☁ Sync between devices…</button>
+      <p id="syncNote" style="margin-top:2px"></p>
+      <p style="opacity:.7">Version 2026-10-23 10:17</p>
       <button data-act="covers">🖼 Find missing covers</button>
       <button data-act="export">⬇ Export backup (.json)</button>
       <button data-act="import">⬆ Import backup (.json)</button>
@@ -427,6 +435,36 @@ dialog::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}
   </div>
 </dialog>
 
+<dialog id="dlgSync">
+  <form id="syncForm" novalidate>
+    <div class="dlg-head"><h2>☁ Sync between devices</h2><button type="button" class="icon-btn" data-close>✕</button></div>
+    <div class="dlg-body">
+      <div id="syncOn">
+        <div class="sync-box"><b style="color:var(--text)">This device is connected.</b><br><span id="syncOnStatus"></span></div>
+        <p class="sub">Your log is kept in a secret gist on your GitHub account. Changes are sent up a few seconds after you make them, and other devices pick them up when you open the app there.</p>
+        <p class="sub" style="margin-top:8px">To connect another device, open the app there, go to <b>Data → Sync between devices</b> and paste the same token.</p>
+      </div>
+      <div id="syncOff">
+        <p class="sub" style="color:var(--text-2)">Keep your phone and computer in step. Your log is stored in a secret gist on your GitHub account, and every device you connect syncs with it automatically.</p>
+        <ol class="steps">
+          <li>Open <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Backlog%20sync" target="_blank" rel="noopener">this GitHub page</a>. It's already set up with only the <b>gist</b> permission ticked.</li>
+          <li>Pick an <b>Expiration</b> (“No expiration” means you never have to redo this), scroll down and click <b>Generate token</b>.</li>
+          <li>Copy the token (it starts with <code>ghp_</code>) and paste it below. Also keep it in a note, so you can paste it on your other devices.</li>
+        </ol>
+        <div class="form"><label class="span-4">GitHub token<input name="token" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_…"></label></div>
+        <p class="sub" style="font-size:12.5px;margin-top:8px">The token can only read and write your gists. It's stored on this device only.</p>
+        <p id="syncError" class="sub" style="color:var(--bad);margin-top:8px"></p>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn danger left" id="syncDisconnect">Disconnect this device</button>
+      <button type="button" class="btn" data-close>Close</button>
+      <button type="button" class="btn primary" id="syncNowBtn">Sync now</button>
+      <button type="submit" class="btn primary" id="syncConnect">Connect</button>
+    </div>
+  </form>
+</dialog>
+
 <dialog id="dlgShow">
   <form id="showForm" novalidate>
     <div class="det-hero" id="showHero"></div>
@@ -460,6 +498,7 @@ dialog::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}
 "use strict";
 const SEED = JSON.parse(document.getElementById('seed').textContent);
 const KEY = 'gamelog.v1', THEME_KEY = 'gamelog.theme', ACCENT_KEY = 'gamelog.accent', BACKUP_KEY = 'gamelog.lastBackup', VIEW_KEY = 'gamelog.libView';
+const SYNC_KEY = 'gamelog.sync', SYNC_KEYS = ['games','shows','journal'];   // sync settings live per device, never in the synced data
 const THIS_YEAR = new Date().getFullYear();
 const DATA_VERSION = 6;
 const STATUSES = ['Completed','Played','Playing','Recurring','Carried over','Paused','Backlog','Waiting for patch','Dropped'];
@@ -561,16 +600,34 @@ function migrate(d){
   }
   d.journal = d.journal || [];
   if(!Array.isArray(d.shows)) d.shows = structuredClone(SEED.shows || []);
+  d.deleted = d.deleted || {};
+  for(const k of SYNC_KEYS) d.deleted[k] = d.deleted[k] || {};
   return d;
 }
 function load(){
   try{ const s = JSON.parse(localStorage.getItem(KEY)); if(s && Array.isArray(s.games)){ const v=s.version; migrate(s); if(v!==s.version) localStorage.setItem(KEY, JSON.stringify(s)); return s; } }catch(e){}
   return migrate(structuredClone(SEED));
 }
-function persist(){
+// ---- change tracking (for sync): every game, show and journal entry gets an updatedAt when it changes,
+// and removed items leave a "deleted" marker, so two devices can be merged item by item
+const bare = x => JSON.stringify({...x, updatedAt:undefined});
+let snap = null;
+function takeSnapshot(){ snap = {}; for(const k of SYNC_KEYS) snap[k] = new Map((db[k]||[]).map(x=>[x.id, bare(x)])); }
+function stampChanges(){
+  if(!snap) return takeSnapshot();
+  const now = Date.now();
+  for(const k of SYNC_KEYS){
+    const seen = new Set();
+    for(const x of db[k]||[]){ seen.add(x.id); if(snap[k].get(x.id)!==bare(x)) x.updatedAt = now; }
+    for(const id of snap[k].keys()) if(!seen.has(id)) db.deleted[k][id] = now;
+  }
+  takeSnapshot();
+}
+function writeStore(){
   try{ localStorage.setItem(KEY, JSON.stringify(db)); }
   catch(e){ toast('Browser storage is full. Try using image links instead of uploads.'); }
 }
+function persist(){ stampChanges(); writeStore(); scheduleSync(); }
 function save(msg){ persist(); render(); if(msg) toast(msg); }
 
 // ---------- helpers ----------
@@ -831,7 +888,6 @@ function renderDashboard(){
   <div class="grid">
     <div class="hero">
       <div>
-        <span class="eyebrow">Player 1 · ${sel==='all'?(span||THIS_YEAR):sel}</span>
         <h1><span class="n">${done.length}</span> games cleared, <span class="n">${fmtH(hours)}</span> hours played${sel==='all'?'':' in '+sel}.</h1>
         <p class="sub">${logged.length} games logged ${span?'since '+years[0]:''} · ${backlog.length} waiting in the backlog</p>
         <div class="chips">${['all',...years].map(y=>`<button class="chip ${String(sel)===String(y)?'on':''}" data-year="${y}">${y==='all'?'All time':y}</button>`).join('')}</div>
@@ -1386,6 +1442,117 @@ $('#showForm').addEventListener('submit', e=>{
   $('#dlgShow').close(); save('Saved '+s.title);
 });
 
+// ---------- sync between devices: one JSON file in a secret GitHub gist ----------
+const GIST_FILE = 'backlog-data.json';
+const syncCfg = () => { try{ return JSON.parse(localStorage.getItem(SYNC_KEY)) || {}; }catch(e){ return {}; } };
+const setSyncCfg = c => localStorage.setItem(SYNC_KEY, JSON.stringify(c));
+async function gh(path, token, opts={}){
+  const r = await fetch('https://api.github.com'+path, {...opts, cache:'no-store', headers:{'Accept':'application/vnd.github+json', 'Authorization':'Bearer '+token, ...(opts.body?{'Content-Type':'application/json'}:{})}});
+  if(!r.ok){
+    const msg = r.status===401 ? 'GitHub didn\'t accept the token. It may be expired or mistyped.'
+      : (r.status===403||r.status===404) ? 'The token isn\'t allowed to use gists. Make sure the “gist” box was ticked.'
+      : 'GitHub answered with error '+r.status+'.';
+    throw Object.assign(new Error(msg), {status:r.status});
+  }
+  return r.json();
+}
+async function findGist(token){
+  for(let page=1; page<=10; page++){
+    const list = await gh(`/gists?per_page=100&page=${page}`, token);
+    const hit = list.find(g=>g.files && g.files[GIST_FILE]); if(hit) return hit.id;
+    if(list.length<100) return null;
+  }
+  return null;
+}
+async function pullGist(token, id){
+  const g = await gh('/gists/'+id, token), f = g.files && g.files[GIST_FILE];
+  if(!f) return null;
+  return JSON.parse(f.truncated ? await (await fetch(f.raw_url, {cache:'no-store'})).text() : f.content);
+}
+// item-by-item merge: the newest version of each item wins, deletions win over older versions
+function mergeList(local=[], remote=[], delL={}, delR={}){
+  const m = new Map(remote.map(x=>[x.id,x]));
+  for(const x of local){ const r = m.get(x.id); if(!r || (x.updatedAt||0) >= (r.updatedAt||0)) m.set(x.id, x); }
+  const del = {...delR}; for(const [id,t] of Object.entries(delL||{})) del[id] = Math.max(t, del[id]||0);
+  for(const [id,t] of Object.entries(del)){ const x = m.get(id); if(x && (x.updatedAt||0) <= t) m.delete(id); }
+  return {list:[...m.values()], del};
+}
+function mergeDb(local, remote){
+  remote = migrate(remote);
+  const out = {...remote, ...local, version:Math.max(local.version||0, remote.version||0), deleted:{}};
+  for(const k of SYNC_KEYS){ const r = mergeList(local[k], remote[k], local.deleted?.[k], remote.deleted?.[k]); out[k] = r.list; out.deleted[k] = r.del; }
+  out.journal.sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+  return out;
+}
+let syncing = false, syncAgain = false, syncTimer = null, syncError = '';
+function scheduleSync(){ if(!syncCfg().token) return; clearTimeout(syncTimer); syncTimer = setTimeout(()=>syncNow(true), 2500); }
+async function syncNow(quiet){
+  const cfg = syncCfg(); if(!cfg.token) return false;
+  if(syncing){ syncAgain = true; return false; }
+  syncing = true; clearTimeout(syncTimer); syncTimer = null; showSyncStatus('Syncing…');
+  try{
+    stampChanges();
+    let id = cfg.gistId, remote = null;
+    if(id){ try{ remote = await pullGist(cfg.token, id); }catch(e){ if(e.status===404) id = null; else throw e; } }
+    if(!id){ id = await findGist(cfg.token); if(id) remote = await pullGist(cfg.token, id); }
+    if(remote && Array.isArray(remote.games)){
+      const before = JSON.stringify(db);
+      db = mergeDb(db, remote); takeSnapshot(); writeStore();
+      if(JSON.stringify(db)!==before) render();
+    }
+    const content = JSON.stringify(db);
+    if(id) await gh('/gists/'+id, cfg.token, {method:'PATCH', body:JSON.stringify({files:{[GIST_FILE]:{content}}})});
+    else id = (await gh('/gists', cfg.token, {method:'POST', body:JSON.stringify({description:'Backlog app data (synced between your devices)', public:false, files:{[GIST_FILE]:{content}}})})).id;
+    setSyncCfg({...syncCfg(), gistId:id, lastSync:Date.now()});
+    syncError = ''; showSyncStatus();
+    if(!quiet) toast('Synced ✓');
+    return true;
+  }catch(e){
+    syncError = e instanceof TypeError ? 'Couldn\'t reach GitHub. Are you online?' : (e.message || 'Sync failed.');
+    showSyncStatus(); if(!quiet) toast('Sync failed: '+syncError);
+    return false;
+  }finally{
+    syncing = false;
+    if(syncAgain){ syncAgain = false; scheduleSync(); }
+  }
+}
+function ago(ts){ const s = Math.round((Date.now()-ts)/1000); return s<60 ? 'just now' : s<3600 ? Math.round(s/60)+' min ago' : s<86400 ? Math.round(s/3600)+' h ago' : new Date(ts).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
+function showSyncStatus(busy){
+  const cfg = syncCfg();
+  const text = !cfg.token ? 'Not syncing yet: your log stays on this device.'
+    : busy ? busy : syncError ? '⚠ '+syncError : cfg.lastSync ? 'Synced '+ago(cfg.lastSync) : 'Waiting to sync…';
+  $('#syncNote').textContent = text;
+  $('#syncOnStatus').textContent = text;
+  $('#dataMenu summary').classList.toggle('warn', !!(cfg.token && syncError));
+}
+function openSync(){
+  const on = !!syncCfg().token;
+  $('#syncOn').classList.toggle('hidden', !on); $('#syncOff').classList.toggle('hidden', on);
+  $('#syncDisconnect').classList.toggle('hidden', !on); $('#syncNowBtn').classList.toggle('hidden', !on); $('#syncConnect').classList.toggle('hidden', on);
+  $('#syncForm').elements.token.value = ''; $('#syncError').textContent = '';
+  showSyncStatus(); $('#dlgSync').showModal();
+}
+$('#syncForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const token = e.target.elements.token.value.trim();
+  if(!/^(ghp_|github_pat_|gho_)\w+/.test(token)){ $('#syncError').textContent = 'That doesn\'t look like a GitHub token. It should start with ghp_.'; return; }
+  $('#syncConnect').disabled = true; $('#syncError').textContent = 'Connecting…';
+  setSyncCfg({token});
+  const ok = await syncNow(true);
+  $('#syncConnect').disabled = false;
+  if(ok){ $('#dlgSync').close(); toast('Connected ✓ Your log now syncs between devices'); }
+  else { localStorage.removeItem(SYNC_KEY); $('#syncError').textContent = syncError; syncError = ''; showSyncStatus(); }
+});
+$('#syncNowBtn').onclick = ()=>syncNow(false);
+$('#syncDisconnect').onclick = ()=>{ if(!confirm('Stop syncing on this device? Your log stays here and in the gist; nothing is deleted.')) return; localStorage.removeItem(SYNC_KEY); syncError = ''; $('#dlgSync').close(); showSyncStatus(); toast('Sync turned off on this device'); };
+// pick up changes from other devices when you come back to the app, and send pending ones when you leave
+document.addEventListener('visibilitychange', ()=>{
+  if(!syncCfg().token) return;
+  if(document.visibilityState==='visible' && Date.now()-(syncCfg().lastSync||0) > 15000) syncNow(true);
+  if(document.visibilityState==='hidden' && syncTimer) syncNow(true);
+});
+setInterval(()=>{ if(syncCfg().token && !syncing && !syncError) showSyncStatus(); }, 60000);
+
 // ---------- clicks ----------
 document.addEventListener('click', e=>{
   const t = e.target.closest('[data-open],[data-edit],[data-start],[data-drop],[data-finish],[data-year],[data-sort],[data-blsort],[data-jedit],[data-jdel],[data-close],[data-act],[data-addhours],[data-pick],[data-libmode],[data-accent],[data-mode],[data-top],[data-hltb],[data-ep],[data-showedit],[data-showpick],[data-addshow],[data-plushour],[data-rewatch],[data-move]');
@@ -1433,7 +1600,8 @@ function dataAction(act){
     download(`game-log-${today}.csv`, '\ufeff'+[cols.join(','), ...db.games.map(g=>cols.map(c=>q(g[c])).join(','))].join('\r\n'), 'text/csv');
     toast('CSV downloaded');
   }
-  if(act==='reset' && confirm('Replace everything with the data from your original spreadsheet? Games you logged in this app will be lost unless you exported a backup.')){ db = migrate(structuredClone(SEED)); save('Reset to the original spreadsheet'); queueCovers(db.games); }
+  if(act==='sync'){ openSync(); return; }
+  if(act==='reset' && confirm('Replace everything with the data from your original spreadsheet? Games you logged in this app will be lost unless you exported a backup.' + (syncCfg().token ? ' Because sync is on, your other devices will be reset too.' : ''))){ db = migrate(structuredClone(SEED)); save('Reset to the original spreadsheet'); queueCovers(db.games); }
 }
 $('#fileImport').onchange = async e=>{
   const file = e.target.files[0]; e.target.value=''; if(!file) return;
@@ -1461,6 +1629,9 @@ function route(){ const v = location.hash.slice(1); state.view = ['dashboard','l
 addEventListener('hashchange', route);
 document.addEventListener('click', e=>{ for(const id of ['dataMenu','styleMenu']){ const m=$('#'+id); if(m.open && !m.contains(e.target)) m.open=false; } });
 buildForm();
+takeSnapshot();
+showSyncStatus();
+if(syncCfg().token) syncNow(true);
 // offline support + home-screen app when hosted (not when opened as a local file)
 if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
 $('#logo').addEventListener('click', e=>{ if(state.view==='dashboard'){ e.preventDefault(); state.dashYear='all'; render(); scrollTo({top:0,behavior:'smooth'}); } });

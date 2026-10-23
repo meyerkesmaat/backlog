@@ -334,6 +334,7 @@ dialog::backdrop{background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}
 .steps code,.sync-box code{background:var(--surface-2);padding:1px 6px;border-radius:5px;font-size:12.5px}
 .sync-box{background:var(--surface-2);border-radius:12px;padding:12px 14px;margin:10px 0;color:var(--text-2)}
 #dataMenu summary.warn::after{content:" ⚠";color:var(--warn)}
+.linkbtn{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;cursor:pointer}
 .hidden{display:none!important}
 </style>
 </head>
@@ -526,6 +527,8 @@ const FIELDS = [
   {k:'excitement',label:'Excitement (0–10)',type:'number',step:0.5,min:0,max:10},
   {sec:'The playthrough'},
   {k:'hours',label:'Time played (hrs)',type:'number',step:0.5,min:0},
+  {k:'startedAt',label:'Started playing on',type:'date'},
+  {k:'finishedAt',label:'Finished on',type:'date'},
   {k:'duration',label:'…over the course of',type:'list',opts:['1 week','2 weeks','3 weeks','4 weeks','5 weeks','6 weeks','1 month','2 months','3 months','4 months','6 months','Ongoing']},
   {k:'credits',label:'Rolled credits?',type:'select',opts:['','Yes','Sort of','No']},
   {k:'platinum',label:'Platinum / 100%?',type:'select',opts:['','Yes','No','N/A']},
@@ -639,6 +642,24 @@ const hueOf = s => { let h=0; for(const c of norm(s)) h=(h*31+c.charCodeAt(0))%3
 const BLANK = {replay:false,title:'',status:'Completed',year:null,platform:'',focus:'',released:'',purchased:'',hltb:null,hltbId:null,estHours:null,excitement:null,hours:null,duration:'',credits:'',platinum:'',rating:null,worthIt:'',blownAway:'',stunner:'',bummer:'',tooLong:'',tooShort:'',notes:'',reasonDropped:'',cover:''};
 function tier(r){ return r==null ? null : RATING_TIERS.find(t=>r>=t[0]); }
 // how far into a game you probably are: hours played vs. HowLongToBeat Main + Extra (or your own estimate)
+// ---- play dates (stored as "YYYY-MM-DD", local time) ----
+const pad2 = n => String(n).padStart(2,'0');
+const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; };
+const isoDate = s => { const [y,m,d] = String(s).split('-').map(Number); return new Date(y, m-1, d); };
+const daysBetween = (a,b) => Math.max(0, Math.round((isoDate(b)-isoDate(a))/864e5));
+// same style as your "over the course of" notes: 5 days, 3 weeks, 2 months, 1.5 years
+function spanText(days){
+  if(days < 7){ const n = Math.max(days,1); return `${n} day${n>1?'s':''}`; }
+  if(days < 45){ const w = Math.round(days/7); return `${w} week${w>1?'s':''}`; }
+  if(days < 365){ const m = Math.round(days/30.44); return `${m} month${m>1?'s':''}`; }
+  const y = Math.round(days/365*2)/2; return `${y} year${y>1?'s':''}`;
+}
+const fmtDay = s => { const d = isoDate(s); return d.toLocaleDateString('en-GB', d.getFullYear()===THIS_YEAR ? {day:'numeric',month:'short'} : {day:'numeric',month:'short',year:'numeric'}); };
+function sinceLine(g){
+  if(!g.startedAt) return `<div class="meta">Start date unknown · <button class="linkbtn" data-edit="${g.id}">add it</button></div>`;
+  const d = daysBetween(g.startedAt, todayISO());
+  return `<div class="meta">Playing since ${fmtDay(g.startedAt)} · ${d===0 ? 'started today' : spanText(d)}</div>`;
+}
 function playBar(g){
   const e = est(g), h = g.hours || 0;
   if(!e) return `<div class="meta">${h?fmtH(h)+'h played':'Just started'} · <a href="${hltbUrl(g)}" target="_blank" rel="noopener" style="color:inherit">add a length for a progress bar ↗</a></div>`;
@@ -898,7 +919,7 @@ function renderDashboard(){
     </div>
 
     ${playing.length?`<div class="card span-${groups.length?7:12}"><h2>Now playing</h2><p class="card-sub">Games you're working through right now</p><div class="now">${playing.map(g=>`
-      <div class="g">${cover(g,'md')}<div class="body"><div class="title" data-open="${g.id}">${esc(g.title)}</div>${g.replay?`<div>${replayTag(g)}</div>`:''}${playBar(g)}
+      <div class="g">${cover(g,'md')}<div class="body"><div class="title" data-open="${g.id}">${esc(g.title)}</div>${g.replay?`<div>${replayTag(g)}</div>`:''}${playBar(g)}${sinceLine(g)}
       <div class="row"><button class="btn small primary" data-finish="${g.id}">Log finish</button><button class="btn small" data-plushour="${g.id}" title="Add an hour of play time">+1h</button><button class="btn small" data-edit="${g.id}">Update</button></div></div></div>`).join('')}</div></div>`:''}
     ${groups.length?`<div class="card span-${playing.length?5:12}"><h2>Recurring games</h2><p class="card-sub">Games you keep coming back to. Hours count toward each year.</p><div class="now" style="grid-template-columns:1fr">${groups.map(gr=>{ const last=gr.entries.at(-1); const tot=sum(gr.entries.map(g=>g.hours||0));
       return `<div class="g">${cover(last,'md')}<div class="body"><div class="title" data-open="${last.id}">${esc(baseTitle(last))}</div><div class="meta">${fmtH(tot)}h total</div>
@@ -1039,7 +1060,7 @@ function openDetail(id){
     <div class="detail-grid">
       ${cell('Rating', g.rating!=null?fmt1(g.rating)+' / 10':'')}${cell('Excitement before', g.excitement!=null?fmt1(g.excitement)+' / 10':'')}
       ${cell('Time played', g.hours!=null?fmtH(g.hours)+' h':'')}${cell('HowLongToBeat (Main + Extra)', g.hltb!=null?`<a href="${hltbUrl(g)}" target="_blank" rel="noopener" style="color:inherit">${fmtH(g.hltb)} h ↗</a>`:(g.estHours!=null?fmtH(g.estHours)+' h (own estimate)':''))}
-      ${cell('Year', g.year)}${cell('Over the course of', esc(g.duration))}${cell('Focus', esc(g.focus))}${cell('Worth my time?', esc(g.worthIt))}
+      ${cell('Year', g.year)}${cell('Over the course of', esc(g.duration) + (g.startedAt ? `<div style="font-weight:500;font-size:12px;color:var(--muted);margin-top:2px">${fmtDay(g.startedAt)} → ${g.finishedAt ? fmtDay(g.finishedAt) : 'now'}</div>` : ''))}${cell('Focus', esc(g.focus))}${cell('Worth my time?', esc(g.worthIt))}
     </div>
     ${g.notes?`<div class="label-s">Why I finished it</div><p class="quote">${esc(g.notes)}</p>`:''}
     ${g.reasonDropped?`<div class="label-s">Why I dropped it</div><p class="quote">${esc(g.reasonDropped)}</p>`:''}
@@ -1053,7 +1074,7 @@ $('#detCover').onclick = ()=>openCoverPicker(detailId);
 // replay: a fresh entry for the new playthrough, so each playthrough keeps its own hours and verdict
 $('#detReplay').onclick = ()=>{
   const g = byId(detailId); if(!g) return;
-  const n = {...BLANK, id:uid('g'), title:baseTitle(g).replace(/s*((first half|start|almost))s*/i,' ').trim(), status:'Playing', year:THIS_YEAR, replay:true,
+  const n = {...BLANK, id:uid('g'), title:baseTitle(g).replace(/\s*\((first half|start|almost)\)\s*/i,' ').trim(), status:'Playing', year:THIS_YEAR, replay:true, startedAt:todayISO(),
     platform:g.platform, focus:g.focus, cover:g.cover, coverTried:true, hltb:g.hltb, hltbId:g.hltbId, estHours:g.estHours, released:'Yes', purchased:'Yes'};
   db.games.push(n); $('#dlgDetail').close(); save(`Replaying ${n.title} ↺`);
   openForm(n.id);
@@ -1119,7 +1140,19 @@ function buildForm(){
     if(f.lookup) return `<label class="${cls||'span-2'}"><span style="display:flex;gap:8px">${f.label}<a href="#" data-hltb style="margin-left:auto;color:var(--accent);font-weight:700">Look up ↗</a></span>${inp}</label>`;
     return `<label class="${cls}">${f.label}${inp}</label>`;
   }).join('');
-  $('#gameForm').elements.status.addEventListener('change', syncHint);
+  $('#gameForm').elements.status.addEventListener('change', ()=>{ syncHint(); datesForStatus(); });
+  ['startedAt','finishedAt'].forEach(k=>$('#gameForm').elements[k].addEventListener('change', autoDuration));
+}
+function autoDuration(){
+  const f = $('#gameForm'), s = f.elements.startedAt.value, e = f.elements.finishedAt.value;
+  if(!s || !e) return;
+  const cur = f.elements.duration.value.trim();
+  if(!cur || cur===f.dataset.autoDur){ const v = spanText(daysBetween(s,e)); f.elements.duration.value = v; f.dataset.autoDur = v; }
+}
+function datesForStatus(){
+  const f = $('#gameForm'), st = f.elements.status.value;
+  if(st==='Playing' && !f.elements.startedAt.value) f.elements.startedAt.value = todayISO();
+  if(['Completed','Played','Dropped'].includes(st) && f.elements.startedAt.value && !f.elements.finishedAt.value){ f.elements.finishedAt.value = todayISO(); autoDuration(); }
 }
 function syncHint(){ const s = $('#gameForm').elements.status.value; document.querySelectorAll('[data-hint]').forEach(h=>h.classList.toggle('hidden', h.dataset.hint!==s)); }
 function openForm(id, preset={}){
@@ -1135,6 +1168,7 @@ function openForm(id, preset={}){
     if(el.tagName==='SELECT' && ![...el.options].some(o=>o.value===v)) el.add(new Option(v,v));
     el.value = v;
   });
+  form.dataset.autoDur = preset.duration || '';
   syncHint();
   $('#formTitle').textContent = id ? `Edit: ${g.title}` : (data.status==='Backlog' ? 'Add to backlog' : 'Log a game');
   $('#dlgForm').showModal();
@@ -1147,6 +1181,9 @@ $('#gameForm').addEventListener('submit', e=>{
   if(!out.title){ form.elements.title.focus(); toast('Give the game a name first'); return; }
   for(const k of ['excitement','rating']) if(out[k]!=null && (out[k]<0||out[k]>10)){ form.elements[k].focus(); toast('Scores go from 0 to 10'); return; }
   if(LOGGED.has(out.status) && !out.year) out.year = THIS_YEAR;
+  if(out.status==='Playing' && !out.startedAt) out.startedAt = todayISO();
+  if(['Completed','Played','Dropped'].includes(out.status) && out.startedAt && !out.finishedAt) out.finishedAt = todayISO();
+  if(out.startedAt && out.finishedAt && !out.duration) out.duration = spanText(daysBetween(out.startedAt, out.finishedAt));
   if(out.status==='Recurring'){
     const dupe = db.games.find(x=>x.id!==editingId && x.status==='Recurring' && x.year===out.year && norm(baseTitle(x))===norm(out.title));
     if(dupe){ toast(`${out.title} already has a ${out.year} entry. Use “+ Hours” to add time to it.`); return; }
@@ -1566,8 +1603,8 @@ document.addEventListener('click', e=>{
   if(d.top){ applyOrder([d.top]); return; }
   if(d.move){ const ids = backlogOrdered().map(g=>g.id), i = ids.indexOf(d.move), j = i + (+d.dir); if(i<0 || j<0 || j>=ids.length) return; [ids[i],ids[j]] = [ids[j],ids[i]]; applyOrder(ids); return; }
   if(d.edit){ openForm(d.edit); return; }
-  if(d.finish){ openForm(d.finish,{status:'Completed', credits:'Yes'}); return; }
-  if(d.start){ const g=byId(d.start); g.status='Playing'; g.year=THIS_YEAR; save(`Now playing: ${g.title} 🎮`); return; }
+  if(d.finish){ const g = byId(d.finish), today = todayISO(); openForm(d.finish, {status:'Completed', credits:'Yes', finishedAt:today, ...(g.startedAt ? {duration:spanText(daysBetween(g.startedAt, today))} : {})}); return; }
+  if(d.start){ const g=byId(d.start); g.status='Playing'; g.year=THIS_YEAR; if(!g.startedAt || g.finishedAt){ g.startedAt = todayISO(); g.finishedAt = ''; } save(`Now playing: ${g.title} 🎮`); return; }
   if(d.drop){ const g=byId(d.drop); const why=prompt(`Why are you dropping “${g.title}”? (optional)`, g.reasonDropped||''); if(why===null) return; g.status='Dropped'; g.reasonDropped=why; save('Moved to dropped'); return; }
   if(d.year){ state.dashYear = d.year==='all'?'all':+d.year; render(); return; }
   if(d.sort){ const L=state.lib; if(L.sort===d.sort) L.dir*=-1; else { L.sort=d.sort; L.dir = ['title','status','focus','worthIt','notes'].includes(d.sort)?1:-1; } renderLibrary(); return; }
@@ -1590,7 +1627,7 @@ function dataAction(act){
   if(act==='export'){ download(`game-log-backup-${today}.json`, JSON.stringify(db,null,2), 'application/json'); localStorage.setItem(BACKUP_KEY,today); render(); toast('Backup downloaded'); }
   if(act==='import') $('#fileImport').click();
   if(act==='csv'){
-    const cols = ['title','year','status','platform','hltb','estHours','released','purchased','excitement','credits','hours','platinum','duration','rating','reasonDropped','notes','blownAway','stunner','bummer','tooLong','tooShort','focus','worthIt'];
+    const cols = ['title','year','status','platform','hltb','estHours','released','purchased','excitement','credits','hours','platinum','startedAt','finishedAt','duration','rating','reasonDropped','notes','blownAway','stunner','bummer','tooLong','tooShort','focus','worthIt'];
     const q = v => { v = v==null?'':String(v); return /[",\n;]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; };
     download(`game-log-${today}.csv`, '\ufeff'+[cols.join(','), ...db.games.map(g=>cols.map(c=>q(g[c])).join(','))].join('\r\n'), 'text/csv');
     toast('CSV downloaded');

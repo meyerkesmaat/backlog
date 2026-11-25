@@ -32,7 +32,7 @@ fs.writeFileSync(path.join(out,'icon-512.png'), icon(512));
 
 fs.writeFileSync(path.join(out,'manifest.webmanifest'), JSON.stringify({
   name:'Backlog', short_name:'Backlog', start_url:'./', scope:'./', display:'standalone',
-  background_color:'#f5f3f7', theme_color:'#f5f3f7',
+  background_color:'#f2f2f7', theme_color:'#f2f2f7',
   icons:[{src:'icon-180.png',sizes:'180x180',type:'image/png'},{src:'icon-512.png',sizes:'512x512',type:'image/png',purpose:'any maskable'}]
 }, null, 2));
 

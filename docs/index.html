@@ -456,6 +456,13 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
 #dataMenu summary.warn::after{content:"";position:absolute;right:-1px;top:-1px;width:10px;height:10px;border-radius:50%;background:var(--orange);border:2px solid var(--bg)}
 #dataMenu summary{position:relative}
 .linkbtn{background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;cursor:pointer}
+.platchips{gap:6px!important;margin-top:7px!important}
+.platchips .chip{background:var(--fill2);padding:4px 11px;font-size:12.5px}
+.platchips .chip.on{background:var(--accent);color:var(--on-accent);box-shadow:none}
+.platchips .chip.sug{box-shadow:inset 0 0 0 1.5px var(--accent);color:var(--accent);font-weight:600}
+#platList{background:var(--surface);border-radius:14px}
+.plat-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.plat-top .sub{flex:1;min-width:180px}
 .hidden{display:none!important}
 .hb2{display:grid;grid-template-columns:minmax(0,150px) 1fr minmax(96px,auto);gap:10px;align-items:center;padding:6px 0;font-size:14px}
 .hb2+.hb2{border-top:.5px solid var(--sep)}
@@ -482,6 +489,7 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
     <summary class="icon-btn" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></summary>
     <div class="menu-pop">
       <button data-act="journal">✎ Journal</button>
+      <button data-act="platforms">🎮 Fill in platforms</button>
       <hr>
       <button data-act="sync">☁ Sync between devices…</button>
       <p id="syncNote" style="margin-top:2px"></p>
@@ -496,7 +504,7 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
       <div class="swatches" id="swatches"></div>
       <hr>
       <p id="saveNote">Everything is saved automatically in this browser.</p>
-      <p style="opacity:.7">Version 2026-11-25 13:46</p>
+      <p style="opacity:.7">Version 2026-11-25 13:56</p>
     </div>
   </details>
   <input type="file" id="fileImport" accept=".json,application/json" class="hidden">
@@ -564,6 +572,16 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
   <div class="dlg-head"><h2>Your year as an image</h2><button type="button" class="icon-btn" data-close>✕</button></div>
   <div class="dlg-body" style="text-align:center"><img id="wrapImg" alt="Year in review image" style="max-width:100%;max-height:62vh;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)"><p class="sub" style="margin:12px 0 0">On iPhone: tap Share, then Save Image. You can also press and hold the picture.</p></div>
   <div class="dlg-foot"><a class="btn" id="wrapDl" download>Download</a><button type="button" class="btn primary" id="wrapShare">Share</button></div>
+</dialog>
+<dialog id="dlgPlat">
+  <div class="dlg-head"><h2>Fill in platforms</h2><button type="button" class="icon-btn" data-close>✕</button></div>
+  <div class="dlg-body">
+    <div class="plat-top"><p class="sub" id="platCount"></p><button type="button" class="btn small primary hidden" id="platAccept"></button></div>
+    <p class="sub" style="font-size:13px;margin:-4px 0 12px">Tap the platform you played each game on. It saves straight away. <span style="color:var(--accent)">Outlined</span> = suggested, based on where the game came out.</p>
+    <label class="checkline" style="display:flex;gap:8px;align-items:center;font-size:13.5px;margin-bottom:10px;cursor:pointer"><input type="checkbox" id="platAll" style="width:18px;height:18px;accent-color:var(--accent)">Also show games that already have a platform</label>
+    <div id="platList"></div>
+  </div>
+  <div class="dlg-foot"><button type="button" class="btn primary" data-close>Done</button></div>
 </dialog>
 <dialog id="dlgSession">
   <form id="sessionForm" novalidate>
@@ -1471,7 +1489,7 @@ function renderStats(){
       ${fTot?`<div class="stack">${fData.filter(d=>d.n).map(d=>`<div style="flex:${d.n};background:${cssVar(d.c)}" data-tip="<b>${d.f}</b>${d.n} games · avg ${fmt1(d.avg)}"></div>`).join('')}</div>
       <div class="legend">${fData.map(d=>`<span><i style="background:${cssVar(d.c)}"></i>${d.f}: ${d.n} · avg ${fmt1(d.avg)}</span>`).join('')}</div>`:'<div class="empty">No data yet.</div>'}`)}
     ${sect(6, 'Genres', `By hours played ${label}`, genres.length ? hb2(genres.slice(0,8).map(r=>({...r, tip:gtip(r)})), 'var(--blue)', gv) + (noGenre?`<p class="card-sub" style="margin:10px 0 0">${noGenre} game${noGenre===1?' has':'s have'} no genre yet. Genres fill in by themselves when you open the app.</p>`:'') : '<div class="empty">No genres yet. They fill in by themselves when you open the app.</div>')}
-    ${sect(6, 'Platforms', `By hours played ${label}`, plats.length ? hb2(plats.slice(0,8).map(p=>({...p, muted:p.k==='Not set', tip:gtip(p)})), 'var(--orange)', gv) + (plats.find(p=>p.k==='Not set') ? `<p class="card-sub" style="margin:10px 0 0">${plats.find(p=>p.k==='Not set').n} games have no platform yet. Add it with <b>Edit</b> on a game to fill this in.</p>` : '') : '<div class="empty">No platforms yet.</div>')}
+    ${sect(6, 'Platforms', `By hours played ${label}`, plats.length ? hb2(plats.slice(0,8).map(p=>({...p, muted:p.k==='Not set', tip:gtip(p)})), 'var(--orange)', gv) + (plats.find(p=>p.k==='Not set') ? `<p class="card-sub" style="margin:10px 0 0">${plats.find(p=>p.k==='Not set').n} games have no platform yet. Tap <b>Fill in</b> to add them all in one go.</p>` : '') : '<div class="empty">No platforms yet.</div>', {link:'<button class="lnk" data-act="platforms">Fill in</button>'})}
     ${sect(7, 'Where the Time Went', 'HowLongToBeat vs. your actual time', `<div class="legend"><span><i class="ring"></i>HowLongToBeat Main + Extra</span><span><i style="background:var(--s2)"></i>Actually played</span></div>${sinks.length?dumbbellChart(sinks):'<div class="empty">No finished games with both an estimate and time played.</div>'}`)}
     ${sect(5, 'Your Pace', 'Compared with HowLongToBeat', ratio==null ? '<div class="empty">Finish a game that has a HowLongToBeat time to see your pace.</div>' : `
       <div class="big1">${pacePct>0?'+':''}${pacePct}<small>%</small></div>
@@ -1496,6 +1514,69 @@ function renderStats(){
     ${sect(12, 'Hall of Fame', `Your 10/10s ${label}`, tens.length?`<div class="shelf">${[...tens].sort((a,b)=>b.year-a.year).map(g=>`<div class="tile" data-open="${g.id}">${cover(g,'fill','<span class="score t10">10</span>')}<div class="tt">${esc(g.title)}</div><div class="tm">${g.year} · ${fmtH(g.runHours)}h</div></div>`).join('')}</div>`:'<div class="empty">No perfect scores here yet.</div>')}
   </div>`;
 }
+
+// ---------- fill in platforms: one screen to give every game its platform ----------
+const PLAT_OPTS = FIELDS.find(f=>f.k==='platform').opts;
+let platShown = [], platSugs = {};
+function openPlatforms(){
+  $('#platAll').checked = false; platPick();
+  $('#dlgPlat').showModal(); loadPlatSugs();
+}
+// which games the list shows; they stay in the list while it's open, so a tap doesn't make rows jump
+function platPick(){
+  const all = $('#platAll').checked;
+  platShown = db.games.filter(g=>all || !g.platform).sort((a,b)=>(yearsOf(b).at(-1)||0)-(yearsOf(a).at(-1)||0) || a.title.localeCompare(b.title)).map(g=>g.id);
+  renderPlatList();
+}
+function renderPlatList(){
+  const gs = platShown.map(byId).filter(Boolean), left = db.games.filter(g=>!g.platform).length;
+  $('#platCount').textContent = left ? `${left} game${left===1?'':'s'} without a platform` : 'Every game has a platform 🎉';
+  const sugN = gs.filter(g=>!g.platform && platSugs[g.id]?.length).length;
+  $('#platAccept').textContent = `Use all ${sugN} suggestion${sugN===1?'':'s'}`; $('#platAccept').classList.toggle('hidden', !sugN);
+  $('#platList').innerHTML = gs.map(g=>{
+    const s = platSugs[g.id] || [], extra = [...s.filter(p=>!PLAT_OPTS.includes(p)).slice(0,2), ...(g.platform && !PLAT_OPTS.includes(g.platform) && !s.includes(g.platform) ? [g.platform] : [])];
+    return `<div class="li" style="--inset:73px">${cover(g,'sm')}<div class="mid"><div class="title">${esc(g.title)}</div>
+      <div class="meta">${esc(yearSpan(g) || g.status)}${s.length?` · came out on ${esc(s.slice(0,4).join(', '))}`:''}</div>
+      <div class="row platchips">${[...PLAT_OPTS, ...extra].map(p=>`<button type="button" class="chip ${g.platform===p?'on':''} ${!g.platform && s[0]===p?'sug':''}" data-setplat="${g.id}" data-p="${esc(p)}">${esc(p)}</button>`).join('')}<button type="button" class="chip" data-setplat="${g.id}" data-p="">Other…</button></div></div></div>`;
+  }).join('') || '<div class="empty">Every game has a platform. Nice!</div>';
+}
+// suggestions: the platforms Wikidata lists for the game, the ones you use most first
+async function loadPlatSugs(){
+  const gs = platShown.map(byId).filter(g=>g && g.wd && !platSugs[g.id]);
+  if(!gs.length) return;
+  try{
+    const ents = await wdEntities([...new Set(gs.map(g=>g.wd))], 'claims');
+    const need = [...new Set(Object.values(ents).flatMap(e=>claimIds(e.claims||{},'P400')))].filter(id=>!wdLabels.has(id));
+    if(need.length){ const ls = await wdEntities(need,'labels'); for(const id of need) wdLabels.set(id, ls[id]?.labels?.en?.value||ls[id]?.labels?.mul?.value||''); }
+    const used = {}; db.games.forEach(g=>{ if(g.platform) used[g.platform] = (used[g.platform]||0)+1; });
+    gs.forEach(g=>{
+      const ps = [...new Set(claimIds(ents[g.wd]?.claims||{},'P400').map(id=>platName(wdLabels.get(id)||'')).filter(Boolean))];
+      const mine = ps.filter(p=>PLAT_OPTS.includes(p)).sort((a,b)=>(used[b]||0)-(used[a]||0));
+      // on both Switch and Switch 2: you most likely played the Switch 2 version if it was after its launch (June 2025)
+      const late = (g.release || pickRelease(ents[g.wd]?.claims||{}) || '') >= '2025-06' || (yearsOf(g)[0]||0) >= 2026;
+      if(late && mine.includes('Switch') && mine.includes('Switch 2')) mine.sort((a,b)=>(b==='Switch 2')-(a==='Switch 2'));
+      platSugs[g.id] = [...mine, ...ps.filter(p=>!PLAT_OPTS.includes(p))];
+    });
+    if($('#dlgPlat').open) renderPlatList();
+  }catch(e){ /* offline: no suggestions, the buttons still work */ }
+}
+$('#platAll').onchange = ()=>{ platPick(); loadPlatSugs(); };
+$('#platList').addEventListener('click', e=>{
+  const b = e.target.closest('[data-setplat]'); if(!b) return;
+  const g = byId(b.dataset.setplat); if(!g) return;
+  let p = b.dataset.p;
+  if(!p){ p = (prompt(`Which platform did you play ${g.title} on?`, g.platform && !PLAT_OPTS.includes(g.platform) ? g.platform : '') || '').trim(); if(!p) return; }
+  g.platform = g.platform===p ? '' : p;
+  persist(); renderPlatList();
+});
+$('#platAccept').onclick = ()=>{
+  const before = structuredClone(db);
+  const gs = platShown.map(byId).filter(g=>g && !g.platform && platSugs[g.id]?.length);
+  gs.forEach(g=>{ g.platform = platSugs[g.id][0]; });
+  persist(); renderPlatList();
+  toast(`Filled in ${gs.length} platform${gs.length===1?'':'s'}`, ()=>{ undoTo(before, 'Platforms undone')(); if($('#dlgPlat').open) renderPlatList(); });
+};
+$('#dlgPlat').addEventListener('close', ()=>render());
 
 function libFiltered(){
   const L = state.lib;
@@ -2293,6 +2374,7 @@ $('#fabLog').onclick = ()=>openForm(null);
 function download(name, text, type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
 function dataAction(act){
   if(act==='journal'){ location.hash = '#journal'; return; }
+  if(act==='platforms'){ openPlatforms(); return; }
   const today = new Date().toISOString().slice(0,10);
   if(act==='covers'){ const miss = db.games.filter(g=>!g.cover); if(!miss.length){ toast('Every game already has a cover 🎉'); return; } toast(`Looking for ${miss.length} covers…`); queueCovers(miss); }
   if(act==='export'){ download(`game-log-backup-${today}.json`, JSON.stringify(db,null,2), 'application/json'); localStorage.setItem(BACKUP_KEY,today); render(); toast('Backup downloaded'); }

@@ -1,0 +1,3 @@
+build/
+.claude/
+src/data.json

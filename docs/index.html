@@ -463,6 +463,38 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
 #platList{background:var(--surface);border-radius:14px}
 .plat-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 .plat-top .sub{flex:1;min-width:180px}
+.goals{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.rings{flex:none;width:136px;height:136px}
+.rings circle{fill:none;stroke-width:13;stroke-linecap:round}
+.goal-rows{flex:1;min-width:230px;max-width:560px;display:grid;gap:12px}
+.goal-row{display:grid;grid-template-columns:12px 1fr auto;gap:2px 10px;align-items:baseline}
+.goal-row .dot{width:11px;height:11px;border-radius:50%;background:var(--c);align-self:center}
+.goal-row .nm{font-weight:600;font-size:15px}
+.goal-row .v{font-family:var(--round);font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.goal-row .v small{font-size:13px;color:var(--muted);font-weight:600}
+.goal-row .ln{grid-column:2 / -1;font-size:13px;color:var(--muted)}
+.goal-empty{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.goal-empty p{flex:1;min-width:220px;margin:0}
+#dlgGoals,#dlgPick,#dlgScan{width:min(520px,94vw)}
+#dlgGoals .form{grid-template-columns:1fr}#dlgGoals .form label,#dlgGoals .form .hint{grid-column:auto}
+#pickFilters{display:grid;gap:6px;margin-top:18px;padding-top:14px;border-top:.5px solid var(--sep)}
+#pickFilters .lbl{font-size:12px;font-weight:600;color:var(--muted);margin-top:4px}
+#pickFilters .chips{justify-self:start;max-width:100%}
+#pickFilters .checkline{display:flex;gap:8px;align-items:center;font-size:14px;cursor:pointer;margin-top:2px}
+#pickFilters input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.pickcard{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:20px 16px;background:var(--surface-2);border-radius:18px}
+.pickcard .cover.lg{transition:transform .12s}
+.pickcard.spin .cover.lg{transform:scale(.94) rotate(-2deg)}
+.pickcard .pc-t{font-size:22px;font-weight:700;letter-spacing:-.4px;margin-top:8px}
+.pickcard .meta{color:var(--muted);font-size:13.5px}
+.pickcard .why{margin:6px 0 0;font-size:14px;color:var(--text-2)}
+.qrbox{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;margin-top:12px;padding:16px;background:var(--surface-2);border-radius:16px}
+.qrbox .qr{flex:none;width:200px;height:200px;background:#fff;border-radius:12px;padding:10px;box-sizing:border-box}
+.qrbox .qr svg{display:block;width:100%;height:100%}
+.qrbox ol{margin:0;padding-left:18px;font-size:13.5px;display:grid;gap:6px;flex:1;min-width:200px}
+.scanwrap{position:relative;border-radius:16px;overflow:hidden;background:#000;aspect-ratio:1}
+.scanwrap video{width:100%;height:100%;object-fit:cover;display:block}
+.scanwrap::after{content:"";position:absolute;inset:18%;border:3px solid rgba(255,255,255,.9);border-radius:18px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
 .hidden{display:none!important}
 .hb2{display:grid;grid-template-columns:minmax(0,150px) 1fr minmax(96px,auto);gap:10px;align-items:center;padding:6px 0;font-size:14px}
 .hb2+.hb2{border-top:.5px solid var(--sep)}
@@ -489,6 +521,8 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
     <summary class="icon-btn" title="More" aria-label="More"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></summary>
     <div class="menu-pop">
       <button data-act="journal">✎ Journal</button>
+      <button data-act="pick">🎲 What should I play?</button>
+      <button data-act="goals">🎯 Yearly goals</button>
       <button data-act="platforms">🎮 Fill in platforms</button>
       <hr>
       <button data-act="sync">☁ Sync between devices…</button>
@@ -504,7 +538,7 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
       <div class="swatches" id="swatches"></div>
       <hr>
       <p id="saveNote">Everything is saved automatically in this browser.</p>
-      <p style="opacity:.7">Version 2026-11-25 13:56</p>
+      <p style="opacity:.7">Version 2026-11-25 16:11</p>
     </div>
   </details>
   <input type="file" id="fileImport" accept=".json,application/json" class="hidden">
@@ -583,6 +617,31 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
   </div>
   <div class="dlg-foot"><button type="button" class="btn primary" data-close>Done</button></div>
 </dialog>
+<dialog id="dlgGoals">
+  <form id="goalsForm" novalidate>
+    <div class="dlg-head"><h2 id="goalsTitle">Goals</h2><button type="button" class="icon-btn" data-close>✕</button></div>
+    <div class="dlg-body">
+      <p class="sub" style="margin:0 0 14px">Set what you'd like to reach this year. Leave a box empty to skip that goal. Your progress shows as rings on Home.</p>
+      <div class="form">
+        <label>🏁 Games to finish<input name="finish" type="number" min="1" step="1" inputmode="numeric" placeholder="for example 24"></label>
+        <label>⏱ Hours to play<input name="hours" type="number" min="1" step="1" inputmode="numeric" placeholder="for example 400"></label>
+        <label>📚 Get the backlog down to (games) by the end of the year<input name="backlog" type="number" min="0" step="1" inputmode="numeric"></label>
+        <p class="hint" id="goalsHint"></p>
+      </div>
+    </div>
+    <div class="dlg-foot"><button type="button" class="btn danger left" id="goalsClear">Remove goals</button><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary">Save</button></div>
+  </form>
+</dialog>
+<dialog id="dlgPick">
+  <div class="dlg-head"><h2>🎲 What should I play?</h2><button type="button" class="icon-btn" data-close>✕</button></div>
+  <div class="dlg-body"><div id="pickOut"></div><div id="pickFilters"></div></div>
+  <div class="dlg-foot"><button type="button" class="btn left" id="pickAgain">🎲 Another one</button><button type="button" class="btn" id="pickOpen">Details</button><button type="button" class="btn primary" id="pickStart">▶ Start playing</button></div>
+</dialog>
+<dialog id="dlgScan">
+  <div class="dlg-head"><h2>📷 Scan setup code</h2><button type="button" class="icon-btn" data-close>✕</button></div>
+  <div class="dlg-body"><div class="scanwrap"><video id="scanVideo" playsinline muted></video></div><p class="sub" id="scanMsg" style="margin:12px 0 0;text-align:center"></p></div>
+  <div class="dlg-foot"><button type="button" class="btn" data-close>Cancel</button></div>
+</dialog>
 <dialog id="dlgSession">
   <form id="sessionForm" novalidate>
     <div class="dlg-head"><h2>Log a session</h2><button type="button" class="icon-btn" data-close>✕</button></div>
@@ -603,16 +662,25 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
       <div id="syncOn">
         <div class="sync-box"><b style="color:var(--text)">This device is connected.</b><br><span id="syncOnStatus"></span></div>
         <p class="sub">Your log is kept in a secret gist on your GitHub account. Changes are sent up a few seconds after you make them, and other devices pick them up when you open the app there.</p>
-        <p class="sub" style="margin-top:8px">To connect another device, open the app there, go to <b>Data → Sync between devices</b> and paste the same token.</p>
+        <button type="button" class="btn" id="qrShow" style="margin-top:12px">📱 Connect another device</button>
+        <div id="qrPanel" class="hidden">
+          <div class="qrbox"><div class="qr" id="qrCode"></div>
+            <ol><li><b>Home-screen app:</b> open Backlog on the other device, tap <b>•••</b> → <b>Sync between devices</b> → <b>Scan code</b>, and point it at this code.</li>
+              <li><b>In Safari:</b> point the iPhone camera at the code and tap the link.</li>
+              <li><b>No camera?</b> <button type="button" class="linkbtn" id="qrCopy">Copy the setup code</button> and paste it into the token box on the other device.</li></ol></div>
+          <p class="sub" style="font-size:12.5px;margin-top:8px">⚠ This code contains your sync key. Only show it to your own devices.</p>
+        </div>
       </div>
       <div id="syncOff">
         <p class="sub" style="color:var(--text-2)">Keep your phone and computer in step. Your log is stored in a secret gist on your GitHub account, and every device you connect syncs with it automatically.</p>
+        <div class="sync-box" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0"><span style="flex:1;min-width:200px"><b style="color:var(--text)">Already syncing on another device?</b><br>There, open <b>•••</b> → <b>Sync between devices</b> → <b>Connect another device</b>, then scan the code it shows.</span><button type="button" class="btn primary" id="scanOpen">📷 Scan code</button></div>
+        <p class="sub" style="font-weight:600;color:var(--text)">First device? Make a sync key:</p>
         <ol class="steps">
           <li>Open <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Backlog%20sync" target="_blank" rel="noopener">this GitHub page</a>. It's already set up with only the <b>gist</b> permission ticked.</li>
           <li>Pick an <b>Expiration</b> (“No expiration” means you never have to redo this), scroll down and click <b>Generate token</b>.</li>
           <li>Copy the token (it starts with <code>ghp_</code>) and paste it below. Also keep it in a note, so you can paste it on your other devices.</li>
         </ol>
-        <div class="form"><label class="span-4">GitHub token<input name="token" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_…"></label></div>
+        <div class="form"><label class="span-4">GitHub token or setup code<input name="token" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_… or BL1.…"></label></div>
         <p class="sub" style="font-size:12.5px;margin-top:8px">The token can only read and write your gists. It's stored on this device only.</p>
         <p id="syncError" class="sub" style="color:var(--bad);margin-top:8px"></p>
       </div>
@@ -1360,11 +1428,12 @@ function renderDashboard(){
       ${kpi('yellow','trophy','Perfect 10s', tens.length, `${rated.length?Math.round(tens.length/rated.length*100):0}% of rated games`)}
       ${kpi('blue','stack','Backlog', backlog.length, `≈ ${fmtH(sum(backlog.map(g=>est(g)||0)))}h to clear`)}
     </div>
+    ${goalsCard(sel==='all' ? THIS_YEAR : +sel, D)}
     ${playing.length ? sect(groups.length?7:12, 'Now Playing', 'What you\'re working through', playing.map(nowRow).join(''), {flush:true}) : ''}
     ${groups.length ? sect(playing.length?5:12, 'Recurring Games', 'Hours count per year', groups.map(recRow).join(''), {flush:true}) : ''}
     ${activityCard()}
     ${soonCard()}
-    ${sect(12, 'Up Next', 'Your play order · drag the covers to change it', next.length?`<div class="shelf" data-dnd>${next.map((g,i)=>`<div class="tile" draggable="true" data-id="${g.id}" data-open="${g.id}">${cover(g,'fill',`<span class="rankpin">${i+1}</span>`+(g.excitement!=null?`<span class="score t6" data-tip="Excitement ${fmt1(g.excitement)} / 10">${fmt1(g.excitement)}</span>`:''))}<div class="tt">${esc(g.title)}</div><div class="tm">${relInfo(g.release)?.future ? '⏳ '+esc(relInfo(g.release).short) : (g.platform?esc(g.platform)+' · ':'')+(est(g)?'~'+fmtH(est(g))+'h':'')}</div><button class="btn small" style="margin-top:7px" data-start="${g.id}">▶ Start</button></div>`).join('')}</div>`:'<div class="empty">Backlog is empty. Nice!</div>', {link:'<a href="#backlog">Full play order</a>'})}
+    ${sect(12, 'Up Next', 'Your play order · drag the covers to change it', next.length?`<div class="shelf" data-dnd>${next.map((g,i)=>`<div class="tile" draggable="true" data-id="${g.id}" data-open="${g.id}">${cover(g,'fill',`<span class="rankpin">${i+1}</span>`+(g.excitement!=null?`<span class="score t6" data-tip="Excitement ${fmt1(g.excitement)} / 10">${fmt1(g.excitement)}</span>`:''))}<div class="tt">${esc(g.title)}</div><div class="tm">${relInfo(g.release)?.future ? '⏳ '+esc(relInfo(g.release).short) : (g.platform?esc(g.platform)+' · ':'')+(est(g)?'~'+fmtH(est(g))+'h':'')}</div><button class="btn small" style="margin-top:7px" data-start="${g.id}">▶ Start</button></div>`).join('')}</div>`:'<div class="empty">Backlog is empty. Nice!</div>', {link:'<button class="lnk" data-act="pick">🎲 Pick for me</button><a href="#backlog" style="margin-left:16px">Full play order</a>'})}
   </div>`;
 }
 
@@ -1632,7 +1701,7 @@ function renderBacklog(){
   $('#view-backlog').innerHTML = `
   <div class="page-head"><div><h1>Backlog</h1><p class="sub">${back.length} games waiting · about ${fmtH(sum(back.map(g=>est(g)||0)))} hours of gaming</p></div><div class="spacer"></div>
     <div class="chips">${[['order','⇅ Play order'],['excitement','Most hyped'],['short','Shortest first'],['title','A–Z']].map(([k,l])=>`<button class="chip ${state.blSort===k?'on':''}" data-blsort="${k}">${l}</button>`).join('')}</div>
-    <button class="btn primary" id="btnAddBacklog">+ Add to backlog</button></div>
+    <button class="btn" data-act="pick">🎲 Pick for me</button><button class="btn primary" id="btnAddBacklog">+ Add to backlog</button></div>
   ${state.blSort==='order'
     ? (back.length ? `<p class="sub" style="margin:-8px 0 12px">Drag games (or use ▲ ▼) to set what you'll play next. The top games show up under “Up next” on the dashboard.</p><div class="queue" data-dnd>${backlogOrdered().map(qrow).join('')}</div>` : '<div class="empty">Your backlog is empty.</div>')
     : (groups.map(([p,gs])=>`<div class="bl-group"><h3>${p==='Other'?'Other':plat(p)} · ${gs.length}</h3><div class="cards">${gs.map(card).join('')}</div></div>`).join('') || '<div class="empty">Your backlog is empty.</div>')}
@@ -2261,6 +2330,9 @@ function mergeDb(local, remote){
   const out = {...remote, ...local, version:Math.max(local.version||0, remote.version||0), deleted:{}};
   for(const k of SYNC_KEYS){ const r = mergeList(local[k], remote[k], local.deleted?.[k], remote.deleted?.[k]); out[k] = r.list; out.deleted[k] = r.del; }
   out.journal.sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+  // goals: the most recently edited set wins
+  const gl = local.goals, gr = remote.goals;
+  if(gl || gr) out.goals = (gl?.updatedAt||0) >= (gr?.updatedAt||0) ? gl : gr;
   return out;
 }
 let syncing = false, syncAgain = false, syncTimer = null, syncError = '';
@@ -2311,16 +2383,21 @@ function openSync(){
   $('#syncForm').elements.token.value = ''; $('#syncError').textContent = '';
   showSyncStatus(); $('#dlgSync').showModal();
 }
-$('#syncForm').addEventListener('submit', async e=>{
-  e.preventDefault();
-  const token = e.target.elements.token.value.trim();
-  if(!/^(ghp_|github_pat_|gho_)\w+/.test(token)){ $('#syncError').textContent = 'That doesn\'t look like a GitHub token. It should start with ghp_.'; return; }
+async function connectWith(token, gistId){
   $('#syncConnect').disabled = true; $('#syncError').textContent = 'Connecting…';
-  setSyncCfg({token});
+  setSyncCfg(gistId ? {token, gistId} : {token});
   const ok = await syncNow(true);
   $('#syncConnect').disabled = false;
-  if(ok){ $('#dlgSync').close(); toast('Connected ✓ Your log now syncs between devices'); }
+  if(ok){ $('#dlgSync').close(); toast('Connected ✓ Your log now syncs between devices'); render(); }
   else { localStorage.removeItem(SYNC_KEY); $('#syncError').textContent = syncError; syncError = ''; showSyncStatus(); }
+  return ok;
+}
+$('#syncForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const val = e.target.elements.token.value.trim(), setup = parseSetup(val);
+  if(setup) return connectWith(setup.t, setup.g);
+  if(!/^(ghp_|github_pat_|gho_)\w+/.test(val)){ $('#syncError').textContent = 'That doesn\'t look like a GitHub token or a setup code. A token starts with ghp_, a setup code with BL1.'; return; }
+  connectWith(val);
 });
 $('#syncNowBtn').onclick = ()=>syncNow(false);
 $('#syncDisconnect').onclick = ()=>{ if(!confirm('Stop syncing on this device? Your log stays here and in the gist; nothing is deleted.')) return; localStorage.removeItem(SYNC_KEY); syncError = ''; $('#dlgSync').close(); showSyncStatus(); toast('Sync turned off on this device'); };
@@ -2331,6 +2408,210 @@ document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState==='hidden' && syncTimer) syncNow(true);
 });
 setInterval(()=>{ if(syncCfg().token && !syncing && !syncError) showSyncStatus(); }, 60000);
+
+// ---------- connect another device with a QR code ----------
+// the code holds the sync key (token + gist id) as "BL1.<base64>", inside a link to this app (#join=…)
+// QR helpers load on demand from jsDelivr, pinned to one version and checked with a hash
+const QR_LIBS = {
+  gen:['https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js', 'sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k'],
+  scan:['https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js', 'sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx']};
+const libLoads = {};
+function loadLib(k){
+  return libLoads[k] ||= new Promise((res, rej)=>{
+    const s = document.createElement('script'); s.src = QR_LIBS[k][0]; s.integrity = QR_LIBS[k][1]; s.crossOrigin = 'anonymous';
+    s.onload = res; s.onerror = ()=>{ delete libLoads[k]; s.remove(); rej(new Error('Couldn\'t load the QR helper. Are you online?')); };
+    document.head.appendChild(s);
+  });
+}
+const b64url = s => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const setupCode = () => { const c = syncCfg(); return 'BL1.' + b64url(JSON.stringify({t:c.token, g:c.gistId||''})); };
+function parseSetup(s){
+  const m = String(s||'').match(/BL1\.([\w-]+)/); if(!m) return null;
+  try{ const bin = atob(m[1].replace(/-/g,'+').replace(/_/g,'/')), o = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, c=>c.charCodeAt(0)))); return o && o.t ? o : null; }catch(e){ return null; }
+}
+$('#qrShow').onclick = async ()=>{
+  $('#qrPanel').classList.remove('hidden'); $('#qrShow').classList.add('hidden');
+  $('#qrCode').innerHTML = '<p class="sub" style="color:#666;font-size:13px">Making the code…</p>';
+  try{
+    await loadLib('gen');
+    const qr = qrcode(0, 'L'); qr.addData(location.origin + location.pathname + '#join=' + setupCode()); qr.make();
+    const n = qr.getModuleCount(), m = 2; let d = '';
+    for(let r=0; r<n; r++) for(let c=0; c<n; c++) if(qr.isDark(r,c)) d += `M${c+m} ${r+m}h1v1h-1z`;
+    $('#qrCode').innerHTML = `<svg viewBox="0 0 ${n+2*m} ${n+2*m}" shape-rendering="crispEdges" role="img" aria-label="Setup code"><path d="${d}" fill="#000"/></svg>`;
+  }catch(e){ $('#qrCode').innerHTML = `<p class="sub" style="color:#666;font-size:13px">${esc(e.message)} You can still copy the setup code.</p>`; }
+};
+$('#qrCopy').onclick = async ()=>{
+  try{ await navigator.clipboard.writeText(setupCode()); toast('Setup code copied'); }
+  catch(e){ prompt('Copy this setup code:', setupCode()); }
+};
+$('#dlgSync').addEventListener('close', ()=>{ $('#qrPanel').classList.add('hidden'); $('#qrShow').classList.remove('hidden'); $('#qrCode').innerHTML = ''; });
+// joining from a scanned code or a #join= link
+async function joinFrom(o){
+  if(syncCfg().token){ toast(syncCfg().token===o.t ? 'This device is already connected ✓' : 'This device already syncs. Disconnect it first to use another code.'); return; }
+  openSync(); await connectWith(o.t, o.g);
+}
+let scanStream = null, scanTimer = 0;
+function stopScan(){ clearTimeout(scanTimer); scanStream?.getTracks().forEach(t=>t.stop()); scanStream = null; }
+async function openScan(){
+  const msg = $('#scanMsg'), v = $('#scanVideo'); msg.textContent = 'Starting the camera…';
+  $('#dlgScan').showModal();
+  try{
+    let det = null;
+    try{ if('BarcodeDetector' in window && (await BarcodeDetector.getSupportedFormats()).includes('qr_code')) det = new BarcodeDetector({formats:['qr_code']}); }catch(e){}
+    if(!det) await loadLib('scan');
+    if(!navigator.mediaDevices?.getUserMedia) throw new Error('This browser can\'t use the camera here. Paste the setup code instead.');
+    scanStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}, audio:false});
+    if(!$('#dlgScan').open){ stopScan(); return; }
+    v.srcObject = scanStream; await v.play();
+    msg.textContent = 'Point the camera at the code on your other device.';
+    const cv = document.createElement('canvas'), ctx = cv.getContext('2d', {willReadFrequently:true});
+    const tick = async ()=>{
+      if(!scanStream) return;
+      let txt = null;
+      if(v.readyState >= 2 && v.videoWidth){
+        if(det){ try{ txt = (await det.detect(v))[0]?.rawValue; }catch(e){} }
+        else { const w = Math.min(720, v.videoWidth), h = Math.round(v.videoHeight*w/v.videoWidth); cv.width = w; cv.height = h; ctx.drawImage(v, 0, 0, w, h); txt = jsQR(ctx.getImageData(0,0,w,h).data, w, h, {inversionAttempts:'dontInvert'})?.data; }
+      }
+      const o = txt && parseSetup(txt);
+      if(o){ stopScan(); $('#dlgScan').close(); joinFrom(o); return; }
+      if(txt) msg.textContent = 'That\'s not a Backlog setup code.';
+      scanTimer = setTimeout(tick, 120);
+    };
+    tick();
+  }catch(e){
+    stopScan();
+    msg.textContent = e.name==='NotAllowedError' ? 'Camera access was blocked. Allow it for this app in Settings, or paste the setup code into the token box instead.' : (e.message || 'Couldn\'t start the camera.');
+  }
+}
+$('#scanOpen').onclick = openScan;
+$('#dlgScan').addEventListener('close', stopScan);
+
+// ---------- yearly goals ----------
+// db.goals = {updatedAt, years:{2026:{finish, hours, backlog, backlogStart}}}
+const goalsFor = y => db.goals?.years?.[y] || null;
+const hasGoals = G => !!G && (G.finish || G.hours || G.backlog!=null);
+function yearFrac(y){ if(y < THIS_YEAR) return 1; if(y > THIS_YEAR) return 0; const s = new Date(y,0,1), e = new Date(y+1,0,1); return Math.min(1, (Date.now()-s)/(e-s)); }
+function goalLine(v, goal, frac, hours){
+  const f = n => hours ? fmtH(n)+'h' : String(Math.round(n));
+  if(v >= goal) return `<span style="color:var(--green);font-weight:600">✓ Goal reached${Math.round(v-goal)>0 ? ` · ${f(v-goal)} extra` : ''}</span>`;
+  if(frac >= 1) return `Ended ${f(goal-v)} short`;
+  if(frac <= 0) return 'Starts in January';
+  const diff = v - goal*frac, thr = Math.max(goal*0.03, hours ? 1 : 0.5), left = goal - v;
+  const pace = diff >= thr ? `<span style="color:var(--green);font-weight:600">Ahead of pace</span>` : diff <= -thr ? `<span style="color:var(--orange);font-weight:600">${f(-diff)} behind pace</span>` : '<span style="font-weight:600">Right on pace</span>';
+  const rate = hours ? `≈ ${fmt1(left/Math.max(1,(1-frac)*52.18))}h a week` : `≈ ${fmt1(left/Math.max(0.5,(1-frac)*12))} a month`;
+  return `${pace} · ${rate} to go`;
+}
+function goalsCard(y, D){
+  const G = goalsFor(y);
+  if(!hasGoals(G)) return y===THIS_YEAR ? sect(12, 'Goals', '', `<div class="goal-empty"><p class="sub">Set yourself a goal for ${y}: games to finish, hours to play, or a smaller backlog. Your progress shows here as rings.</p><button class="btn tint" data-act="goals">🎯 Set goals</button></div>`) : '';
+  const logged = D.logged.filter(g=>g.year===y), frac = yearFrac(y);
+  const done = logged.filter(g=>g.status==='Completed').length, hours = sum(logged.map(g=>g.hours||0)), back = D.backlog.length;
+  const rows = [];
+  if(G.finish) rows.push({c:'green', nm:'Games finished', v:`${done}<small> / ${G.finish}</small>`, fill:done/G.finish, ln:goalLine(done, G.finish, frac)});
+  if(G.hours) rows.push({c:'orange', nm:'Hours played', v:`${fmtH(hours)}<small> / ${fmtH(G.hours)}h</small>`, fill:hours/G.hours, ln:goalLine(hours, G.hours, frac, true)});
+  if(G.backlog!=null){
+    if(y===THIS_YEAR){ const start = Math.max(G.backlogStart ?? back, G.backlog+1);
+      rows.push({c:'blue', nm:'Backlog', v:`${back}<small> → ${G.backlog}</small>`, fill: back<=G.backlog ? 1 : (start-back)/(start-G.backlog),
+        ln: back<=G.backlog ? '<span style="color:var(--green);font-weight:600">✓ Goal reached</span>' : `${back-G.backlog} game${back-G.backlog===1?'':'s'} to go · the backlog was ${start} when you set this`}); }
+    else rows.push({c:'blue', nm:'Backlog', v:`<small>aim </small>${G.backlog}`, fill:0, ln:'Aimed for this many games or fewer by year end'});
+  }
+  const R = [58, 43, 28];
+  const rings = `<svg class="rings" viewBox="0 0 136 136" aria-hidden="true">${rows.map((r,i)=>{ const rad = R[i], C = 2*Math.PI*rad, p = Math.max(0, Math.min(1, r.fill||0));
+    return `<circle cx="68" cy="68" r="${rad}" style="stroke:color-mix(in srgb,var(--${r.c}) 20%,transparent)"/>${p>0.002?`<circle cx="68" cy="68" r="${rad}" transform="rotate(-90 68 68)" style="stroke:var(--${r.c})" stroke-dasharray="${C*p} ${C}"/>`:''}`; }).join('')}</svg>`;
+  const sub = y===THIS_YEAR ? `${Math.round(frac*100)}% of the year gone` : y < THIS_YEAR ? 'How the year ended' : '';
+  return sect(12, `${y} Goals`, sub, `<div class="goals">${rings}<div class="goal-rows">${rows.map(r=>`<div class="goal-row" style="--c:var(--${r.c})"><span class="dot"></span><span class="nm">${r.nm}</span><span class="v">${r.v}</span><span class="ln">${r.ln}</span></div>`).join('')}</div></div>`,
+    {link:`<button class="lnk" data-act="goals" data-y="${y}">Edit</button>`});
+}
+let goalYear = THIS_YEAR;
+function openGoals(y){
+  goalYear = +y || (state.dashYear!=='all' ? +state.dashYear : THIS_YEAR);
+  const G = goalsFor(goalYear) || {}, f = $('#goalsForm').elements;
+  $('#goalsTitle').textContent = `🎯 Goals for ${goalYear}`;
+  f.finish.value = G.finish || ''; f.hours.value = G.hours || ''; f.backlog.value = G.backlog ?? '';
+  const prev = loggedGames().filter(g=>g.year===goalYear-1), back = db.games.filter(g=>g.status==='Backlog').length;
+  $('#goalsHint').innerHTML = (prev.length ? `In ${goalYear-1} you finished <b>${prev.filter(g=>g.status==='Completed').length}</b> games and played <b>${fmtH(sum(prev.map(g=>g.hours||0)))}h</b>. ` : '') + `Your backlog has <b>${back}</b> games right now.`;
+  $('#goalsClear').classList.toggle('hidden', !hasGoals(goalsFor(goalYear)));
+  $('#dlgGoals').showModal();
+}
+$('#goalsForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const f = e.target.elements, num = v => v==='' ? null : Math.max(0, Math.round(+v));
+  const G = {finish:num(f.finish.value)||null, hours:num(f.hours.value)||null, backlog:num(f.backlog.value)};
+  if(!hasGoals(G)){ toast('Fill in at least one goal'); return; }
+  const old = goalsFor(goalYear), back = db.games.filter(g=>g.status==='Backlog').length;
+  if(G.backlog!=null) G.backlogStart = old && old.backlog===G.backlog && old.backlogStart!=null ? old.backlogStart : back;
+  db.goals = {updatedAt:Date.now(), years:{...(db.goals?.years||{}), [goalYear]:G}};
+  $('#dlgGoals').close(); save(`Goals for ${goalYear} saved 🎯`);
+});
+$('#goalsClear').onclick = ()=>{
+  const before = structuredClone(db), years = {...(db.goals?.years||{})}; delete years[goalYear];
+  db.goals = {updatedAt:Date.now(), years};
+  $('#dlgGoals').close(); save(`Goals for ${goalYear} removed`, undoTo(before, 'Goals restored'));
+};
+
+// ---------- what should I play? a weighted random pick from the backlog ----------
+const PICK_KEY = 'gamelog.pick', PICK_DEF = {len:'any', plat:'', focus:'', owned:true, paused:false};
+let pickF = (()=>{ try{ return {...PICK_DEF, ...JSON.parse(localStorage.getItem(PICK_KEY))}; }catch(e){ return {...PICK_DEF}; } })();
+let pickId = null, pickSeen = new Set(), pickSpin = 0;
+const PICK_LENS = [['any','Any length'],['short','Short · under 15h'],['mid','15–40h'],['long','Long · 40h+']];
+function pickPool(f=pickF){
+  const rank = new Map(backlogOrdered().map((g,i)=>[g.id, i+1]));
+  return db.games.filter(g=>(g.status==='Backlog' || (f.paused && g.status==='Paused')) && !relInfo(g.release)?.future)
+    .filter(g=>!f.owned || g.owned!==false)
+    .filter(g=>!f.plat || g.platform===f.plat)
+    .filter(g=>!f.focus || g.focus===f.focus || g.focus==='Both')
+    .filter(g=>{ const e = est(g); return f.len==='any' || (e!=null && (f.len==='short' ? e<15 : f.len==='mid' ? e>=15 && e<40 : e>=40)); })
+    .map(g=>({g, rank:rank.get(g.id)}));
+}
+function renderPickFilters(){
+  const plats = [...new Set(pickPool({...PICK_DEF, owned:false, paused:pickF.paused}).map(p=>p.g.platform).filter(Boolean))].sort();
+  if(pickF.plat && !plats.includes(pickF.plat)) plats.push(pickF.plat);
+  const seg = (k, opts) => `<div class="chips">${opts.map(([v,l])=>`<button type="button" class="chip ${pickF[k]===v?'on':''}" data-pf="${k}" data-v="${esc(v)}">${esc(l)}</button>`).join('')}</div>`;
+  $('#pickFilters').innerHTML = `<div class="lbl">How much time do you have?</div>${seg('len', PICK_LENS)}
+    <div class="lbl">In the mood for</div>${seg('focus', [['','Anything'],['Story','A good story'],['Gameplay','Gameplay']])}
+    ${plats.length>1 ? `<div class="lbl">Platform</div>${seg('plat', [['','Any'], ...plats.map(p=>[p,p])])}` : ''}
+    <label class="checkline"><input type="checkbox" data-pf="owned" ${pickF.owned?'checked':''}>Only games I own</label>
+    <label class="checkline"><input type="checkbox" data-pf="paused" ${pickF.paused?'checked':''}>Include paused games</label>`;
+}
+function pickCard({g, rank}, n, spinning){
+  const e = est(g), ri = relInfo(g.release), why = [];
+  if(g.status==='Paused') why.push('you already started it');
+  if(rank && rank<=3) why.push(`it's #${rank} in your play order`);
+  if(g.excitement>=8) why.push(`your excitement for it is ${fmt1(g.excitement)}`);
+  if(e && e<=12) why.push(`you could finish it in ${e<=6 ? 'a weekend' : 'a week or two'}`); else if(e>=60) why.push('it\'s a big one to sink into');
+  if(ri && !ri.future && ri.days!=null && ri.days>=-60) why.push('it just came out');
+  const meta = [g.platform, e ? '~'+fmtH(e)+'h' : '', g.excitement!=null ? '🔥 '+fmt1(g.excitement) : '', rank ? '#'+rank+' in your play order' : g.status, (g.genre||'').split(',')[0].trim()].filter(Boolean);
+  return `<div class="pickcard ${spinning?'spin':''}">${cover(g,'lg')}<div class="pc-t">${esc(g.title)}</div><div class="meta">${meta.map(esc).join(' · ')}</div>
+    ${!spinning && why.length ? `<p class="why">Why this one: ${esc(why.slice(0,3).join(', '))}.</p>` : ''}</div>
+    <p class="sub" style="text-align:center;font-size:12.5px;margin:10px 0 0">Picked from ${n} game${n===1?'':'s'} that fit${n>1 ? '. The ones you\'re most excited about and the top of your play order come up more often.' : '.'}</p>`;
+}
+function rollPick(animate=true){
+  clearTimeout(pickSpin);
+  const pool = pickPool(), btns = ['#pickAgain','#pickOpen','#pickStart'];
+  if(!pool.length){ pickId = null; btns.forEach(b=>$(b).disabled = true);
+    $('#pickOut').innerHTML = '<div class="empty">Nothing in your backlog fits these filters. Try a different length or platform.</div>'; return; }
+  btns.forEach(b=>$(b).disabled = false); $('#pickAgain').disabled = pool.length<2;
+  let cand = pool.filter(p=>!pickSeen.has(p.g.id));
+  if(!cand.length){ pickSeen.clear(); cand = pool.length>1 ? pool.filter(p=>p.g.id!==pickId) : pool; }
+  const w = cand.map(p=>(1+(p.g.excitement??5))**2 * (p.rank ? 1+2/Math.sqrt(p.rank) : 1.3));
+  let r = Math.random()*sum(w), i = 0; while(i<w.length-1 && r>w[i]){ r -= w[i]; i++; }
+  const pick = cand[i]; pickId = pick.g.id; pickSeen.add(pickId);
+  const show = ()=>{ $('#pickOut').innerHTML = pickCard(pick, pool.length); $('#pickStart').textContent = pick.g.status==='Paused' ? '▶ Resume' : '▶ Start playing'; };
+  if(!animate || pool.length<3 || matchMedia('(prefers-reduced-motion: reduce)').matches) return show();
+  let n = 0; const spin = ()=>{ $('#pickOut').innerHTML = pickCard(pool[Math.floor(Math.random()*pool.length)], pool.length, true); pickSpin = ++n<9 ? setTimeout(spin, 40+n*14) : setTimeout(show, 120); }; spin();
+}
+function openPick(){ pickSeen.clear(); pickId = null; renderPickFilters(); $('#dlgPick').showModal(); rollPick(); }
+function setPickF(k, v){ pickF = {...pickF, [k]:v}; try{ localStorage.setItem(PICK_KEY, JSON.stringify(pickF)); }catch(e){} pickSeen.clear(); renderPickFilters(); rollPick(false); }
+$('#pickFilters').addEventListener('click', e=>{ const b = e.target.closest('button[data-pf]'); if(b) setPickF(b.dataset.pf, b.dataset.v); });
+$('#pickFilters').addEventListener('change', e=>{ const c = e.target.closest('input[data-pf]'); if(c) setPickF(c.dataset.pf, c.checked); });
+$('#pickAgain').onclick = ()=>rollPick();
+$('#pickOpen').onclick = ()=>{ if(!pickId) return; $('#dlgPick').close(); openDetail(pickId); };
+$('#pickStart').onclick = ()=>{
+  const g = byId(pickId); if(!g) return; $('#dlgPick').close();
+  g.status = 'Playing'; if(!g.startedAt || g.finishedAt){ g.startedAt = todayISO(); g.finishedAt = ''; }
+  save(`Now playing: ${g.title} 🎮`);
+};
+$('#dlgPick').addEventListener('close', ()=>clearTimeout(pickSpin));
 
 // ---------- clicks ----------
 document.addEventListener('click', e=>{
@@ -2375,6 +2656,8 @@ function download(name, text, type){ const a=document.createElement('a'); a.href
 function dataAction(act){
   if(act==='journal'){ location.hash = '#journal'; return; }
   if(act==='platforms'){ openPlatforms(); return; }
+  if(act==='pick'){ openPick(); return; }
+  if(act==='goals'){ openGoals(); return; }
   const today = new Date().toISOString().slice(0,10);
   if(act==='covers'){ const miss = db.games.filter(g=>!g.cover); if(!miss.length){ toast('Every game already has a cover 🎉'); return; } toast(`Looking for ${miss.length} covers…`); queueCovers(miss); }
   if(act==='export'){ download(`game-log-backup-${today}.json`, JSON.stringify(db,null,2), 'application/json'); localStorage.setItem(BACKUP_KEY,today); render(); toast('Backup downloaded'); }
@@ -2420,6 +2703,11 @@ $('#swatches').innerHTML = ACCENTS.map(([n,c])=>`<button data-accent="${n}"><i s
 applyTheme(localStorage.getItem(THEME_KEY) || 'light');   // light unless you picked dark
 applyAccent(localStorage.getItem(ACCENT_KEY) || 'Mario');
 function route(){
+  if(location.hash.startsWith('#join=')){
+    // a setup code from another device: take it out of the address bar and history straight away
+    const o = parseSetup(location.hash); history.replaceState(null, '', location.pathname + location.search);
+    if(o) setTimeout(()=>joinFrom(o)); else setTimeout(()=>toast('That setup link didn\'t work. Try scanning the code again.'));
+  }
   const v = location.hash.slice(1), [base, yr] = v.split('-');
   if(base==='wrapped'){ state.view = 'wrapped'; state.wrapYear = +yr || THIS_YEAR; }
   else state.view = ['dashboard','library','backlog','journal','shows','stats'].includes(v) ? v : 'dashboard';

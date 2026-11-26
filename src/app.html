@@ -546,6 +546,19 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
   .dinfo{grid-template-columns:1fr}.dinfo div:nth-last-child(2){border-bottom:.5px solid var(--sep)}
   .dmore{padding:16px 16px calc(24px + env(safe-area-inset-bottom))}
 }
+.platrib{position:absolute;left:0;right:0;bottom:0;z-index:1;padding:4px 0 3px;text-align:center;font:800 9.5px/1 var(--round);letter-spacing:1.3px;text-transform:uppercase;color:#2c3a52;background:linear-gradient(135deg,#eef2f9 0%,#b4c1d6 45%,#f7f9fd 62%,#97a8c2 100%);box-shadow:0 -1px 0 rgba(255,255,255,.5) inset}
+.cover.det .platrib{font-size:9px;letter-spacing:1px}
+.tile .cover.platcov .badge{bottom:24px}
+.badge.platbg,.pill.platp,.btn.platb{background:linear-gradient(135deg,#eef2f9 0%,#b4c1d6 45%,#f7f9fd 62%,#97a8c2 100%);color:#2c3a52;box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)}
+.badge.hunt{background:color-mix(in srgb,#8fa1bd 20%,transparent);color:#7385a3}
+.dstrip .platc .v{color:#7f91ae}
+:root:not([data-theme="light"]) .dstrip .platc .v{color:#c3cfe3}
+:root:not([data-theme="light"]) .badge.hunt{color:#b4c1d6}
+.dprompt{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--surface-2);border-radius:14px;padding:12px 14px}
+.dprompt span{flex:1;min-width:200px;font-size:14.5px}
+.tcab .kp{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:14px}
+.tcab .kp b{display:block;font:700 28px/1.1 var(--round)}
+.tcab .kp span{font-size:12.5px;color:var(--muted)}
 .hidden{display:none!important}
 .hb2{display:grid;grid-template-columns:minmax(0,150px) 1fr minmax(96px,auto);gap:10px;align-items:center;padding:6px 0;font-size:14px}
 .hb2+.hb2{border-top:.5px solid var(--sep)}
@@ -784,7 +797,7 @@ const STATUSES = ['Playing','Completed','Paused','Backlog','Waiting for patch','
 // the statuses older versions used, needed to convert old data
 const LEGACY_LOGGED = new Set(['Completed','Played','Playing','Recurring','Carried over','Paused']);
 // the parts of a game that belong to one playthrough; earlier playthroughs are kept in g.runs
-const RUN_FIELDS = ['status','hoursByYear','replay','label','startedAt','finishedAt','duration','credits','platinum','rating','worthIt','blownAway','stunner','bummer','tooLong','tooShort','notes','reasonDropped'];
+const RUN_FIELDS = ['status','hoursByYear','replay','label','startedAt','finishedAt','duration','credits','platinum','platinumAt','rating','worthIt','blownAway','stunner','bummer','tooLong','tooShort','notes','reasonDropped'];
 const VERDICT_FIELDS = ['rating','worthIt','blownAway','stunner','bummer','tooLong','tooShort'];
 const LEN_OPTS = ['','No','A bit','Yes'];
 const STATUS_META = {
@@ -819,7 +832,8 @@ const FIELDS = [
   {k:'finishedAt',label:'Finished on',type:'date'},
   {k:'duration',label:'…over the course of',type:'list',opts:['1 week','2 weeks','3 weeks','4 weeks','5 weeks','6 weeks','1 month','2 months','3 months','4 months','6 months','Ongoing']},
   {k:'credits',label:'Rolled credits?',type:'select',opts:['','Yes','Sort of','No']},
-  {k:'platinum',label:'Platinum / 100%?',type:'select',opts:['','Yes','No','N/A']},
+  {k:'platinum',label:'🏆 Platinum trophy',type:'select',opts:['','Hunting','Yes','No'],optLabels:{'':'—','Hunting':'Going for it','Yes':'Got it 🏆','No':'Not going for it'}},
+  {k:'platinumAt',label:'Earned on',type:'date'},
   {sec:'The verdict'},
   {k:'rating',label:'Rating (0–10)',type:'number',step:0.1,min:0,max:10},
   {k:'worthIt',label:'Worth my time?',type:'select',opts:['','Hell yes','Yes','Meh','No']},
@@ -1004,8 +1018,14 @@ const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(
 const byId = id => db.games.find(g=>g.id===id);
 const cssVar = v => `var(${v})`;
 const hueOf = s => { let h=0; for(const c of norm(s)) h=(h*31+c.charCodeAt(0))%360; return h; };
-const BLANK = {replay:false,recurring:false,label:'',title:'',status:'Completed',year:null,platform:'',focus:'',genre:'',release:'',owned:true,hltb:null,hltbId:null,estHours:null,excitement:null,hours:null,duration:'',credits:'',platinum:'',rating:null,worthIt:'',blownAway:'',stunner:'',bummer:'',tooLong:'',tooShort:'',notes:'',reasonDropped:'',cover:''};
+const BLANK = {replay:false,recurring:false,label:'',title:'',status:'Completed',year:null,platform:'',focus:'',genre:'',release:'',owned:true,hltb:null,hltbId:null,estHours:null,excitement:null,hours:null,duration:'',credits:'',platinum:'',platinumAt:'',rating:null,worthIt:'',blownAway:'',stunner:'',bummer:'',tooLong:'',tooShort:'',notes:'',reasonDropped:'',cover:''};
 function tier(r){ return r==null ? null : RATING_TIERS.find(t=>r>=t[0]); }
+// trophies: PlayStation games have a platinum, Xbox / PC games all achievements, Switch and other consoles nothing.
+// A game without a platform counts as PlayStation, so platinums logged before platforms existed still show.
+function trophyKind(g){ const p = String(g.platform||''); if(!p || /playstation|\bps\s?\d|\bps\s?vita|\bpsp\b/i.test(p)) return 'plat'; if(/xbox|\bpc\b|steam|windows/i.test(p)) return 'ach'; return null; }
+const hasPlat = g => g.platinum==='Yes' && trophyKind(g)==='plat';
+const hunting = g => g.platinum==='Hunting' && !!trophyKind(g);
+const platYear = g => +(g.platinumAt||'').slice(0,4) || yearsOf(g).at(-1) || null;
 // how far into a game you probably are: hours played vs. HowLongToBeat Main + Extra (or your own estimate)
 // ---- play dates (stored as "YYYY-MM-DD", local time) ----
 const pad2 = n => String(n).padStart(2,'0');
@@ -1041,7 +1061,8 @@ function score(r){ const t = tier(r); return r==null ? '<span class="score">—<
 function plat(p){ return p ? `<span class="plat" style="--pc:${PLATFORM_COLORS[p.toLowerCase()]||'#6b7280'}">${esc(p)}</span>` : ''; }
 function initials(t){ return esc(String(t).replace(/[^\p{L}\p{N} ]/gu,'').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase() || '🎮'); }
 function cover(g, size='sm', inner='', attrs='', style=''){
-  return `<div class="cover ${size}" data-cover="${g.id}" ${attrs} style="--h:${hueOf(baseTitle(g))};${style}"><span class="ini">${initials(baseTitle(g))}</span>${g.cover?`<img src="${esc(g.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:''}${inner}</div>`;
+  const pl = (size==='fill' || size==='det') && hasPlat(g);
+  return `<div class="cover ${size}${pl?' platcov':''}" data-cover="${g.id}" ${attrs} style="--h:${hueOf(baseTitle(g))};${style}"><span class="ini">${initials(baseTitle(g))}</span>${g.cover?`<img src="${esc(g.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:''}${inner}${pl?'<span class="platrib">Platinum</span>':''}</div>`;
 }
 function baseTitle(g){ return String(g.title||'').replace(/\s+[-–]\s+20\d\d$/,''); }
 function toast(msg, undo){
@@ -1530,6 +1551,20 @@ function monthsData(){
       tip:`<b>${d.toLocaleDateString('en-GB',{month:'long',year:'numeric'})}: ${fmt1(v)}h</b>${[...per].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([t,h])=>esc(t)+' · '+fmt1(h)+'h').join('<br>')}`};
   });
 }
+// every platinum on a shelf, newest first, with counts per year and how long they took
+function trophyCabinet(sel){
+  const all = db.games.filter(hasPlat), list = (sel==='all' ? all : all.filter(g=>platYear(g)==sel))
+    .sort((a,b)=>String(b.platinumAt||platYear(b)).localeCompare(String(a.platinumAt||platYear(a))));
+  if(!all.length) return sect(12, 'Trophy Cabinet', 'Your platinums', '<div class="empty">No platinums logged yet. Open a finished PlayStation game and tap <b>🏆 Got it</b>, or set it in <b>Edit</b>.</div>');
+  const hrs = list.map(g=>g.hours||g.totalHours||0).filter(Boolean), quick = [...list].filter(g=>g.hours||g.totalHours).sort((a,b)=>(a.hours||a.totalHours)-(b.hours||b.totalHours))[0];
+  const perYear = new Map(); all.forEach(g=>{ const y = platYear(g); if(y) perYear.set(y, (perYear.get(y)||0)+1); });
+  const yrs = [...perYear].sort((a,b)=>a[0]-b[0]), mx = Math.max(1, ...yrs.map(x=>x[1]));
+  return sect(12, 'Trophy Cabinet', `Your platinums ${sel==='all' ? 'so far' : 'in '+sel}`, `<div class="tcab">
+    <div class="kp"><div><b>${list.length}</b><span>platinum${list.length===1?'':'s'}${sel==='all'?'':' in '+sel}</span></div>${sel==='all' && perYear.get(THIS_YEAR) ? `<div><b>${perYear.get(THIS_YEAR)}</b><span>in ${THIS_YEAR}</span></div>` : ''}
+      ${hrs.length ? `<div><b>${fmtH(sum(hrs)/hrs.length)}h</b><span>average to platinum</span></div>` : ''}${quick ? `<div><b>${fmtH(quick.hours||quick.totalHours)}h</b><span>quickest: ${esc(quick.title)}</span></div>` : ''}</div>
+    ${list.length ? `<div class="shelf">${list.map(g=>`<div class="tile" data-open="${g.id}">${cover(g,'fill')}<div class="tt">${esc(g.title)}</div><div class="tm">${g.platinumAt ? fmtDay(g.platinumAt) : (platYear(g)||'')}${g.hours||g.totalHours ? ' · '+fmtH(g.hours||g.totalHours)+'h' : ''}</div></div>`).join('')}</div>` : `<div class="empty">No platinums in ${sel}.</div>`}
+    ${yrs.length>1 ? `<div style="margin-top:14px">${yrs.map(([y,n])=>`<div class="hb2"><span class="nm">${y}</span><div class="tr"><i style="width:${n/mx*100}%;background:#9fb0ca"></i></div><span class="v"><b>${n}</b></span></div>`).join('')}</div>` : ''}</div>`);
+}
 function renderStats(){
   const D = dashData(), {logged, years, sel, inY, done, rated, tens, label} = D;
   const yHours = years.map(y=>{
@@ -1631,6 +1666,7 @@ function renderStats(){
     ${sect(12, 'Year by Year', '', `<div style="overflow:auto"><table class="ytable"><thead><tr><th>Year</th><th class="num">Hours</th><th class="num">Finished</th><th class="num">Avg rating</th><th class="num">10s</th><th>Best game</th></tr></thead><tbody>
       ${yRows.map(r=>`<tr><td><b>${r.y}</b>${r.y===THIS_YEAR?' <span class="sub" style="font-size:12px">so far</span>':''}</td><td class="num">${fmtH(r.h)}h</td><td class="num">${r.fin}</td><td class="num">${r.avg!=null?fmt1(r.avg):'—'}</td><td class="num">${r.tens}</td>
         <td>${r.best?`<div class="row-flex" style="flex-wrap:nowrap;cursor:pointer" data-open="${r.best.id}">${cover(r.best,'xs')}<span>${esc(r.best.title)}</span>${score(r.best.rating)}</div>`:'—'}</td></tr>`).join('')}</tbody></table></div>`, {flush:true})}
+    ${trophyCabinet(sel)}
     ${sect(12, 'Hall of Fame', `Your 10/10s ${label}`, tens.length?`<div class="shelf">${[...tens].sort((a,b)=>b.year-a.year).map(g=>`<div class="tile" data-open="${g.id}">${cover(g,'fill','<span class="score t10">10</span>')}<div class="tt">${esc(g.title)}</div><div class="tm">${g.year} · ${fmtH(g.runHours)}h</div></div>`).join('')}</div>`:'<div class="empty">No perfect scores here yet.</div>')}
   </div>`;
 }
@@ -1796,9 +1832,12 @@ function openDetail(id){
       g.excitement!=null && ['Hype', fmt1(g.excitement), g.rating!=null ? `landed at ${fmt1(g.rating)}` : 'out of 10'],
       took && ['Took', esc(took), yearSpan(g)],
       past.length && ['All runs', fmtH(g.totalHours)+'h', `${past.length+1} playthroughs`],
+      hasPlat(g) && ['Platinum', '🏆', g.platinumAt ? fmtDay(g.platinumAt) : 'earned', 'platc'],
+      g.platinum==='Yes' && trophyKind(g)==='ach' && ['Achievements', '🏅', 'all of them'],
       g.focus && ['Focus', FOCUS_IC[g.focus]||'•', esc(g.focus)]]
     : mode==='play' ? [
       ['Progress', e ? Math.round(h/e*100)+'%' : fmt1(h)+'h', e ? `${fmt1(h)}h of ~${fmtH(e)}h` : 'played so far'],
+      hunting(g) && [trophyKind(g)==='plat' ? 'Platinum' : 'Achievements', 'Hunting', 'going for it', 'platc'],
       g.startedAt && (daysBetween(g.startedAt, todayISO()) ? ['Playing for', esc(spanText(daysBetween(g.startedAt, todayISO()))), 'since '+fmtDay(g.startedAt)] : ['Started', 'Today', fmtDay(g.startedAt)]),
       g.excitement!=null && ['Hype', fmt1(g.excitement), 'out of 10'],
       past.length && ['All runs', fmtH(g.totalHours)+'h', `${past.length+1} playthroughs`],
@@ -1837,9 +1876,9 @@ function openDetail(id){
   else if(g.tooLong==='No' && g.tooShort==='No') good.push('📏 Right length');
   else { if(g.tooLong==='No') quiet.push('not too long'); if(g.tooShort==='No') quiet.push('not too short'); }
   if(g.credits==='Yes') good.push('🎬 Rolled credits'); else if(g.credits==='Sort of') good.push('🎬 Sort of rolled credits'); else if(g.credits==='No' && mode==='done') quiet.push('didn\'t roll credits');
-  if(g.platinum==='Yes') good.push('🏆 Platinum / 100%');
+  if(g.platinum==='Yes') good.push(hasPlat(g) ? '🏆 Platinum' : trophyKind(g)==='ach' ? '🏅 All achievements' : '💯 100%');
   if(g.owned===false && mode!=='wait') quiet.push('don\'t own it');
-  const pills = (good.length||bad.length ? `<div class="pills">${good.map(p=>`<span class="pill good">${p}</span>`).join('')}${bad.map(p=>`<span class="pill bad">${p}</span>`).join('')}</div>` : '')
+  const pills = (good.length||bad.length ? `<div class="pills">${good.map(p=>`<span class="pill ${p==='🏆 Platinum'?'platp':'good'}">${p}</span>`).join('')}${bad.map(p=>`<span class="pill bad">${p}</span>`).join('')}</div>` : '')
     + (quiet.length ? `<div class="sub" style="font-size:13px;margin-top:8px">Also: ${esc(quiet.join(', '))}.</div>` : '');
   const journal = j && j.text ? `<div class="dj"><b>From your journal</b><div class="dj-t clamp">${esc(j.text)}</div>${j.text.length>220 ? '<button class="linkbtn dj-more">Read more</button>' : ''}</div>` : '';
 
@@ -1853,6 +1892,9 @@ function openDetail(id){
   const yearRow = ys.length>1 ? Object.entries(g.hoursByYear||{}).sort((a,b)=>a[0]-b[0]).map(([y,v])=>`${y}: ${fmt1(v)}h`).join(' · ') : '';
 
   let body = '';
+  // finished on PlayStation without an answer about the platinum: ask, one tap
+  if(mode==='done' && st==='Completed' && g.platform && trophyKind(g)==='plat' && (!g.platinum || g.platinum==='Hunting'))
+    body += `<section><div class="dprompt"><span>${g.platinum==='Hunting' ? 'You were going for the platinum. Did you get it?' : `Finished${g.platform ? ' on '+esc(g.platform) : ''}. Did you get the platinum?`}</span><button class="btn platb" data-dplat="Yes">🏆 Got it</button><button class="btn" data-dplat="No">No</button></div></section>`;
   if(mode==='done'){
     const take = (g.notes ? `<p class="dq">${esc(g.notes)}</p>` : '') + (g.reasonDropped ? `<div class="sub" style="font-size:13px;font-weight:600;margin-top:${g.notes?12:0}px">Why I dropped it</div><p class="dq">${esc(g.reasonDropped)}</p>` : '');
     if(take || pills || journal) body += sect('My take', take + (pills ? `<div style="margin-top:${take?14:0}px">${pills}</div>` : '') + journal);
@@ -1890,15 +1932,17 @@ function openDetail(id){
   }
   const info = [['Platform', esc(g.platform)], ['Genre', esc(g.genre)], ['Focus', esc(g.focus)], ['Released', g.release ? esc(relText(g.release)) : ''],
     ['Played', mode==='wait' ? '' : g.startedAt ? `${fmtDay(g.startedAt)} → ${g.finishedAt ? fmtDay(g.finishedAt) : (mode==='done' ? '?' : 'now')}` : yearSpan(g)],
-    ['Hours per year', mode==='rec' ? '' : yearRow], ['Platinum / 100%', g.platinum==='No' ? 'No' : ''],
+    ['Hours per year', mode==='rec' ? '' : yearRow],
+    [trophyKind(g)==='ach' ? 'Achievements' : 'Platinum', hasPlat(g) ? (g.platinumAt ? 'Earned '+fmtDay(g.platinumAt) : 'Earned') : hunting(g) ? 'Going for it' : g.platinum==='No' && trophyKind(g) ? 'Not going for it' : ''],
     ['HowLongToBeat', `<a href="${hltbUrl(g)}" target="_blank" rel="noopener">${g.hltb!=null ? '~'+fmtH(g.hltb)+'h' : 'Look it up'} ↗</a>`]].filter(x=>x[1]);
   body += sect('Information', `<div class="dinfo">${info.map(([k,v])=>`<div><span>${k}</span><span>${v}</span></div>`).join('')}</div>`);
-  const links = [['data-dcover', '🖼 Change cover'], ['data-dreplay', '↺ Play again', mode==='done'], ['data-edit="'+g.id+'"', 'Edit everything', mode!=='done'], ['data-drop="'+g.id+'"', 'Drop', !['Dropped','Completed'].includes(st) && !rec]]
+  const huntLink = trophyKind(g) && mode==='play' && !['Yes','No'].includes(g.platinum) ? [['data-dplat="'+(g.platinum==='Hunting' ? '' : 'Hunting')+'"', g.platinum==='Hunting' ? 'Stop the platinum hunt' : (trophyKind(g)==='plat' ? '🏆 Going for the platinum' : '🏅 Going for all achievements')]] : [];
+  const links = [...huntLink, ['data-dcover', '🖼 Change cover'], ['data-dreplay', '↺ Play again', mode==='done'], ['data-edit="'+g.id+'"', 'Edit everything', mode!=='done'], ['data-drop="'+g.id+'"', 'Drop', !['Dropped','Completed'].includes(st) && !rec]]
     .filter(l=>l[2]!==false).map(([a,l])=>`<button ${a}>${l}</button>`).join('');
 
   $('#detBody').innerHTML = `
     <div class="dtop">${cover(g,'det')}<div class="dtt"><h2>${esc(g.title)}</h2><div class="sub">${[g.platform, (g.genre||'').split(',')[0].trim()].filter(Boolean).map(esc).join(' · ') || yearSpan(g)}</div>
-      <div class="dbadges">${gameBadge(g)}${replayTag(g)}${g.label ? `<span class="badge" style="--c:var(--purple)">${esc(g.label)}</span>` : ''}</div>
+      <div class="dbadges">${gameBadge(g)}${hasPlat(g) ? '<span class="badge platbg">🏆 Platinum</span>' : hunting(g) ? `<span class="badge hunt">${trophyKind(g)==='plat' ? '🏆 Going for the platinum' : '🏅 Going for all achievements'}</span>` : ''}${replayTag(g)}${g.label ? `<span class="badge" style="--c:var(--purple)">${esc(g.label)}</span>` : ''}</div>
       <div class="dacts">${main}${editBtn}</div></div></div>
     ${strip.length ? `<div class="dstrip">${strip.map(([k,v,f,tc])=>`<div class="${tc||''}"><div class="k">${k}</div><div class="v">${v}</div><div class="f">${f||''}</div></div>`).join('')}</div>` : ''}
     ${body}
@@ -1907,7 +1951,13 @@ function openDetail(id){
   if(!wasOpen) $('#dlgDetail').scrollTop = 0;
 }
 $('#dlgDetail').addEventListener('click', e=>{
-  const b = e.target.closest('[data-dcover],[data-dreplay],[data-ddel],.dj-more'); if(!b) return;
+  const b = e.target.closest('[data-dcover],[data-dreplay],[data-ddel],[data-dplat],.dj-more'); if(!b) return;
+  if(b.hasAttribute('data-dplat')){
+    const g = byId(detailId), before = structuredClone(db), v = b.dataset.dplat;
+    g.platinum = v; g.platinumAt = v==='Yes' ? todayISO() : '';
+    save(v==='Yes' ? `🏆 Platinum logged for ${g.title}` : v==='Hunting' ? 'Good luck with the hunt 🏆' : 'Saved', undoTo(before));
+    return;
+  }
   if(b.classList.contains('dj-more')){ const t = b.previousElementSibling; t.classList.toggle('clamp'); b.textContent = t.classList.contains('clamp') ? 'Read more' : 'Show less'; return; }
   if(b.hasAttribute('data-dcover')) return openCoverPicker(detailId);
   if(b.hasAttribute('data-dreplay')) return replayGame(detailId);
@@ -1936,7 +1986,7 @@ function yearChips(g, big){
 function runCard(r, i){
   const ys = Object.keys(r.hoursByYear||{}).map(Number).sort((a,b)=>a-b), h = sum(Object.values(r.hoursByYear||{}));
   const when = !ys.length ? '' : ys.length===1 ? ys[0] : `${ys[0]}–${ys.at(-1)}`;
-  return `<div class="run"><div class="run-h"><b>Playthrough ${i+1}</b>${badge(r.status)}${replayTag(r)}<span class="sub">${[when, h?fmt1(h)+'h':''].filter(Boolean).join(' · ')}</span>${r.rating!=null?score(r.rating):''}</div>
+  return `<div class="run"><div class="run-h"><b>Playthrough ${i+1}</b>${badge(r.status)}${r.platinum==='Yes'?'<span class="badge platbg">🏆</span>':''}${replayTag(r)}<span class="sub">${[when, h?fmt1(h)+'h':''].filter(Boolean).join(' · ')}</span>${r.rating!=null?score(r.rating):''}</div>
     ${r.label?`<div class="sub" style="font-size:12.5px;margin-top:4px">${esc(r.label)}</div>`:''}
     ${r.worthIt?`<div class="sub" style="font-size:12.5px;margin-top:4px">Worth my time: ${esc(r.worthIt)}</div>`:''}
     ${r.notes?`<p class="quote" style="margin:8px 0 0">${esc(r.notes)}</p>`:''}</div>`;
@@ -1993,17 +2043,20 @@ function buildForm(){
       <table class="logtable"><thead><tr><th>Year</th><th>Hours</th><th></th></tr></thead><tbody id="hoursRows"></tbody></table>
       <div class="row-flex" style="margin-top:6px"><button type="button" class="btn small" id="hoursAdd">+ Add year</button><span class="sub" id="hoursTotal"></span></div></div>`;
     let inp;
-    if(f.type==='select') inp = `<select name="${f.k}">${f.opts.map(o=>`<option value="${esc(o)}">${o===''?'—':esc(o)}</option>`).join('')}</select>`;
+    if(f.type==='select') inp = `<select name="${f.k}">${f.opts.map(o=>`<option value="${esc(o)}">${esc(f.optLabels?.[o] ?? (o===''?'—':o))}</option>`).join('')}</select>`;
     else if(f.type==='textarea') inp = `<textarea name="${f.k}" rows="${f.rows||3}"></textarea>`;
     else if(f.type==='list') inp = `<input name="${f.k}" list="dl-${f.k}" autocomplete="off"><datalist id="dl-${f.k}">${f.opts.map(o=>`<option value="${esc(o)}">`).join('')}</datalist>`;
     else inp = `<input name="${f.k}" type="${f.type}" ${f.step?`step="${f.step}"`:''} ${f.min!=null?`min="${f.min}"`:''} ${f.max!=null?`max="${f.max}"`:''} ${f.req?'required':''} ${f.ph?`placeholder="${esc(f.ph)}"`:''} ${f.k==='title'?'autocomplete="off" placeholder="Type to search: cover, release date and genre fill in"':''}>`;
     if(f.k==='title') return `<div class="${cls} gsearch"><label>${f.label}${inp}</label><div class="gsr" id="gsr"></div><div class="gfound" id="gfound"></div></div>`;
     if(f.type==='check') return `<label class="${cls} checkline"><input type="checkbox" name="${f.k}">${f.label}</label>`;
+    if(f.k==='platinum' || f.k==='platinumAt') return `<label class="${cls}" data-f="${f.k}"><span class="flab">${f.label}</span>${inp}</label>`;
     if(f.lookup) return `<label class="${cls||'span-2'}"><span style="display:flex;gap:8px">${f.label}<a href="#" data-hltb style="margin-left:auto;color:var(--accent);font-weight:700">Look up ↗</a></span>${inp}</label>`;
     return `<label class="${cls}">${f.label}${inp}</label>`;
   }).join('');
   $('#gameForm').elements.status.addEventListener('change', ()=>{ syncHint(); datesForStatus(); });
   ['startedAt','finishedAt'].forEach(k=>$('#gameForm').elements[k].addEventListener('change', autoDuration));
+  $('#gameForm').elements.platform.addEventListener('input', syncTrophy);
+  $('#gameForm').elements.platinum.addEventListener('change', ()=>{ const f = $('#gameForm').elements; if(f.platinum.value==='Yes' && !f.platinumAt.value) f.platinumAt.value = f.finishedAt.value || todayISO(); syncTrophy(); });
   wireGameSearch();
   $('#hoursAdd').onclick = ()=>{ const ys = Object.keys(readHours('')).map(Number); $('#hoursRows').insertAdjacentHTML('beforeend', hoursRow(!ys.includes(THIS_YEAR) ? THIS_YEAR : Math.min(...ys)-1, '')); hoursTotal(); };
   $('#hoursRows').addEventListener('input', hoursTotal);
@@ -2038,6 +2091,15 @@ function datesForStatus(){
   if(['Completed','Dropped'].includes(st) && f.elements.startedAt.value && !f.elements.finishedAt.value){ f.elements.finishedAt.value = todayISO(); autoDuration(); }
   if(!['Backlog','Waiting for patch'].includes(st) && !$('#hoursRows').rows.length) fillHours({}, st);
 }
+// the trophy question follows the platform: platinum for PlayStation, all achievements for Xbox / PC, nothing for Switch
+function syncTrophy(){
+  const f = $('#gameForm').elements, kind = trophyKind({platform:f.platform.value}), v = f.platinum.value;
+  const show = !!kind || v==='Yes', wrap = $('[data-f="platinum"]'), date = $('[data-f="platinumAt"]');
+  wrap.classList.toggle('hidden', !show);
+  date.classList.toggle('hidden', !show || v!=='Yes');
+  wrap.querySelector('.flab').textContent = kind==='plat' ? '🏆 Platinum trophy' : kind==='ach' ? '🏅 All achievements' : '💯 100% completion';
+  const yesOpt = [...f.platinum.options].find(o=>o.value==='Yes'); if(yesOpt) yesOpt.textContent = kind==='plat' ? 'Got it 🏆' : 'Got them all';
+}
 function syncHint(){ const s = $('#gameForm').elements.status.value; document.querySelectorAll('[data-hint]').forEach(h=>h.classList.toggle('hidden', h.dataset.hint!==s)); }
 function openForm(id, preset={}){
   editingId = id;
@@ -2050,12 +2112,13 @@ function openForm(id, preset={}){
     const el = form.elements[f.k]; let v = data[f.k];
     if(el.type==='checkbox'){ el.checked = !!v; return; }
     v = v==null ? '' : String(v);
+    if(f.k==='platinum' && v==='N/A') v = '';
     if(el.tagName==='SELECT' && ![...el.options].some(o=>o.value===v)) el.add(new Option(v,v));
     el.value = v;
   });
   form.dataset.autoDur = preset.duration || '';
   delete form.dataset.cover; delete form.dataset.wd; searchSeq++; $('#gsr').innerHTML = ''; $('#gfound').innerHTML = '';
-  syncHint();
+  syncHint(); syncTrophy();
   $('#formTitle').textContent = id ? `Edit: ${g.title}` : (data.status==='Backlog' ? 'Add to backlog' : 'Log a game');
   $('#dlgForm').showModal();
   form.elements.title.focus();
@@ -2076,6 +2139,7 @@ $('#gameForm').addEventListener('submit', e=>{
   if(out.status==='Playing' && !out.startedAt) out.startedAt = todayISO();
   if(['Completed','Dropped'].includes(out.status) && out.startedAt && !out.finishedAt) out.finishedAt = todayISO();
   if(out.startedAt && out.finishedAt && !out.duration) out.duration = spanText(daysBetween(out.startedAt, out.finishedAt));
+  if(out.platinum!=='Yes') out.platinumAt = '';
   const thoughts = out.thoughts; delete out.thoughts;
   let g;
   if(editingId){ g = byId(editingId); const renamed = norm(g.title)!==norm(out.title); Object.assign(g, out); if(renamed && !g.coverTried){ g.cover=''; } }
@@ -2790,7 +2854,7 @@ document.addEventListener('click', e=>{
   if(d.top){ applyOrder([d.top]); return; }
   if(d.move){ const ids = backlogOrdered().map(g=>g.id), i = ids.indexOf(d.move), j = i + (+d.dir); if(i<0 || j<0 || j>=ids.length) return; [ids[i],ids[j]] = [ids[j],ids[i]]; applyOrder(ids); return; }
   if(d.edit){ openForm(d.edit); return; }
-  if(d.finish){ const g = byId(d.finish), today = todayISO(); openForm(d.finish, {status:'Completed', credits:'Yes', finishedAt:today, ...(g.startedAt ? {duration:spanText(daysBetween(g.startedAt, today))} : {})}); return; }
+  if(d.finish){ const g = byId(d.finish), today = todayISO(); openForm(d.finish, {status:'Completed', credits:'Yes', finishedAt:today, ...(g.startedAt ? {duration:spanText(daysBetween(g.startedAt, today))} : {}), ...(g.platinum==='Hunting' ? {platinum:'Yes', platinumAt:today} : {})}); return; }
   if(d.start){ const g=byId(d.start); g.status='Playing'; if(!g.startedAt || g.finishedAt){ g.startedAt = todayISO(); g.finishedAt = ''; } save(`Now playing: ${g.title} 🎮`); return; }
   if(d.drop){ const g=byId(d.drop); const why=prompt(`Why are you dropping “${g.title}”? (optional)`, g.reasonDropped||''); if(why===null) return; const before = structuredClone(db); g.status='Dropped'; g.reasonDropped=why; save(`Dropped ${g.title}`, undoTo(before)); return; }
   if(d.year){ state.dashYear = d.year==='all'?'all':+d.year; render(); return; }
@@ -2819,7 +2883,7 @@ function dataAction(act){
   if(act==='export'){ download(`game-log-backup-${today}.json`, JSON.stringify(db,null,2), 'application/json'); localStorage.setItem(BACKUP_KEY,today); render(); toast('Backup downloaded'); }
   if(act==='import') $('#fileImport').click();
   if(act==='csv'){
-    const cols = ['title','year','status','recurring','platform','genre','release','owned','hltb','excitement','credits','totalHours','hoursPerYear','platinum','startedAt','finishedAt','duration','rating','reasonDropped','notes','blownAway','stunner','bummer','tooLong','tooShort','focus','worthIt'];
+    const cols = ['title','year','status','recurring','platform','genre','release','owned','hltb','excitement','credits','totalHours','hoursPerYear','platinum','platinumAt','startedAt','finishedAt','duration','rating','reasonDropped','notes','blownAway','stunner','bummer','tooLong','tooShort','focus','worthIt'];
     const q = v => { v = v==null?'':String(v); return /[",\n;]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; };
     download(`game-log-${today}.csv`, '\ufeff'+[cols.join(','), ...db.games.map(g=>cols.map(c=>q(c==="hoursPerYear" ? Object.entries(g.hoursByYear||{}).map(([y,h])=>`${y}: ${h}h`).join("; ") : g[c])).join(','))].join('\r\n'), 'text/csv');
     toast('CSV downloaded');
@@ -2893,7 +2957,8 @@ function yearReview(y){
   const shows = (db.shows||[]).map(s=>({s, ...(yearlyAll(s).find(r=>r.year===y)||{eps:0,hours:0})})).filter(x=>x.eps>0).sort((a,b)=>b.hours-a.hours);
   return {y, hours, prevHours, top, done, rated, avg, goty, surprise:surprise && gap(surprise)>0 ? surprise : null, letdown:letdown && gap(letdown)<0 ? letdown : null,
     longest, quickest:quickest!==longest ? quickest : null, genres, platforms, recurring, days, months, best:streaks(days).best, shows,
-    tens:rated.filter(g=>g.rating>=10).length, replays:done.filter(g=>g.replay).length, soFar:y===THIS_YEAR};
+    tens:rated.filter(g=>g.rating>=10).length, replays:done.filter(g=>g.replay).length, soFar:y===THIS_YEAR,
+    plats:db.games.filter(g=>hasPlat(g) && platYear(g)===y).length};
 }
 function renderWrapped(){
   const years = [...new Set(loggedGames().map(g=>g.year))].sort((a,b)=>a-b);
@@ -2911,7 +2976,7 @@ function renderWrapped(){
       <div class="big">${fmtH(R.hours)}<small>hours played</small></div>
       <div class="lead">That's about ${Math.round(R.hours/24)} full days${diff!=null?`, ${Math.abs(diff)}% ${diff>=0?'more':'less'} than ${y-1}`:''}.${R.genres[0]?` Mostly <b>${esc(R.genres[0][0])}</b>${R.platforms[0]?` on <b>${esc(R.platforms[0][0])}</b>`:''}.`:''}</div>
       <div class="statrow"><div class="stat"><b>${R.top.length}</b><span>games played</span></div><div class="stat"><b>${R.done.length}</b><span>games finished${R.replays?` (${R.replays} replay${R.replays>1?'s':''})`:''}</span></div>
-        <div class="stat"><b>${R.avg!=null?fmt1(R.avg):'—'}</b><span>average rating</span></div><div class="stat"><b>${R.tens}</b><span>perfect 10${R.tens===1?'':'s'}</span></div></div></div>
+        <div class="stat"><b>${R.avg!=null?fmt1(R.avg):'—'}</b><span>average rating</span></div><div class="stat"><b>${R.tens}</b><span>perfect 10${R.tens===1?'':'s'}</span></div>${R.plats?`<div class="stat"><b>🏆 ${R.plats}</b><span>platinum${R.plats===1?'':'s'}</span></div>`:''}</div></div>
 
     ${R.goty?`<div class="slide k"><div class="kick">Game of the year</div><div class="goty" data-open="${R.goty.id}">${cover(R.goty,'lg')}<div style="min-width:0">
       <h3>${esc(R.goty.title)}</h3><div class="row-flex">${score(R.goty.rating)}<span class="tier">${t[2]}</span></div>

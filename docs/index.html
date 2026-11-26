@@ -495,6 +495,62 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
 .scanwrap{position:relative;border-radius:16px;overflow:hidden;background:#000;aspect-ratio:1}
 .scanwrap video{width:100%;height:100%;object-fit:cover;display:block}
 .scanwrap::after{content:"";position:absolute;inset:18%;border:3px solid rgba(255,255,255,.9);border-radius:18px;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+#dlgDetail{width:min(680px,94vw)}
+.det-xw{position:sticky;top:0;height:0;z-index:5;display:flex;justify-content:flex-end}
+.det-xw .icon-btn{margin:14px 14px 0 0;width:30px;height:30px;color:var(--muted);font-weight:700}
+.cover.det{width:100px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.2)}.cover.det .ini{font-size:26px}
+.dtop{display:flex;gap:18px;padding:24px 60px 18px 24px;align-items:flex-end}
+.dtt{min-width:0;flex:1}
+.dtt h2{font-size:23px;letter-spacing:-.5px;margin:0 0 4px;line-height:1.15}
+.dtt .sub{font-size:14px;margin-bottom:8px}
+.dbadges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.dbadges:empty{display:none}
+.dacts{display:flex;gap:8px;flex-wrap:wrap}
+.dstrip{display:flex;overflow-x:auto;padding:4px 14px 16px;border-bottom:.5px solid var(--sep);scrollbar-width:none}
+.dstrip::-webkit-scrollbar{display:none}
+.dstrip>div{flex:1 0 auto;min-width:96px;text-align:center;padding:0 10px;border-left:.5px solid var(--sep)}
+.dstrip>div:first-child{border-left:0}
+.dstrip .k{font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.45px;white-space:nowrap}
+.dstrip .v{font:700 22px/1.25 var(--round);color:var(--text-2);margin-top:4px;white-space:nowrap}
+.dstrip .f{font-size:12px;color:var(--muted);white-space:nowrap}
+.dstrip .t10 .v{color:var(--gold)}.dstrip .t9 .v{color:var(--green)}.dstrip .t8 .v{color:var(--blue)}.dstrip .t7 .v{color:var(--teal)}.dstrip .t6 .v{color:var(--orange)}.dstrip .t0 .v{color:var(--red)}
+#detBody section{padding:20px 24px;border-bottom:.5px solid var(--sep)}
+.dh{display:flex;align-items:baseline;gap:10px;font-size:20px;font-weight:700;letter-spacing:-.4px;margin:0 0 12px}
+.dh .sub{font-size:14px;font-weight:500;letter-spacing:0}
+.dh .lnk{margin-left:auto;color:var(--accent);background:none;border:0;padding:0;font-size:15px;font-weight:500;cursor:pointer;white-space:nowrap}
+.dq{font-size:16px;line-height:1.45;margin:0;white-space:pre-wrap}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:500;padding:5px 11px;border-radius:999px;background:var(--surface-2)}
+.pill.good{background:color-mix(in srgb,var(--green) 14%,transparent);color:color-mix(in srgb,var(--green) 65%,var(--text))}
+.pill.bad{background:color-mix(in srgb,var(--orange) 15%,transparent);color:color-mix(in srgb,var(--orange) 70%,var(--text))}
+.dj{margin-top:14px;font-size:14.5px;color:var(--text-2);background:var(--surface-2);border-radius:14px;padding:12px 14px}
+.dj b{display:block;color:var(--text);margin-bottom:3px}
+.dj-t{white-space:pre-wrap}.dj-t.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dj .linkbtn{color:var(--accent);text-decoration:none;margin-top:4px;font-weight:500}
+.dbar{height:8px;border-radius:4px;background:var(--fill2);overflow:hidden}.dbar i{display:block;height:100%;border-radius:4px;background:var(--c)}
+.dmeta{font-size:13px;margin-top:7px}
+.dlist>div{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:.5px solid var(--sep);font-size:14.5px}
+.dlist>div:last-child{border-bottom:0}
+.dlist .x2{margin-left:12px;text-decoration:none;color:var(--muted);font-size:13px}
+.druns{display:grid;gap:10px}.druns .run{margin:0;border-radius:14px;padding:12px 14px}
+.dinfo{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+.dinfo div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:.5px solid var(--sep);font-size:14.5px}
+.dinfo div:nth-last-child(-n+2){border-bottom:0}
+.dinfo div span:first-child{color:var(--muted);white-space:nowrap}
+.dinfo div span:last-child{text-align:right}
+.dinfo a{color:var(--accent);text-decoration:none}
+.dmore{display:flex;gap:10px 20px;padding:18px 24px 26px;flex-wrap:wrap}
+.dmore button{border:0;background:none;color:var(--accent);font-weight:500;cursor:pointer;padding:0;font-size:15px}
+.dmore .del{color:var(--red);margin-left:auto}
+@media (max-width:700px){
+  .det-xw .icon-btn{margin-top:max(14px,env(safe-area-inset-top))}
+  .dtop{padding:max(20px,env(safe-area-inset-top)) 52px 16px 16px;gap:14px}
+  .cover.det{width:86px}
+  .dstrip>div{min-width:86px;padding:0 8px}
+  .dtt h2{font-size:20px}
+  #detBody section{padding:18px 16px}
+  .dinfo{grid-template-columns:1fr}.dinfo div:nth-last-child(2){border-bottom:.5px solid var(--sep)}
+  .dmore{padding:16px 16px calc(24px + env(safe-area-inset-bottom))}
+}
 .hidden{display:none!important}
 .hb2{display:grid;grid-template-columns:minmax(0,150px) 1fr minmax(96px,auto);gap:10px;align-items:center;padding:6px 0;font-size:14px}
 .hb2+.hb2{border-top:.5px solid var(--sep)}
@@ -538,7 +594,7 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
       <div class="swatches" id="swatches"></div>
       <hr>
       <p id="saveNote">Everything is saved automatically in this browser.</p>
-      <p style="opacity:.7">Version 2026-11-25 16:11</p>
+      <p style="opacity:.7">Version 2026-11-26 10:53</p>
     </div>
   </details>
   <input type="file" id="fileImport" accept=".json,application/json" class="hidden">
@@ -565,9 +621,8 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
 </dialog>
 
 <dialog id="dlgDetail">
-  <div class="det-hero" id="detHero"></div>
-  <div class="dlg-body" id="detBody"></div>
-  <div class="dlg-foot"><button class="btn danger left" id="detDelete">Delete</button><button class="btn" id="detReplay" title="Start a new playthrough of this game">↺ Play again</button><button class="btn" id="detCover">🖼 Change cover</button><button class="btn" data-close>Close</button><button class="btn primary" id="detEdit">Edit</button></div>
+  <div class="det-xw"><button type="button" class="icon-btn" data-close aria-label="Close">✕</button></div>
+  <div id="detBody"></div>
 </dialog>
 
 <dialog id="dlgCover">
@@ -1366,6 +1421,7 @@ function renderWelcome(){
 function render(){
   document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active', a.dataset.view===state.view));
   document.querySelectorAll('main > section').forEach(s=>s.classList.toggle('hidden', s.id!=='view-'+state.view));
+  if($('#dlgDetail').open && byId(detailId)) openDetail(detailId);
   if(isEmptyLog() && state.view==='dashboard') renderWelcome();
   else ({dashboard:renderDashboard, library:renderLibrary, backlog:renderBacklog, journal:renderJournal, shows:renderShows, wrapped:renderWrapped, stats:renderStats})[state.view]();
   $('#dlGames').innerHTML = [...new Set(db.games.map(g=>baseTitle(g)))].map(t=>`<option value="${esc(t)}">`).join('');
@@ -1726,52 +1782,157 @@ function renderJournal(){
 // ---------- detail ----------
 let detailId = null;
 function openDetail(id){
-  const g = byId(id); if(!g) return; detailId = id;
-  $('#detReplay').classList.toggle('hidden', ['Backlog','Playing','Waiting for patch'].includes(g.status) || !!g.recurring);
-  const t = tier(g.rating);
-  $('#detHero').innerHTML = `${g.cover?`<div class="bgimg" style="background-image:url('${esc(g.cover)}')"></div>`:`<div class="bgimg" style="background:hsl(${hueOf(baseTitle(g))} 60% 40%)"></div>`}<div class="bgfade"></div>
-    <button type="button" class="icon-btn x" data-close>✕</button>
-    ${cover(g,'lg')}
-    <div><div class="row-flex">${gameBadge(g)}${replayTag(g)}${plat(g.platform)}${yearSpan(g)?`<span class="sub">${yearSpan(g)}</span>`:''}</div>
-      <h2>${esc(g.title)}</h2>
-      ${g.rating!=null?`<div class="row-flex">${score(g.rating)}<span class="tier">${t[2]}</span></div>`:''}</div>`;
-  const cell = (k,v)=> `<div><div class="k">${k}</div><div class="v">${v===''||v==null?'—':v}</div></div>`;
-  const flags = [['Blown away?',g.blownAway],['Stunner?',g.stunner],['Bummer?',g.bummer],['Too long?',g.tooLong],['Too short?',g.tooShort],['Rolled credits?',g.credits],['Platinum / 100%?',g.platinum],['Own it?',g.owned===false?'Not yet':'']].filter(f=>f[1]);
-  const j = journalFor(g);
-  const past = g.runs||[], perYear = Object.keys(g.hoursByYear||{}).length;
+  const g = byId(id); if(!g) return;
+  const wasOpen = $('#dlgDetail').open && detailId===id; detailId = id;
+  const st = g.status, rec = !!g.recurring, past = g.runs||[], e = est(g), h = g.hours||0, t = tier(g.rating);
+  const mode = rec ? 'rec' : ['Completed','Dropped'].includes(st) ? 'done' : ['Playing','Paused'].includes(st) ? 'play' : 'wait';
+  const ses = [...(g.sessions||[])].sort((a,b)=>b.d.localeCompare(a.d)), last = ses[0];
+  const order = backlogOrdered(), rank = st==='Backlog' ? order.indexOf(g)+1 : 0;
+  const ri = relInfo(g.release), j = journalFor(g), ys = yearsOf(g);
+  const lenWords = n => n<=6 ? 'a weekend' : n<=15 ? 'a week or two' : n<=40 ? 'a few weeks' : 'a big one';
+  const dayName = s => s===todayISO() ? 'Today' : daysBetween(s, todayISO())===1 ? 'Yesterday' : daysBetween(s, todayISO())<7 ? isoDate(s).toLocaleDateString('en-GB',{weekday:'short'}) : fmtDay(s);
+  const took = g.duration || (g.startedAt && g.finishedAt ? spanText(daysBetween(g.startedAt, g.finishedAt)) : '');
+  const FOCUS_IC = {Story:'📖', Gameplay:'🎮', Both:'⚖️'};
+
+  // the strip of key numbers, different per status
+  const cells = mode==='done' ? [
+      g.rating!=null && ['Rating', fmt1(g.rating), t[2].replace(/ 🏆/,''), t[1]],
+      h && ['Played', fmt1(h)+'h', e ? `HLTB ~${fmtH(e)}h` : 'this playthrough'],
+      g.excitement!=null && ['Hype', fmt1(g.excitement), g.rating!=null ? `landed at ${fmt1(g.rating)}` : 'out of 10'],
+      took && ['Took', esc(took), yearSpan(g)],
+      past.length && ['All runs', fmtH(g.totalHours)+'h', `${past.length+1} playthroughs`],
+      g.focus && ['Focus', FOCUS_IC[g.focus]||'•', esc(g.focus)]]
+    : mode==='play' ? [
+      ['Progress', e ? Math.round(h/e*100)+'%' : fmt1(h)+'h', e ? `${fmt1(h)}h of ~${fmtH(e)}h` : 'played so far'],
+      g.startedAt && (daysBetween(g.startedAt, todayISO()) ? ['Playing for', esc(spanText(daysBetween(g.startedAt, todayISO()))), 'since '+fmtDay(g.startedAt)] : ['Started', 'Today', fmtDay(g.startedAt)]),
+      g.excitement!=null && ['Hype', fmt1(g.excitement), 'out of 10'],
+      past.length && ['All runs', fmtH(g.totalHours)+'h', `${past.length+1} playthroughs`],
+      last && ['Last played', dayName(last.d), fmtHM(last.h)]]
+    : mode==='rec' ? [
+      ['Total', fmtH(g.totalHours)+'h', ys.length ? 'since '+ys[0] : ''],
+      ['This year', fmt1(g.hoursByYear?.[THIS_YEAR]||0)+'h', String(THIS_YEAR)],
+      ys.length && ['Years', ys.length, yearSpan(g)],
+      last && ['Last played', dayName(last.d), fmtHM(last.h)],
+      g.rating!=null && ['Rating', fmt1(g.rating), t[2].replace(/ 🏆/,''), t[1]]]
+    : [
+      rank && ['Up next', '#'+rank, 'in your play order'],
+      e && ['Length', '~'+fmtH(e)+'h', lenWords(e)],
+      g.excitement!=null && ['Hype', fmt1(g.excitement), 'out of 10'],
+      ri && (ri.future ? ['Release', esc(ri.big), esc(ri.unit)] : ['Out since', esc(g.release.slice(0,4)), g.release.length>4 ? esc(relText(g.release).replace(/\s*\d{4}$/,'')) : 'released']),
+      ['Owned', g.owned===false ? '🛒' : '✓', g.owned===false ? 'not bought yet' : 'in your library']];
+  const strip = cells.filter(Boolean);
+
+  // main buttons, by status
+  const B = (cls, attr, label) => `<button class="btn ${cls}" ${attr}>${label}</button>`;
+  const main = mode==='done' ? B('primary','data-edit="'+g.id+'"','Edit')
+    : mode==='rec' ? B('primary','data-session="'+g.id+'"','+ Session') + B('tint','data-plushour="'+g.id+'"','+1h')
+    : st==='Paused' ? B('primary','data-start="'+g.id+'"','▶ Resume') + B('tint','data-session="'+g.id+'"','+ Session')
+    : st==='Playing' ? B('primary','data-session="'+g.id+'"','+ Session') + B('tint','data-plushour="'+g.id+'"','+1h') + B('tint','data-finish="'+g.id+'"','Log finish')
+    : B('primary','data-start="'+g.id+'"', st==='Backlog' ? '▶ Start' : '▶ Start anyway') + (rank>1 ? B('tint','data-top="'+g.id+'"','⤒ Move to top') : '');
+  const editBtn = mode==='done' ? '' : B('tint','data-edit="'+g.id+'"','Edit');
+
+  // verdict pills: only answers that say something; the "No"s become one quiet line
+  const yes = v => v==='Yes' || v==='Hell yes', good = [], bad = [], quiet = [];
+  if(g.worthIt) (yes(g.worthIt) ? good : bad).push(g.worthIt==='Hell yes' ? '🔥 Hell yes, worth it' : yes(g.worthIt) ? '👍 Worth my time' : g.worthIt==='Meh' ? '🤷 Meh, worth it?' : '👎 Not worth my time');
+  yes(g.blownAway) ? good.push(g.blownAway==='Hell yes' ? '🤯 Totally blew me away' : '🤯 Blew me away') : g.blownAway==='Kinda' ? good.push('😮 Kinda blew me away') : g.blownAway==='No' && quiet.push('not mind-blowing');
+  yes(g.stunner) ? good.push('✨ Stunner') : g.stunner==='Kinda' ? good.push('✨ Kinda a stunner') : g.stunner==='No' && quiet.push('not a stunner');
+  yes(g.bummer) ? bad.push('😞 Bummer') : g.bummer==='Kinda' ? bad.push('😕 A bit of a bummer') : g.bummer==='No' && quiet.push('no bummer');
+  if(yes(g.tooLong) || g.tooLong==='A bit') bad.push(g.tooLong==='A bit' ? '⏳ A bit too long' : '⏳ Too long');
+  else if(yes(g.tooShort) || g.tooShort==='A bit') bad.push(g.tooShort==='A bit' ? '⌛ A bit too short' : '⌛ Too short');
+  else if(g.tooLong==='No' && g.tooShort==='No') good.push('📏 Right length');
+  else { if(g.tooLong==='No') quiet.push('not too long'); if(g.tooShort==='No') quiet.push('not too short'); }
+  if(g.credits==='Yes') good.push('🎬 Rolled credits'); else if(g.credits==='Sort of') good.push('🎬 Sort of rolled credits'); else if(g.credits==='No' && mode==='done') quiet.push('didn\'t roll credits');
+  if(g.platinum==='Yes') good.push('🏆 Platinum / 100%');
+  if(g.owned===false && mode!=='wait') quiet.push('don\'t own it');
+  const pills = (good.length||bad.length ? `<div class="pills">${good.map(p=>`<span class="pill good">${p}</span>`).join('')}${bad.map(p=>`<span class="pill bad">${p}</span>`).join('')}</div>` : '')
+    + (quiet.length ? `<div class="sub" style="font-size:13px;margin-top:8px">Also: ${esc(quiet.join(', '))}.</div>` : '');
+  const journal = j && j.text ? `<div class="dj"><b>From your journal</b><div class="dj-t clamp">${esc(j.text)}</div>${j.text.length>220 ? '<button class="linkbtn dj-more">Read more</button>' : ''}</div>` : '';
+
+  const sect = (title, body, link='') => `<section><div class="dh">${title}${link}</div>${body}</section>`;
+  const pbar = (p, c) => `<div class="dbar" style="--c:var(--${c})"><i style="width:${Math.max(2, Math.min(100, p))}%"></i></div>`;
+  const sesList = !ses.length ? '' : sect(`Sessions <span class="sub">${ses.length} logged · ${fmt1(sum(ses.map(s=>s.h)))}h</span>`,
+      `<div class="dlist">${ses.slice(0,6).map(s=>`<div><span>${fmtDay(s.d)}</span><span><b>${fmtHM(s.h)}</b><button class="linkbtn x2" data-delsess="${s.id}" title="Remove this session" aria-label="Remove this session">✕</button></span></div>`).join('')}${ses.length>6?`<div class="sub">+ ${ses.length-6} earlier sessions</div>`:''}</div>`,
+      `<button class="lnk" data-session="${g.id}">+ Log session</button>`);
+  const runsHtml = !past.length ? '' : sect(mode==='play' || mode==='wait' ? 'Earlier playthroughs' : 'Playthroughs',
+      `<div class="druns">${past.map(runCard).join('')}${mode==='done' ? `<div class="run"><div class="run-h"><b>Playthrough ${past.length+1}${g.label?' · '+esc(g.label):''}</b>${g.replay?replayTag(g):''}<span class="sub">${[yearSpan(g), h?fmt1(h)+'h':''].filter(Boolean).join(' · ')}</span>${g.rating!=null?score(g.rating):''}</div><div class="sub" style="font-size:12.5px;margin-top:4px">This one, shown above</div></div>` : ''}</div>`);
+  const yearRow = ys.length>1 ? Object.entries(g.hoursByYear||{}).sort((a,b)=>a[0]-b[0]).map(([y,v])=>`${y}: ${fmt1(v)}h`).join(' · ') : '';
+
+  let body = '';
+  if(mode==='done'){
+    const take = (g.notes ? `<p class="dq">${esc(g.notes)}</p>` : '') + (g.reasonDropped ? `<div class="sub" style="font-size:13px;font-weight:600;margin-top:${g.notes?12:0}px">Why I dropped it</div><p class="dq">${esc(g.reasonDropped)}</p>` : '');
+    if(take || pills || journal) body += sect('My take', take + (pills ? `<div style="margin-top:${take?14:0}px">${pills}</div>` : '') + journal);
+    if(h){
+      const dates = g.startedAt ? `${fmtDay(g.startedAt)} → ${g.finishedAt ? fmtDay(g.finishedAt) : '?'}` : '';
+      const cmp = e ? (Math.abs(h-e) < Math.max(1, e*0.08) ? `about as long as most people (~${fmtH(e)}h)` : h<e ? `most people take ~${fmtH(e)}h, so you were ${fmtH(e-h)}h quicker` : `most people take ~${fmtH(e)}h, so you took ${fmtH(h-e)}h longer`) : '';
+      body += sect('Time', (e ? pbar(h/e*100, h>e*1.08 ? 'orange' : 'green') : '') + `<div class="sub dmeta">${[fmt1(h)+'h played', cmp, took ? 'over '+esc(took) : '', dates].filter(Boolean).join(' · ')}</div>`);
+    }
+    body += sesList + runsHtml;
+  } else if(mode==='play'){
+    body += sect(`This playthrough${g.label?` <span class="sub">${esc(g.label)}</span>`:''}`,
+      (e ? pbar(h/e*100, h>e ? 'orange' : 'blue') + `<div class="sub dmeta">${fmt1(h)}h of ~${fmtH(e)}h · ${h>e ? `${fmtH(h-e)}h past the usual length` : `about ${Math.round(h/e*100)}% through · ~${fmtH(e-h)}h to go`}</div>`
+         : `<div class="sub dmeta">${fmt1(h)}h played · <a href="${hltbUrl(g)}" target="_blank" rel="noopener" style="color:var(--accent)">add a length for a progress bar ↗</a></div>`)
+      + (g.startedAt ? '' : `<div class="sub dmeta">Start date unknown · <button class="linkbtn" data-edit="${g.id}">add it</button></div>`));
+    body += sesList || sect('Sessions', '<div class="sub">No sessions logged yet. Tap <b>+ Session</b> or <b>+1h</b> after you play.</div>');
+    if(pills && (good.length||bad.length)) body += sect('So far', pills);
+    body += runsHtml;
+  } else if(mode==='rec'){
+    const hy = Object.entries(g.hoursByYear||{}).sort((a,b)=>b[0]-a[0]), mx = Math.max(1, ...hy.map(x=>x[1]));
+    body += sect('Hours per year', hy.length ? hy.map(([y,v])=>`<div class="hb2"><span class="nm">${y}</span><div class="tr"><i style="width:${v/mx*100}%;background:var(--purple)"></i></div><span class="v"><b>${fmt1(v)}h</b></span></div>`).join('') : '<div class="sub">No hours logged yet.</div>');
+    body += sesList || sect('Sessions', '<div class="sub">No sessions logged yet.</div>');
+    if(g.notes || pills) body += sect('My take', (g.notes ? `<p class="dq">${esc(g.notes)}</p>` : '') + pills + journal);
+  } else {
+    const why = [];
+    if(st==='Waiting for patch') why.push(['bad','⧗ Waiting for a patch']);
+    if(ri?.future) why.push(['', `⏳ ${ri.short==='TBA' ? 'No release date yet' : 'Out '+ri.short}`]);
+    if(g.excitement!=null) why.push([g.excitement>=7 ? 'good' : '', `🔥 Hype ${fmt1(g.excitement)} / 10`]);
+    if(e) why.push([e<=15 ? 'good' : '', e<=15 ? `⚡ Short: ${lenWords(e)}` : `⌛ ~${fmtH(e)}h: ${lenWords(e)}`]);
+    if(rank) why.push(['', rank===1 ? '⭐ Next up' : `#${rank} up next`]);
+    why.push(g.owned===false ? ['', '🛒 Not bought yet'] : ['', '✓ You own it']);
+    if(past.length) why.push(['good', `↺ You've played it ${past.length===1?'once':past.length+' times'} before`]);
+    body += sect(st==='Waiting for patch' ? 'Status' : 'Why play it', `<div class="pills">${why.map(([c,p])=>`<span class="pill ${c}">${esc(p)}</span>`).join('')}</div>`
+      + (g.reasonDropped ? `<p class="dq" style="margin-top:12px">${esc(g.reasonDropped)}</p>` : '') + (g.notes ? `<p class="dq" style="margin-top:12px">${esc(g.notes)}</p>` : '') + journal);
+    body += runsHtml;
+  }
+  const info = [['Platform', esc(g.platform)], ['Genre', esc(g.genre)], ['Focus', esc(g.focus)], ['Released', g.release ? esc(relText(g.release)) : ''],
+    ['Played', mode==='wait' ? '' : g.startedAt ? `${fmtDay(g.startedAt)} → ${g.finishedAt ? fmtDay(g.finishedAt) : (mode==='done' ? '?' : 'now')}` : yearSpan(g)],
+    ['Hours per year', mode==='rec' ? '' : yearRow], ['Platinum / 100%', g.platinum==='No' ? 'No' : ''],
+    ['HowLongToBeat', `<a href="${hltbUrl(g)}" target="_blank" rel="noopener">${g.hltb!=null ? '~'+fmtH(g.hltb)+'h' : 'Look it up'} ↗</a>`]].filter(x=>x[1]);
+  body += sect('Information', `<div class="dinfo">${info.map(([k,v])=>`<div><span>${k}</span><span>${v}</span></div>`).join('')}</div>`);
+  const links = [['data-dcover', '🖼 Change cover'], ['data-dreplay', '↺ Play again', mode==='done'], ['data-edit="'+g.id+'"', 'Edit everything', mode!=='done'], ['data-drop="'+g.id+'"', 'Drop', !['Dropped','Completed'].includes(st) && !rec]]
+    .filter(l=>l[2]!==false).map(([a,l])=>`<button ${a}>${l}</button>`).join('');
+
   $('#detBody').innerHTML = `
-    ${past.length?`<div class="label-s">Earlier playthroughs</div>${past.map(runCard).join('')}<div class="label-s" style="margin-top:16px">Playthrough ${past.length+1}${g.label?' · '+esc(g.label):''}${g.replay?' · replay':''}</div>`:''}
-    ${perYear>1 || g.recurring || (perYear && g.status==='Playing')?`<div class="years" style="margin-bottom:14px">${yearChips(g,true)}</div>`:''}
-    ${sessionsBlock(g)}
-    <div class="detail-grid">
-      ${cell('Rating', g.rating!=null?fmt1(g.rating)+' / 10':'')}${cell('Excitement before', g.excitement!=null?fmt1(g.excitement)+' / 10':'')}
-      ${cell('Time played', (g.hours!=null?fmt1(g.hours)+' h':'') + (past.length?`<div style="font-weight:500;font-size:12px;color:var(--muted);margin-top:2px">${fmt1(g.totalHours)}h over all playthroughs</div>`:''))}${cell('HowLongToBeat (Main + Extra)', g.hltb!=null?`<a href="${hltbUrl(g)}" target="_blank" rel="noopener" style="color:inherit">${fmtH(g.hltb)} h ↗</a>`:(g.estHours!=null?fmtH(g.estHours)+' h (own estimate)':''))}
-      ${cell('Played in', yearSpan(g))}${cell('Over the course of', esc(g.duration) + (g.startedAt ? `<div style="font-weight:500;font-size:12px;color:var(--muted);margin-top:2px">${fmtDay(g.startedAt)} → ${g.finishedAt ? fmtDay(g.finishedAt) : 'now'}</div>` : ''))}${cell('Focus', esc(g.focus))}${cell('Worth my time?', esc(g.worthIt))}${cell('Genre', esc(g.genre||''))}${cell('Release date', g.release ? esc(relText(g.release)) + (relInfo(g.release)?.future && g.release.length===10 ? `<div style="font-weight:500;font-size:12px;color:var(--muted);margin-top:2px">⏳ ${esc(relInfo(g.release).short)}</div>` : '') : '')}
-    </div>
-    ${g.notes?`<div class="label-s">Why I finished it</div><p class="quote">${esc(g.notes)}</p>`:''}
-    ${g.reasonDropped?`<div class="label-s">Why I dropped it</div><p class="quote">${esc(g.reasonDropped)}</p>`:''}
-    ${flags.length?`<div class="label-s">Quick verdicts</div><div class="detail-grid">${flags.map(f=>cell(f[0],esc(f[1]))).join('')}</div>`:''}
-    ${j&&j.text?`<div class="label-s">Journal</div><p class="quote">${esc(j.text)}</p>`:''}`;
+    <div class="dtop">${cover(g,'det')}<div class="dtt"><h2>${esc(g.title)}</h2><div class="sub">${[g.platform, (g.genre||'').split(',')[0].trim()].filter(Boolean).map(esc).join(' · ') || yearSpan(g)}</div>
+      <div class="dbadges">${gameBadge(g)}${replayTag(g)}${g.label ? `<span class="badge" style="--c:var(--purple)">${esc(g.label)}</span>` : ''}</div>
+      <div class="dacts">${main}${editBtn}</div></div></div>
+    ${strip.length ? `<div class="dstrip">${strip.map(([k,v,f,tc])=>`<div class="${tc||''}"><div class="k">${k}</div><div class="v">${v}</div><div class="f">${f||''}</div></div>`).join('')}</div>` : ''}
+    ${body}
+    <div class="dmore">${links}<button class="del" data-ddel>Delete</button></div>`;
   if(!$('#dlgDetail').open) $('#dlgDetail').showModal();
-  $('#dlgDetail').scrollTop = 0;
+  if(!wasOpen) $('#dlgDetail').scrollTop = 0;
 }
-$('#detEdit').onclick = ()=>{ $('#dlgDetail').close(); openForm(detailId); };
-$('#detCover').onclick = ()=>openCoverPicker(detailId);
+$('#dlgDetail').addEventListener('click', e=>{
+  const b = e.target.closest('[data-dcover],[data-dreplay],[data-ddel],.dj-more'); if(!b) return;
+  if(b.classList.contains('dj-more')){ const t = b.previousElementSibling; t.classList.toggle('clamp'); b.textContent = t.classList.contains('clamp') ? 'Read more' : 'Show less'; return; }
+  if(b.hasAttribute('data-dcover')) return openCoverPicker(detailId);
+  if(b.hasAttribute('data-dreplay')) return replayGame(detailId);
+  if(b.hasAttribute('data-ddel')) return deleteGame(detailId);
+});
 // replay: the finished playthrough moves to g.runs, the game starts a fresh one, so each keeps its own hours and verdict
-$('#detReplay').onclick = ()=>{
-  const g = byId(detailId); if(!g) return;
+function replayGame(id){
+  const g = byId(id); if(!g) return;
   const run = {}; RUN_FIELDS.forEach(k=>{ if(g[k]!==undefined) run[k] = g[k]; });
   g.runs = [...(g.runs||[]), run];
   RUN_FIELDS.forEach(k=>{ g[k] = k in BLANK ? BLANK[k] : ''; });
   Object.assign(g, {status:'Playing', replay:true, label:'', hoursByYear:{}, startedAt:todayISO(), finishedAt:''});
   $('#dlgDetail').close(); save(`Replaying ${g.title} ↺`);
   openForm(g.id);
-};
-$('#detDelete').onclick = ()=>{
-  const g = byId(detailId); if(!g || !confirm(`Delete “${g.title}” from your log?`)) return;
+}
+function deleteGame(id){
+  const g = byId(id); if(!g || !confirm(`Delete “${g.title}” from your log?`)) return;
   const before = structuredClone(db);
-  db.games = db.games.filter(x=>x.id!==detailId); $('#dlgDetail').close(); save('Deleted '+g.title, undoTo(before, 'Restored '+g.title));
-};
+  db.games = db.games.filter(x=>x.id!==id); $('#dlgDetail').close(); save('Deleted '+g.title, undoTo(before, 'Restored '+g.title));
+}
 // hours per year as small chips, e.g. "2025: 13h  2026: 17h"
 function yearChips(g, big){
   return Object.entries(g.hoursByYear||{}).sort((a,b)=>a[0]-b[0])

@@ -564,6 +564,66 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
 .tcab .kp{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:14px}
 .tcab .kp b{display:block;font:700 28px/1.1 var(--round)}
 .tcab .kp span{font-size:12.5px;color:var(--muted)}
+/* ---------- motion: short, calm, iOS-like; all of it switches off with "Reduce motion" ---------- */
+:root{--spring:cubic-bezier(.32,.72,0,1);--ease-out:cubic-bezier(.25,.1,.25,1)}
+/* 1. windows grow in on the computer and slide up like sheets on the phone */
+dialog[open]{animation:dlgIn .38s var(--spring)}
+dialog[open]::backdrop{animation:fadeIn .3s ease}
+dialog.closing{animation:dlgOut .2s ease forwards}
+dialog.closing::backdrop{animation:fadeOut .2s ease forwards}
+@keyframes dlgIn{from{opacity:0;transform:translateY(18px) scale(.97)}}
+@keyframes dlgOut{to{opacity:0;transform:translateY(12px) scale(.98)}}
+@keyframes fadeIn{from{opacity:0}}
+@keyframes fadeOut{to{opacity:0}}
+@media (max-width:700px){dialog[open]{animation:sheetIn .45s var(--spring)}dialog.closing{animation:sheetOut .26s cubic-bezier(.4,0,1,1) forwards}}
+@keyframes sheetIn{from{transform:translateY(100%)}}
+@keyframes sheetOut{to{transform:translateY(100%)}}
+.menu[open] .menu-pop{animation:popIn .22s var(--spring);transform-origin:top right}
+@keyframes popIn{from{opacity:0;transform:scale(.92) translateY(-4px)}}
+/* 2. a highlight that slides between tabs and year chips */
+@media (min-width:701px){nav{position:relative}}
+.chips{position:relative}
+.segi{position:absolute;top:0;left:0;width:0;height:0;border-radius:7px;background:var(--seg-on);box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04);transition:transform .38s var(--spring),width .38s var(--spring),height .38s var(--spring);pointer-events:none;z-index:0}
+nav.has-ind a.active,.chips.has-ind .chip.on{background:none;box-shadow:none}
+nav a,.chips .chip{position:relative;z-index:1}
+@media (max-width:700px){nav .segi{display:none}nav a.active .ni{animation:tabPop .4s var(--spring)}}
+@keyframes tabPop{40%{transform:scale(1.18)}}
+/* 3. a small press on buttons and covers */
+.btn,.chip,.icon-btn,.fab,.wrapbtn{transition:transform .2s var(--spring),filter .12s,background .12s}
+.btn:active,.chip:active,.icon-btn:active,.wrapbtn:active{transform:scale(.95)}
+.fab:active{transform:scale(.9)}
+nav a .ni{transition:transform .2s var(--spring)}nav a:active .ni{transform:scale(.86)}
+.tile .cover{transition:transform .2s var(--spring),box-shadow .2s}
+.tile:active .cover{transform:scale(.96)}
+/* 11. a page settles in, block by block */
+.enter-item{animation:riseIn .38s var(--ease-out) both}
+@keyframes riseIn{from{opacity:0;transform:translateY(10px)}}
+/* 5. bars, progress bars and goal rings grow in */
+.grow .bar{animation:barUp .65s var(--spring) both;transform-box:fill-box;transform-origin:50% 100%}
+.grow .hb2 .tr i,.grow .pbar i,.grow .dbar i{animation:barX .7s var(--spring) both;transform-origin:left}
+.grow .rg{animation:ringDraw 1s var(--spring) both}
+@keyframes barUp{from{transform:scaleY(0)}}
+@keyframes barX{from{transform:scaleX(0)}}
+@keyframes ringDraw{from{stroke-dashoffset:var(--len)}}
+/* 6. "+1h" floats up from the button */
+.floatup{position:fixed;z-index:300;font:700 15px/1 var(--round);color:var(--green);pointer-events:none;animation:floatUp .9s var(--ease-out) forwards}
+@keyframes floatUp{0%{opacity:0;transform:translate(-50%,0)}20%{opacity:1}100%{opacity:0;transform:translate(-50%,-36px)}}
+/* 7. covers shimmer while loading, then fade in */
+.cover img[data-u]{opacity:0;transition:opacity .35s ease}
+.cover img[data-u].in{opacity:1}
+.cover.ld::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.2) 50%,transparent 70%);background-size:200% 100%;animation:shim 1.2s linear infinite}
+@keyframes shim{from{background-position:200% 0}to{background-position:-200% 0}}
+/* 9. messages spring up */
+#toast{transform:translateX(-50%) translateY(30px) scale(.96);transition:transform .45s var(--spring),opacity .25s ease}
+#toast.show{transform:translateX(-50%)}
+/* 10. one shine across the platinum ribbon when you log it */
+.platrib{overflow:hidden}
+.platrib::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.95) 50%,transparent 70%);transform:translateX(-120%)}
+.cover.shine{animation:pop .55s var(--spring)}
+.cover.shine .platrib::after{animation:sheen 1s .2s ease}
+@keyframes sheen{to{transform:translateX(120%)}}
+@keyframes pop{40%{transform:scale(1.06)}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 .hidden{display:none!important}
 .hb2{display:grid;grid-template-columns:minmax(0,150px) 1fr minmax(96px,auto);gap:10px;align-items:center;padding:6px 0;font-size:14px}
 .hb2+.hb2{border-top:.5px solid var(--sep)}
@@ -607,7 +667,7 @@ dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(4px)}
       <div class="swatches" id="swatches"></div>
       <hr>
       <p id="saveNote">Everything is saved automatically in this browser.</p>
-      <p style="opacity:.7">Version 2026-11-26 11:06</p>
+      <p style="opacity:.7">Version 2026-11-27 15:41</p>
     </div>
   </details>
   <input type="file" id="fileImport" accept=".json,application/json" class="hidden">
@@ -1055,7 +1115,7 @@ function playBar(g){
   if(!e) return `<div class="meta">${h?fmtH(h)+'h played':'Just started'} · <a href="${hltbUrl(g)}" target="_blank" rel="noopener" style="color:inherit">add a length for a progress bar ↗</a></div>`;
   const p = Math.min(1, h/e), over = h > e;
   const src = g.hltb!=null ? 'HowLongToBeat Main + Extra' : 'your own estimate';
-  return `<div class="pbar ${over?'over':''}" data-tip="<b>${Math.round(h/e*100)}% of ${fmtH(e)}h</b>Based on ${src}"><i style="width:${Math.max(p*100,2)}%"></i></div>
+  return `<div class="pbar ${over?'over':''}" data-tip="<b>${Math.round(h/e*100)}% of ${fmtH(e)}h</b>Based on ${src}"><i data-bar="p-${g.id}" style="width:${Math.max(p*100,2)}%"></i></div>
     <div class="meta">${fmt1(h)}h of ~${fmtH(e)}h · ${over?`${fmtH(h-e)}h past the usual length`:`about ${Math.round(p*100)}% through`}</div>`;
 }
 const replayTag = g => g.replay ? '<span class="badge" style="--c:#f59e0b" title="Played it before"><b>↺</b>Replay</span>' : '';
@@ -1066,10 +1126,89 @@ function score(r){ const t = tier(r); return r==null ? '<span class="score">—<
 function plat(p){ return p ? `<span class="plat" style="--pc:${PLATFORM_COLORS[p.toLowerCase()]||'#6b7280'}">${esc(p)}</span>` : ''; }
 function initials(t){ return esc(String(t).replace(/[^\p{L}\p{N} ]/gu,'').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase() || '🎮'); }
 function cover(g, size='sm', inner='', attrs='', style=''){
-  const pl = (size==='fill' || size==='det') && hasPlat(g);
-  return `<div class="cover ${size}${pl?' platcov':''}" data-cover="${g.id}" ${attrs} style="--h:${hueOf(baseTitle(g))};${style}"><span class="ini">${initials(baseTitle(g))}</span>${g.cover?`<img src="${esc(g.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:''}${inner}${pl?'<span class="platrib">Platinum</span>':''}</div>`;
+  const pl = (size==='fill' || size==='det') && hasPlat(g), seen = !g.cover || LOADED.has(g.cover);
+  return `<div class="cover ${size}${pl?' platcov':''}${seen?'':' ld'}" data-cover="${g.id}" ${attrs} style="--h:${hueOf(baseTitle(g))};${style}"><span class="ini">${initials(baseTitle(g))}</span>${g.cover?`<img src="${esc(g.cover)}" data-u="${esc(g.cover)}" ${seen?'class="in"':''} alt="" loading="lazy" referrerpolicy="no-referrer" onload="imgIn(this)" onerror="imgErr(this)">`:''}${inner}${pl?'<span class="platrib">Platinum</span>':''}</div>`;
 }
 function baseTitle(g){ return String(g.title||'').replace(/\s+[-–]\s+20\d\d$/,''); }
+// ---------- motion helpers ----------
+const RM = matchMedia('(prefers-reduced-motion: reduce)');
+const SEG_POS = {}, LOADED = new Set();
+let shineId = null, lastView = null;
+function imgIn(i){ i.classList.add('in'); i.parentNode?.classList.remove('ld'); LOADED.add(i.dataset.u); }
+function imgErr(i){ i.parentNode?.classList.remove('ld'); i.remove(); }
+// the sliding highlight in a segmented control (nav, year chips, sort chips)
+function segIndicator(box, key){
+  if(!box || !box.offsetWidth) return;
+  const on = box.querySelector(':scope > .on, :scope > .active'); let ind = box.querySelector(':scope > .segi');
+  if(!on){ if(ind) ind.style.width = '0px'; return; }
+  const fresh = !ind;
+  if(fresh){ ind = document.createElement('i'); ind.className = 'segi'; box.prepend(ind); box.classList.add('has-ind'); }
+  const pos = [on.offsetLeft, on.offsetTop, on.offsetWidth, on.offsetHeight], prev = SEG_POS[key];
+  const set = ([x,y,w,h]) => { ind.style.transform = `translate(${x}px,${y}px)`; ind.style.width = w+'px'; ind.style.height = h+'px'; };
+  if(fresh){ ind.style.transition = 'none'; set(prev || pos); void ind.offsetWidth; ind.style.transition = ''; }
+  set(pos); SEG_POS[key] = pos;
+}
+// big numbers count up from 0 when a page opens
+const THOU = (1000).toLocaleString().replace(/\d/g,'');
+function countUp(root){
+  if(RM.matches) return;
+  root.querySelectorAll('.kpi .value, .hero .n, .goal-row .v, .tcab .kp b, .wr .big, .wr .stat b').forEach(el=>{
+    const tn = [...el.childNodes].find(n=>n.nodeType===3 && /\d/.test(n.nodeValue)); if(!tn) return;
+    const m = tn.nodeValue.match(/^(\D*)(\d[\d.,]*)(.*)$/s); if(!m) return;
+    const grouped = THOU && new RegExp(`^\\d{1,3}(\\${THOU}\\d{3})+$`).test(m[2]);
+    const to = grouped ? +m[2].split(THOU).join('') : parseFloat(m[2]), dec = grouped ? 0 : (m[2].split('.')[1]||'').length;
+    if(!(to>0) || isNaN(to)) return;
+    const f = v => m[1] + (dec ? v.toFixed(dec) : Math.round(v).toLocaleString()) + m[3], t0 = performance.now();
+    const step = now=>{ const p = Math.min(1, (now-t0)/750), e = 1-Math.pow(1-p, 3); tn.nodeValue = f(to*e); if(p<1 && tn.isConnected) requestAnimationFrame(step); };
+    tn.nodeValue = f(0); requestAnimationFrame(step);
+  });
+}
+function growIn(el){ if(RM.matches || !el) return; el.classList.remove('grow'); void el.offsetWidth; el.classList.add('grow'); clearTimeout(el._gt); el._gt = setTimeout(()=>el.classList.remove('grow'), 1600); }
+// a page opens: its blocks settle in one after another, numbers count up, charts grow
+function enterView(sec){
+  if(RM.matches || !sec) return;
+  const items = [...sec.children].flatMap(c=>/\b(grid|queue|journal|cards)\b/.test(c.className) ? [...c.children] : [c]).slice(0,16);
+  items.forEach((el,i)=>{ el.style.animationDelay = (i*35)+'ms'; el.classList.add('enter-item'); });
+  growIn(sec); countUp(sec);
+}
+// before a re-render: where are the progress bars and the play-order items now?
+
+function snapMotion(){
+  const s = {bars:new Map(), pos:new Map()};
+  document.querySelectorAll(`#view-${state.view} [data-bar], #dlgDetail [data-bar]`).forEach(b=>{ if(!s.bars.has(b.dataset.bar)) s.bars.set(b.dataset.bar, b.style.width); });
+  document.querySelectorAll(`#view-${state.view} .queue > [data-id], #view-${state.view} .shelf[data-dnd] > [data-id]`).forEach(el=>s.pos.set(el.dataset.id, el.getBoundingClientRect()));
+  return s;
+}
+// after it: slide bars to their new length and items to their new place
+function playMotion(s){
+  if(!RM.matches && s){
+    document.querySelectorAll(`#view-${state.view} [data-bar], #dlgDetail [data-bar]`).forEach(b=>{ const old = s.bars.get(b.dataset.bar); if(old && old!==b.style.width) b.animate([{width:old},{width:b.style.width}], {duration:550, easing:'cubic-bezier(.32,.72,0,1)'}); });
+    document.querySelectorAll(`#view-${state.view} .queue > [data-id], #view-${state.view} .shelf[data-dnd] > [data-id]`).forEach(el=>{
+      const r0 = s.pos.get(el.dataset.id); if(!r0) return;
+      const r = el.getBoundingClientRect(), dx = r0.left-r.left, dy = r0.top-r.top;
+      if(Math.abs(dx)+Math.abs(dy) > 1) el.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:'none'}], {duration:380, easing:'cubic-bezier(.32,.72,0,1)'});
+    });
+  }
+  if(shineId && !RM.matches) document.querySelectorAll(`.cover.platcov[data-cover="${shineId}"]`).forEach(c=>{ c.classList.remove('shine'); void c.offsetWidth; c.classList.add('shine'); });
+  shineId = null;
+}
+function floatFrom(el, text){
+  if(RM.matches || !el) return;
+  const r = el.getBoundingClientRect(), f = document.createElement('span'); f.className = 'floatup'; f.textContent = text;
+  f.style.left = (r.left + r.width/2)+'px'; f.style.top = (r.top - 8)+'px'; document.body.appendChild(f); setTimeout(()=>f.remove(), 950);
+}
+// windows animate out too: close() waits for the slide-down, and opening again cancels it
+{
+  const P = HTMLDialogElement.prototype, close = P.close, show = P.showModal;
+  P.close = function(v){
+    if(!this.open || RM.matches || this.classList.contains('closing')) return close.call(this, v);
+    this.classList.add('closing');
+    clearTimeout(this._ct); this._ct = setTimeout(()=>{ if(this.classList.contains('closing')){ this.classList.remove('closing'); close.call(this, v); } }, matchMedia('(max-width:700px)').matches ? 250 : 190);
+  };
+  P.showModal = function(){ if(this.open && this.classList.contains('closing')){ this.classList.remove('closing'); clearTimeout(this._ct); return; } return show.call(this); };
+  document.addEventListener('cancel', e=>{ if(e.target.tagName==='DIALOG' && !RM.matches){ e.preventDefault(); e.target.close(); } }, true);
+  document.addEventListener('touchstart', ()=>{}, {passive:true});   // lets :active (the press) work on iPhone
+}
 function toast(msg, undo){
   const t = $('#toast'); t.innerHTML = esc(msg) + (undo ? ' <button class="toast-undo">Undo</button>' : '');
   if(undo) t.querySelector('button').onclick = ()=>{ t.classList.remove('show'); undo(); };
@@ -1375,8 +1514,8 @@ function columnChart(data,{h=200,color='--s1'}={}){
   data.forEach((d,i)=>{
     const bh = ih*d.value/max, x = pad.l + step*i + (step-bw)/2, y = pad.t+ih-bh;
     s += `<g data-tip="${esc(d.tip)}" opacity="${d.dim?0.3:1}"><rect x="${pad.l+step*i}" y="${pad.t}" width="${step}" height="${ih}" fill="transparent"/>`;
-    if(d.parts){ let yy = pad.t+ih; d.parts.forEach((p,pi)=>{ const ph = ih*p.value/max; if(ph<=0) return; yy -= ph; const top = pi===d.parts.length-1 || d.parts.slice(pi+1).every(q=>!q.value); s += top ? `<path d="${barTop(x,yy,bw,ph)}" fill="${cssVar(p.color)}"/>` : `<rect x="${x}" y="${yy}" width="${bw}" height="${Math.max(0,ph-2)}" fill="${cssVar(p.color)}" transform="translate(0,2)"/>`; }); }
-    else s += `<path d="${barTop(x,y,bw,bh)}" fill="${cssVar(color)}"/>`;
+    if(d.parts){ let yy = pad.t+ih; d.parts.forEach((p,pi)=>{ const ph = ih*p.value/max; if(ph<=0) return; yy -= ph; const top = pi===d.parts.length-1 || d.parts.slice(pi+1).every(q=>!q.value); s += top ? `<path class="bar" d="${barTop(x,yy,bw,ph)}" fill="${cssVar(p.color)}"/>` : `<rect class="bar" x="${x}" y="${yy}" width="${bw}" height="${Math.max(0,ph-2)}" fill="${cssVar(p.color)}" transform="translate(0,2)"/>`; }); }
+    else s += `<path class="bar" d="${barTop(x,y,bw,bh)}" fill="${cssVar(color)}"/>`;
     if(d.value>0) s += `<text class="val" x="${x+bw/2}" y="${y-6}" text-anchor="middle">${esc(d.show ?? d.value)}</text>`;
     s += `<text x="${x+bw/2}" y="${h-8}" text-anchor="middle">${esc(d.label)}</text></g>`;
   });
@@ -1440,6 +1579,7 @@ function renderWelcome(){
   $('#welcomeAdd').onclick = ()=>openForm(null);
 }
 function render(){
+  const ms = lastView===state.view ? snapMotion() : null;
   document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active', a.dataset.view===state.view));
   document.querySelectorAll('main > section').forEach(s=>s.classList.toggle('hidden', s.id!=='view-'+state.view));
   if($('#dlgDetail').open && byId(detailId)) openDetail(detailId);
@@ -1448,6 +1588,9 @@ function render(){
   $('#dlGames').innerHTML = [...new Set(db.games.map(g=>baseTitle(g)))].map(t=>`<option value="${esc(t)}">`).join('');
   const lb = localStorage.getItem(BACKUP_KEY);
   $('#saveNote').textContent = 'Everything is saved automatically in this browser. ' + (lb ? `Last backup: ${lb}.` : 'Tip: export a backup now and then.');
+  segIndicator($('nav'), 'nav');
+  document.querySelectorAll(`#view-${state.view} .chips`).forEach((c,i)=>segIndicator(c, state.view+'-'+i));
+  if(lastView!==state.view){ lastView = state.view; enterView($('#view-'+state.view)); } else playMotion(ms);
 }
 
 // ---------- small UI helpers (Apple style) ----------
@@ -1529,7 +1672,7 @@ function pairChart(rows, c1, c2, h=220){
   rows.forEach((r,i)=>{
     const cx = pad.l + step*i + step/2;
     s += `<g data-tip="${esc(r.tip)}"><rect x="${pad.l+step*i}" y="${pad.t}" width="${step}" height="${ih}" fill="transparent"/>`;
-    [[r.a,c1,-bw-2],[r.b,c2,2]].forEach(([v,c,dx])=>{ const bh = ih*v/max, x = cx+dx, y = pad.t+ih-bh; s += `<path d="${barTop(x,y,bw,bh)}" fill="${cssVar(c)}"/>`; if(v>0) s += `<text class="val" x="${x+bw/2}" y="${y-6}" text-anchor="middle">${Math.round(v)}</text>`; });
+    [[r.a,c1,-bw-2],[r.b,c2,2]].forEach(([v,c,dx])=>{ const bh = ih*v/max, x = cx+dx, y = pad.t+ih-bh; s += `<path class="bar" d="${barTop(x,y,bw,bh)}" fill="${cssVar(c)}"/>`; if(v>0) s += `<text class="val" x="${x+bw/2}" y="${y-6}" text-anchor="middle">${Math.round(v)}</text>`; });
     s += `<text x="${cx}" y="${h-8}" text-anchor="middle">${esc(r.label)}</text></g>`;
   });
   return s + '</svg>';
@@ -1888,7 +2031,7 @@ function openDetail(id){
   const journal = j && j.text ? `<div class="dj"><b>From your journal</b><div class="dj-t clamp">${esc(j.text)}</div>${j.text.length>220 ? '<button class="linkbtn dj-more">Read more</button>' : ''}</div>` : '';
 
   const sect = (title, body, link='') => `<section><div class="dh">${title}${link}</div>${body}</section>`;
-  const pbar = (p, c) => `<div class="dbar" style="--c:var(--${c})"><i style="width:${Math.max(2, Math.min(100, p))}%"></i></div>`;
+  const pbar = (p, c) => `<div class="dbar" style="--c:var(--${c})"><i data-bar="d-${g.id}" style="width:${Math.max(2, Math.min(100, p))}%"></i></div>`;
   const sesList = !ses.length ? '' : sect(`Sessions <span class="sub">${ses.length} logged · ${fmt1(sum(ses.map(s=>s.h)))}h</span>`,
       `<div class="dlist">${ses.slice(0,6).map(s=>`<div><span>${fmtDay(s.d)}</span><span><b>${fmtHM(s.h)}</b><button class="linkbtn x2" data-delsess="${s.id}" title="Remove this session" aria-label="Remove this session">✕</button></span></div>`).join('')}${ses.length>6?`<div class="sub">+ ${ses.length-6} earlier sessions</div>`:''}</div>`,
       `<button class="lnk" data-session="${g.id}">+ Log session</button>`);
@@ -1952,14 +2095,15 @@ function openDetail(id){
     ${strip.length ? `<div class="dstrip">${strip.map(([k,v,f,tc])=>`<div class="${tc||''}"><div class="k">${k}</div><div class="v">${v}</div><div class="f">${f||''}</div></div>`).join('')}</div>` : ''}
     ${body}
     <div class="dmore">${links}<button class="del" data-ddel>Delete</button></div>`;
-  if(!$('#dlgDetail').open) $('#dlgDetail').showModal();
-  if(!wasOpen) $('#dlgDetail').scrollTop = 0;
+  if(!$('#dlgDetail').open || $('#dlgDetail').classList.contains('closing')) $('#dlgDetail').showModal();
+  if(!wasOpen){ $('#dlgDetail').scrollTop = 0; growIn($('#detBody')); }
 }
 $('#dlgDetail').addEventListener('click', e=>{
   const b = e.target.closest('[data-dcover],[data-dreplay],[data-ddel],[data-dplat],.dj-more'); if(!b) return;
   if(b.hasAttribute('data-dplat')){
     const g = byId(detailId), before = structuredClone(db), v = b.dataset.dplat;
     g.platinum = v; g.platinumAt = v==='Yes' ? todayISO() : '';
+    if(v==='Yes') shineId = g.id;
     save(v==='Yes' ? `🏆 Platinum logged for ${g.title}` : v==='Hunting' ? 'Good luck with the hunt 🏆' : 'Saved', undoTo(before));
     return;
   }
@@ -2130,7 +2274,7 @@ function openForm(id, preset={}){
 }
 $('#gameForm').addEventListener('submit', e=>{
   e.preventDefault();
-  const form = e.target, out = {};
+  const form = e.target, out = {}, wasPlat = !!(editingId && byId(editingId) && hasPlat(byId(editingId)));
   FIELDS.filter(f=>f.k && f.type!=='yearhours').forEach(f=>{ const el = form.elements[f.k]; if(el.type==='checkbox'){ out[f.k] = el.checked; return; } const v = el.value.trim(); out[f.k] = NUM_FIELDS.has(f.k) ? (v===''?null:Math.round(parseFloat(v)*100)/100) : v; });
   if(!out.title){ form.elements.title.focus(); toast('Give the game a name first'); return; }
   for(const k of ['excitement','rating']) if(out[k]!=null && (out[k]<0||out[k]>10)){ form.elements[k].focus(); toast('Scores go from 0 to 10'); return; }
@@ -2155,6 +2299,7 @@ $('#gameForm').addEventListener('submit', e=>{
     if(j){ j.text = thoughts; j.game = g.title; j.gameId = g.id; }
     else db.journal.unshift({id:uid('j'), game:g.title, gameId:g.id, text:thoughts, date:new Date().toISOString().slice(0,10)});
   } else if(j && j.gameId===g.id){ db.journal = db.journal.filter(x=>x!==j); }
+  if(!wasPlat && hasPlat(g)) shineId = g.id;
   $('#dlgForm').close();
   save(editingId ? 'Saved changes' : `Logged ${g.title} 🎉`);
   if(!g.cover) queueCovers([g]);
@@ -2742,7 +2887,7 @@ function goalsCard(y, D){
   }
   const R = [58, 43, 28];
   const rings = `<svg class="rings" viewBox="0 0 136 136" aria-hidden="true">${rows.map((r,i)=>{ const rad = R[i], C = 2*Math.PI*rad, p = Math.max(0, Math.min(1, r.fill||0));
-    return `<circle cx="68" cy="68" r="${rad}" style="stroke:color-mix(in srgb,var(--${r.c}) 20%,transparent)"/>${p>0.002?`<circle cx="68" cy="68" r="${rad}" transform="rotate(-90 68 68)" style="stroke:var(--${r.c})" stroke-dasharray="${C*p} ${C}"/>`:''}`; }).join('')}</svg>`;
+    return `<circle cx="68" cy="68" r="${rad}" style="stroke:color-mix(in srgb,var(--${r.c}) 20%,transparent)"/>${p>0.002?`<circle cx="68" cy="68" r="${rad}" transform="rotate(-90 68 68)" class="rg" style="stroke:var(--${r.c});--len:${C*p}" stroke-dasharray="${C*p} ${C}"/>`:''}`; }).join('')}</svg>`;
   const sub = y===THIS_YEAR ? `${Math.round(frac*100)}% of the year gone` : y < THIS_YEAR ? 'How the year ended' : '';
   return sect(12, `${y} Goals`, sub, `<div class="goals">${rings}<div class="goal-rows">${rows.map(r=>`<div class="goal-row" style="--c:var(--${r.c})"><span class="dot"></span><span class="nm">${r.nm}</span><span class="v">${r.v}</span><span class="ln">${r.ln}</span></div>`).join('')}</div></div>`,
     {link:`<button class="lnk" data-act="goals" data-y="${y}">Edit</button>`});
@@ -2849,7 +2994,7 @@ document.addEventListener('click', e=>{
   if(d.showedit){ openShow(d.showedit); return; }
   if(d.showpick){ addShowFromTvmaze(+d.showpick); return; }
   if(d.addshow!==undefined){ openShowSearch(); return; }
-  if(d.plushour){ const g = byId(d.plushour); logSession(g, todayISO(), 1); save(`+1h ${g.title} today`); return; }
+  if(d.plushour){ const g = byId(d.plushour); floatFrom(t, '+1h'); logSession(g, todayISO(), 1); save(`+1h ${g.title} today`); return; }
   if(d.session!==undefined){ openSession(d.session); return; }
   if(d.delsess){ const g = byId(detailId), before = structuredClone(db); removeSession(g, d.delsess); save('Session removed', undoTo(before, 'Session restored')); openDetail(g.id); return; }
   if(d.day){ const e = sessionDays().get(d.day); toast(e ? `${dayName(d.day)}: ${fmtHM(e.h)} · ${dayGames(e).map(([t,h])=>`${t} ${fmtHM(h)}`).join(', ')}` : `${dayName(d.day)}: nothing logged`); return; }

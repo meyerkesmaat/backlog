@@ -623,6 +623,21 @@ nav a .ni{transition:transform .2s var(--spring)}nav a:active .ni{transform:scal
 .cover.shine .platrib::after{animation:sheen 1s .2s ease}
 @keyframes sheen{to{transform:translateX(120%)}}
 @keyframes pop{40%{transform:scale(1.06)}}
+/* phone: windows use the full width (the desktop widths above are set by id, so they need repeating here) */
+@media (max-width:700px){
+  dialog,#dlgDetail,#dlgGoals,#dlgPick,#dlgScan,#dlgSession{width:100vw;max-width:100vw}
+  /* iOS-style floating glass tab bar with a bubble that slides to the tab you tap */
+  nav{left:14px;right:14px;bottom:calc(8px + env(safe-area-inset-bottom));padding:5px;border-radius:999px;border-top:0;
+    background:color-mix(in srgb,var(--surface) 58%,transparent);backdrop-filter:saturate(190%) blur(24px);-webkit-backdrop-filter:saturate(190%) blur(24px);
+    box-shadow:0 10px 30px rgba(0,0,0,.14),0 1px 3px rgba(0,0,0,.08),inset 0 0 0 .5px rgba(255,255,255,.6),inset 0 1px 0 rgba(255,255,255,.7)}
+  nav a{padding:6px 2px 5px;border-radius:999px;color:var(--text)}
+  nav a.active,nav a:hover{color:var(--accent)}
+  nav .segi{display:block;border-radius:999px;background:rgba(120,120,128,.14);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.7),inset 0 1px 1px rgba(255,255,255,.8),0 1px 4px rgba(0,0,0,.06);transition:transform .45s var(--spring),width .45s var(--spring),height .45s var(--spring)}
+  nav a.active .ni{animation:none}
+  .fab{bottom:calc(84px + env(safe-area-inset-bottom))}
+}
+@media (max-width:700px){:root:not([data-theme="light"]) nav{box-shadow:0 10px 30px rgba(0,0,0,.4),inset 0 0 0 .5px rgba(255,255,255,.14),inset 0 1px 0 rgba(255,255,255,.12)}
+  :root:not([data-theme="light"]) nav .segi{background:rgba(255,255,255,.13);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.18),inset 0 1px 1px rgba(255,255,255,.14)}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 .hidden{display:none!important}
 .hb2{display:grid;grid-template-columns:minmax(0,150px) 1fr minmax(96px,auto);gap:10px;align-items:center;padding:6px 0;font-size:14px}
@@ -667,7 +682,7 @@ nav a .ni{transition:transform .2s var(--spring)}nav a:active .ni{transform:scal
       <div class="swatches" id="swatches"></div>
       <hr>
       <p id="saveNote">Everything is saved automatically in this browser.</p>
-      <p style="opacity:.7">Version 2026-11-27 15:41</p>
+      <p style="opacity:.7">Version 2026-11-27 15:52</p>
     </div>
   </details>
   <input type="file" id="fileImport" accept=".json,application/json" class="hidden">
@@ -1146,7 +1161,10 @@ function segIndicator(box, key){
   const pos = [on.offsetLeft, on.offsetTop, on.offsetWidth, on.offsetHeight], prev = SEG_POS[key];
   const set = ([x,y,w,h]) => { ind.style.transform = `translate(${x}px,${y}px)`; ind.style.width = w+'px'; ind.style.height = h+'px'; };
   if(fresh){ ind.style.transition = 'none'; set(prev || pos); void ind.offsetWidth; ind.style.transition = ''; }
-  set(pos); SEG_POS[key] = pos;
+  set(pos);
+  // the tab bar bubble squishes a little while it slides, like iOS liquid glass
+  if(!fresh && prev && key==='nav' && prev[0]!==pos[0] && !RM.matches) ind.animate([{scale:'1 1'},{scale:'1.12 .9', offset:.35},{scale:'1 1'}], {duration:460, easing:'ease-out'});
+  SEG_POS[key] = pos;
 }
 // big numbers count up from 0 when a page opens
 const THOU = (1000).toLocaleString().replace(/\d/g,'');
@@ -1163,6 +1181,7 @@ function countUp(root){
     tn.nodeValue = f(0); requestAnimationFrame(step);
   });
 }
+addEventListener('resize', ()=>{ segIndicator($('nav'), 'nav'); document.querySelectorAll('#view-'+state.view+' .chips').forEach((c,i)=>segIndicator(c, state.view+'-'+i)); });
 function growIn(el){ if(RM.matches || !el) return; el.classList.remove('grow'); void el.offsetWidth; el.classList.add('grow'); clearTimeout(el._gt); el._gt = setTimeout(()=>el.classList.remove('grow'), 1600); }
 // a page opens: its blocks settle in one after another, numbers count up, charts grow
 function enterView(sec){

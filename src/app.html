@@ -618,6 +618,8 @@ nav a .ni{transition:transform .2s var(--spring)}nav a:active .ni{transform:scal
 .cover.shine .platrib::after{animation:sheen 1s .2s ease}
 @keyframes sheen{to{transform:translateX(120%)}}
 @keyframes pop{40%{transform:scale(1.06)}}
+/* phone: a grab handle shows the window can be swiped down */
+@media (max-width:700px){dialog[open]::before{content:"";position:fixed;z-index:10;top:calc(6px + env(safe-area-inset-top));left:50%;width:38px;height:5px;margin-left:-19px;border-radius:3px;background:color-mix(in srgb,var(--muted) 45%,transparent);pointer-events:none}}
 /* phone: windows use the full width (the desktop widths above are set by id, so they need repeating here) */
 @media (max-width:700px){
   dialog,#dlgDetail,#dlgGoals,#dlgPick,#dlgScan,#dlgSession{width:100vw;max-width:100vw}
@@ -1214,14 +1216,60 @@ function floatFrom(el, text){
 // windows animate out too: close() waits for the slide-down, and opening again cancels it
 {
   const P = HTMLDialogElement.prototype, close = P.close, show = P.showModal;
+  P._closeNow = close;
   P.close = function(v){
     if(!this.open || RM.matches || this.classList.contains('closing')) return close.call(this, v);
     this.classList.add('closing');
     clearTimeout(this._ct); this._ct = setTimeout(()=>{ if(this.classList.contains('closing')){ this.classList.remove('closing'); close.call(this, v); } }, matchMedia('(max-width:700px)').matches ? 250 : 190);
   };
-  P.showModal = function(){ if(this.open && this.classList.contains('closing')){ this.classList.remove('closing'); clearTimeout(this._ct); return; } return show.call(this); };
+  P.showModal = function(){ delete this.dataset.dirty; if(this.open && this.classList.contains('closing')){ this.classList.remove('closing'); clearTimeout(this._ct); return; } return show.call(this); };
   document.addEventListener('cancel', e=>{ if(e.target.tagName==='DIALOG' && !RM.matches){ e.preventDefault(); e.target.close(); } }, true);
   document.addEventListener('touchstart', ()=>{}, {passive:true});   // lets :active (the press) work on iPhone
+}
+// phone: swipe a window down to close it, like an iOS sheet. Works when the window is scrolled to the top.
+{
+  const phone = matchMedia('(max-width:700px)');
+  let d = null, y0 = 0, x0 = 0, t0 = 0, dy = 0, mode = null;
+  const scrolledDown = el => { for(let n = el; n && n!==d.parentNode; n = n.parentElement) if(n.scrollTop > 0) return true; return false; };
+  const settle = (el, close) => {
+    if(close){
+      el.style.transition = 'transform .22s cubic-bezier(.4,0,1,1)'; el.style.transform = 'translateY(100%)';
+      setTimeout(()=>{ el._closeNow(); el.style.transition = ''; el.style.transform = ''; }, 220);
+    } else {
+      el.style.transition = 'transform .4s var(--spring)'; el.style.transform = '';
+      setTimeout(()=>{ el.style.transition = ''; }, 420);
+    }
+  };
+  document.addEventListener('input', e=>{ const dl = e.target.closest?.('dialog'); if(dl) dl.dataset.dirty = '1'; }, true);
+  document.addEventListener('touchstart', e=>{
+    d = null;
+    if(!phone.matches || e.touches.length>1) return;
+    const dl = e.target.closest('dialog[open]'); if(!dl || dl.classList.contains('closing')) return;
+    d = dl; y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; t0 = performance.now(); dy = 0; mode = null;
+  }, {passive:true});
+  document.addEventListener('touchmove', e=>{
+    if(!d) return;
+    const my = e.touches[0].clientY - y0, mx = e.touches[0].clientX - x0;
+    if(!mode){
+      if(Math.abs(my) < 6 && Math.abs(mx) < 6) return;
+      mode = my > 0 && Math.abs(my) > Math.abs(mx) && !scrolledDown(e.target) ? 'drag' : 'none';
+      if(mode==='drag'){ d.style.transition = 'none'; t0 = performance.now(); y0 = e.touches[0].clientY; }
+    }
+    if(mode!=='drag') return;
+    e.preventDefault();
+    dy = Math.max(0, e.touches[0].clientY - y0);
+    d.style.transform = `translateY(${dy}px)`;
+  }, {passive:false});
+  const end = cancel => {
+    if(!d) return; const el = d; d = null;
+    if(mode!=='drag') return;
+    const v = dy / Math.max(1, performance.now() - t0);
+    let close = !cancel && (dy > 110 || (v > 0.5 && dy > 30));
+    if(close && el.dataset.dirty && el.querySelector('form') && !confirm('Close without saving your changes?')) close = false;
+    settle(el, close);
+  };
+  document.addEventListener('touchend', ()=>end(false));
+  document.addEventListener('touchcancel', ()=>end(true));
 }
 function toast(msg, undo){
   const t = $('#toast'); t.innerHTML = esc(msg) + (undo ? ' <button class="toast-undo">Undo</button>' : '');

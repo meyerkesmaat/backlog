@@ -44,7 +44,8 @@ self.addEventListener('fetch', e=>{
   const req = e.request; if(req.method!=='GET') return;
   const url = new URL(req.url);
   if(url.origin===location.origin){
-    e.respondWith(fetch(req).then(r=>{ const cp = r.clone(); caches.open(CACHE).then(c=>c.put(req,cp)); return r; })
+    const fresh = req.mode==='navigate' ? fetch(req.url, {cache:'no-cache', credentials:'same-origin'}) : fetch(req, {cache:'no-cache'});
+    e.respondWith(fresh.then(r=>{ const cp = r.clone(); caches.open(CACHE).then(c=>c.put(req,cp)); return r; })
       .catch(()=>caches.match(req).then(r=>r || caches.match('index.html'))));
   } else if(req.destination==='image'){
     e.respondWith(caches.open(IMG).then(c=>c.match(req).then(hit=>hit || fetch(req).then(r=>{ c.put(req,r.clone()); return r; }))));

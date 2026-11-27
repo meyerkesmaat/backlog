@@ -682,7 +682,7 @@ nav a .ni{transition:transform .2s var(--spring)}nav a:active .ni{transform:scal
       <div class="swatches" id="swatches"></div>
       <hr>
       <p id="saveNote">Everything is saved automatically in this browser.</p>
-      <p style="opacity:.7">Version 2026-11-27 15:52</p>
+      <p style="opacity:.7">Version 2026-11-27 15:55</p>
     </div>
   </details>
   <input type="file" id="fileImport" accept=".json,application/json" class="hidden">
@@ -3264,7 +3264,20 @@ takeSnapshot();
 showSyncStatus();
 if(syncCfg().token) syncNow(true);
 // offline support + home-screen app when hosted (not when opened as a local file)
-if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator && location.protocol==='https:'){
+  const hadSW = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js', {updateViaCache:'none'}).then(reg=>{
+    reg.update().catch(()=>{});
+    document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') reg.update().catch(()=>{}); });
+  }).catch(()=>{});
+  // a new version took over: reload into it, but never while a window or menu is open
+  navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+    if(!hadSW) return;
+    const busy = () => !!document.querySelector('dialog[open]') || $('#dataMenu').open;
+    const go = () => { if(busy()) return setTimeout(go, 2000); if(syncTimer) syncNow(true).finally(()=>location.reload()); else location.reload(); };
+    go();
+  });
+}
 $('#logo').addEventListener('click', e=>{ if(state.view==='dashboard'){ e.preventDefault(); state.dashYear='all'; render(); scrollTo({top:0,behavior:'smooth'}); } });
 route();
 queueCovers(db.games.filter(g=>!g.cover && !g.coverTried));

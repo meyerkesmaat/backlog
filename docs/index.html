@@ -640,6 +640,61 @@ nav a .ni{transition:transform .2s var(--spring)}nav a:active .ni{transform:scal
 }
 @media (max-width:700px){:root:not([data-theme="light"]) nav{box-shadow:0 10px 30px rgba(0,0,0,.4),inset 0 0 0 .5px rgba(255,255,255,.14),inset 0 1px 0 rgba(255,255,255,.12)}
   :root:not([data-theme="light"]) nav .segi{background:rgba(255,255,255,.13);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.18),inset 0 1px 1px rgba(255,255,255,.14)}}
+/* ---------- iOS 26 style glass: only for what floats above the content (bars, buttons, menus, window edges) ---------- */
+:root{--glass:rgba(42,42,46,.5);--glass-edge:rgba(255,255,255,.14);--glass-hi:rgba(255,255,255,.16);--glass-sh:0 8px 28px rgba(0,0,0,.45);--bubble:rgba(255,255,255,.13);--glass-blur:blur(16px) saturate(190%)}
+:root[data-theme="light"]{--glass:rgba(255,255,255,.52);--glass-edge:rgba(255,255,255,.65);--glass-hi:rgba(255,255,255,.88);--glass-sh:0 8px 28px rgba(0,0,0,.12);--bubble:rgba(120,120,128,.15)}
+header .logo,#dataMenu>summary,.menu-pop,#toast,#tip,.det-xw .icon-btn,.dlg-head .icon-btn,.chips,nav{
+  background:var(--glass);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border:0;
+  box-shadow:var(--glass-sh),inset 0 0 0 .5px var(--glass-edge),inset 0 1px 0 var(--glass-hi)}
+/* 1 + 8. top bar: no solid strip; the pieces float, the page fades out underneath */
+header{background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;border-bottom:0}
+header::before{content:"";position:absolute;left:0;right:0;top:0;bottom:-26px;background:linear-gradient(var(--bg) 38%,color-mix(in srgb,var(--bg) 0%,transparent));z-index:-1;pointer-events:none}
+header .logo{padding:8px 14px;margin-left:0;border-radius:999px}
+#dataMenu>summary{width:40px;height:40px}
+nav{border-radius:999px;padding:4px}
+nav a{border-radius:999px}
+nav .segi,.chips .segi{border-radius:999px;background:var(--bubble);box-shadow:inset 0 0 0 .5px var(--glass-edge),inset 0 1px 1px var(--glass-hi),0 1px 4px rgba(0,0,0,.06)}
+#btnLog,.fab{background:color-mix(in srgb,var(--accent) 80%,transparent);-webkit-backdrop-filter:blur(12px) saturate(180%);backdrop-filter:blur(12px) saturate(180%);
+  box-shadow:0 6px 20px color-mix(in srgb,var(--accent) 38%,transparent),inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 0 .5px rgba(255,255,255,.3)}
+/* 2. the ••• menu */
+.menu-pop{border-radius:24px;padding:8px;--glass:color-mix(in srgb,var(--surface) 70%,transparent)}
+.menu-pop button{border-radius:12px}
+.menu-pop button:hover{background:color-mix(in srgb,var(--text) 6%,transparent)}
+/* 3. segmented controls: glass capsule, glass bubble */
+.chips{border-radius:999px;padding:3px;box-shadow:inset 0 0 0 .5px var(--glass-edge),inset 0 1px 0 var(--glass-hi),0 1px 3px rgba(0,0,0,.06);--glass:color-mix(in srgb,var(--fill2) 55%,transparent)}
+.chip{border-radius:999px}
+.chip.on{background:var(--bubble);box-shadow:inset 0 0 0 .5px var(--glass-edge),inset 0 1px 1px var(--glass-hi)}
+/* 5. messages */
+#toast{--glass:color-mix(in srgb,var(--surface) 62%,transparent)}
+/* 9. chart tooltips */
+#tip{border-radius:14px;--glass:color-mix(in srgb,var(--surface) 72%,transparent)}
+/* 7. windows: glass close button, a soft glow of the cover behind the top of the game window */
+.det-xw .icon-btn,.dlg-head .icon-btn{width:34px;height:34px;color:var(--text)}
+#detBody{position:relative}
+.dglow{position:absolute;left:0;right:0;top:0;height:300px;overflow:hidden;pointer-events:none;-webkit-mask-image:linear-gradient(#000 35%,transparent);mask-image:linear-gradient(#000 35%,transparent)}
+.dglow i{position:absolute;inset:-60px;background:center/cover;filter:blur(40px) saturate(1.7);opacity:.42}
+:root:not([data-theme="light"]) .dglow i{opacity:.32}
+.dtop,.dstrip{position:relative}
+@media (max-width:700px){
+  header{background:transparent}
+  header .logo{padding:7px 13px}
+  #dataMenu>summary{width:40px;height:40px}
+  .det-xw .icon-btn{width:40px;height:40px;margin-right:12px}
+  /* the buttons at the bottom of a window float in a glass bar */
+  .dlg-foot{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom));margin:10px 12px;padding:6px;border-radius:26px;border-top:0;
+    background:var(--glass);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);box-shadow:var(--glass-sh),inset 0 0 0 .5px var(--glass-edge),inset 0 1px 0 var(--glass-hi)}
+  .dlg-foot .btn:not(.primary){background:transparent}
+  /* windows fill the screen, so the glass button bar sits at the bottom even when the form is short */
+  dialog[open]{display:flex;flex-direction:column}
+  dialog[open]>*{flex-shrink:0}
+  dialog>form{flex:1 0 auto;display:flex;flex-direction:column}
+  .dlg-body{flex:1 0 auto}
+  .dmore{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom));margin:10px 12px calc(10px + env(safe-area-inset-bottom));padding:12px 18px;border-radius:24px;justify-content:space-between;
+    background:var(--glass);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);box-shadow:var(--glass-sh),inset 0 0 0 .5px var(--glass-edge),inset 0 1px 0 var(--glass-hi)}
+  .dmore .del{margin-left:0}
+}
+/* if the phone asks for less transparency, keep things solid */
+@media (prefers-reduced-transparency: reduce){:root{--glass:var(--surface)!important}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 .hidden{display:none!important}
 .hb2{display:grid;grid-template-columns:minmax(0,150px) 1fr minmax(96px,auto);gap:10px;align-items:center;padding:6px 0;font-size:14px}
@@ -684,7 +739,7 @@ nav a .ni{transition:transform .2s var(--spring)}nav a:active .ni{transform:scal
       <div class="swatches" id="swatches"></div>
       <hr>
       <p id="saveNote">Everything is saved automatically in this browser.</p>
-      <p style="opacity:.7">Version 2026-11-27 15:59</p>
+      <p style="opacity:.7">Version 2026-11-27 16:12</p>
     </div>
   </details>
   <input type="file" id="fileImport" accept=".json,application/json" class="hidden">
@@ -1184,6 +1239,7 @@ function countUp(root){
   });
 }
 addEventListener('resize', ()=>{ segIndicator($('nav'), 'nav'); document.querySelectorAll('#view-'+state.view+' .chips').forEach((c,i)=>segIndicator(c, state.view+'-'+i)); });
+document.fonts?.ready.then(()=>segIndicator(document.querySelector('nav'), 'nav'));
 function growIn(el){ if(RM.matches || !el) return; el.classList.remove('grow'); void el.offsetWidth; el.classList.add('grow'); clearTimeout(el._gt); el._gt = setTimeout(()=>el.classList.remove('grow'), 1600); }
 // a page opens: its blocks settle in one after another, numbers count up, charts grow
 function enterView(sec){
@@ -2155,7 +2211,7 @@ function openDetail(id){
   const links = [...huntLink, ['data-dcover', '🖼 Change cover'], ['data-dreplay', '↺ Play again', mode==='done'], ['data-edit="'+g.id+'"', 'Edit everything', mode!=='done'], ['data-drop="'+g.id+'"', 'Drop', !['Dropped','Completed'].includes(st) && !rec]]
     .filter(l=>l[2]!==false).map(([a,l])=>`<button ${a}>${l}</button>`).join('');
 
-  $('#detBody').innerHTML = `
+  $('#detBody').innerHTML = `${g.cover ? `<div class="dglow" aria-hidden="true"><i style="background-image:url('${esc(g.cover)}')"></i></div>` : ''}
     <div class="dtop">${cover(g,'det')}<div class="dtt"><h2>${esc(g.title)}</h2><div class="sub">${[g.platform, (g.genre||'').split(',')[0].trim()].filter(Boolean).map(esc).join(' · ') || yearSpan(g)}</div>
       <div class="dbadges">${gameBadge(g)}${hasPlat(g) ? '<span class="badge platbg">🏆 Platinum</span>' : hunting(g) ? `<span class="badge hunt">${trophyKind(g)==='plat' ? '🏆 Going for the platinum' : '🏅 Going for all achievements'}</span>` : ''}${replayTag(g)}${g.label ? `<span class="badge" style="--c:var(--purple)">${esc(g.label)}</span>` : ''}</div>
       <div class="dacts">${main}${editBtn}</div></div></div>
